@@ -1,0 +1,32 @@
+----------------------------------------
+	Netty Handlerstack
+----------------------------------------
+
+
+----------------------------------------
+CONTACT
+----------------------------------------
+
+
+
+----------------------------------------
+INSTALLATION / BUILDING
+----------------------------------------
+No installation is required. To build fabric, you need Java 6 and 
+Maven (http://maven.apache.org/). 
+
+To build, run "mvn install", this will build fabric and place the 
+generated jar file in target/ and in your local Maven repository.  
+
+----------------------------------------
+USAGE
+----------------------------------------
+
+	java -jar target/XXXXXX.jar --help
+
+----------------------------------------
+LICENSE
+----------------------------------------
+This project is licenced under a BSD license. For details, 
+see src/etc/license-header.txt
+
