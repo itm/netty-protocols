@@ -35,7 +35,7 @@ public class HandlerStack {
         }
         
         if (clientChannel != null) {
-            serverChannel.disconnect().awaitUninterruptibly();
+            clientChannel.disconnect().awaitUninterruptibly();
         }
 
         // Modify the handler stack and add the leftHandler on top
