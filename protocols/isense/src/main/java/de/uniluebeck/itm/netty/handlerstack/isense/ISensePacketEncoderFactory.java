@@ -20,7 +20,7 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package de.uniluebeck.itm.nettyrxtx.isense;
+package de.uniluebeck.itm.netty.handlerstack.isense;
 
 import org.jboss.netty.channel.ChannelHandler;
 
@@ -28,11 +28,11 @@ import com.google.common.collect.Multimap;
 
 import de.uniluebeck.itm.netty.handlerstack.HandlerFactory;
 
-public class ISensePacketDecoderFactory implements HandlerFactory {
+public class ISensePacketEncoderFactory implements HandlerFactory {
 
     @Override
     public String getName() {
-        return "isense-packet-decoder";
+        return "isense-packet-encoder";
     }
 
     @Override
@@ -42,7 +42,7 @@ public class ISensePacketDecoderFactory implements HandlerFactory {
 
     @Override
     public ChannelHandler create(Multimap<String, String> properties) throws Exception {
-        return new ISensePacketDecoder(); 
+        return new ISensePacketEncoder();
     }
 
 }

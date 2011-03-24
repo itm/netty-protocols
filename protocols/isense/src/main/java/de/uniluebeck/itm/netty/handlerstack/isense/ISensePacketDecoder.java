@@ -20,29 +20,35 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package de.uniluebeck.itm.nettyrxtx.dlestxetx;
+package de.uniluebeck.itm.netty.handlerstack.isense;
 
-import org.jboss.netty.channel.ChannelHandler;
+import org.jboss.netty.buffer.ChannelBuffer;
+import org.jboss.netty.channel.Channel;
+import org.jboss.netty.channel.ChannelHandlerContext;
+import org.jboss.netty.handler.codec.oneone.OneToOneDecoder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.Multimap;
+public class ISensePacketDecoder extends OneToOneDecoder {
 
-import de.uniluebeck.itm.netty.handlerstack.HandlerFactory;
+    private static final Logger log = LoggerFactory.getLogger(ISensePacketDecoder.class);
 
-
-public class DleStxEtxFramingEncoderFactory implements HandlerFactory {
-
-    @Override
-    public String getName() {
-        return "dlestxetx-framing-encoder";
+    /**
+     * Package-private constructor for creation via factory only
+     */
+    ISensePacketDecoder() {
     }
 
     @Override
-    public String getDescription() {
-        return "";
-    }
+    protected Object decode(final ChannelHandlerContext ctx, final Channel channel, final Object msg) throws Exception {
 
-    @Override
-    public ChannelHandler create(Multimap<String, String> properties) throws Exception {
-        return new DleStxEtxFramingEncoder();
+        if (!(msg instanceof ChannelBuffer)) {
+            return msg;
+        }
+
+        ChannelBuffer buffer = (ChannelBuffer) msg;
+        ISensePacket iSensePacket = new ISensePacket(buffer);
+        log.trace("[{}] Decoded ISensePacket: {}", ctx.getName(), iSensePacket);
+        return iSensePacket;
     }
 }

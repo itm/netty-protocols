@@ -20,19 +20,35 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package de.uniluebeck.itm.nettyrxtx.dlestxetx;
+package de.uniluebeck.itm.netty.handlerstack.dlestxetx;
 
+import com.google.common.primitives.Bytes;
 
-public class DleStxEtxConstants {
+import de.uniluebeck.itm.netty.handlerstack.dlestxetx.DleStxEtxConstants;
+import de.uniluebeck.itm.netty.handlerstack.dlestxetx.DleStxEtxFramingEncoder;
 
-	public static final byte DLE = 0x10;
+import org.jboss.netty.buffer.ChannelBuffer;
+import org.jboss.netty.buffer.ChannelBuffers;
+import org.jboss.netty.handler.codec.embedder.EncoderEmbedder;
+import org.junit.Test;
 
-	public static final byte STX = 0x02;
+import static org.junit.Assert.assertArrayEquals;
 
-	public static final byte ETX = 0x03;
+public class DleStxEtxFramingEncoderTest {
 
-	public static final byte[] DLE_STX = new byte[] { DLE, STX };
+	@Test
+	public void testEncoding() {
 
-	public static final byte[] DLE_ETX = new byte[] { DLE, ETX };
+		byte[] payloadBytes = "hello, world".getBytes();
+
+		EncoderEmbedder<ChannelBuffer> embedder = new EncoderEmbedder<ChannelBuffer>(new DleStxEtxFramingEncoder());
+		embedder.offer(ChannelBuffers.wrappedBuffer(payloadBytes));
+
+		ChannelBuffer encodedBuffer = embedder.poll();
+		byte[] encodedBytes = new byte[encodedBuffer.readableBytes()];
+		encodedBuffer.readBytes(encodedBytes);
+
+		assertArrayEquals(Bytes.concat(DleStxEtxConstants.DLE_STX, payloadBytes, DleStxEtxConstants.DLE_ETX), encodedBytes);
+	}
 
 }

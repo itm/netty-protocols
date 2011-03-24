@@ -20,31 +20,29 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package de.uniluebeck.itm.nettyrxtx.dlestxetx;
+package de.uniluebeck.itm.netty.handlerstack.dlestxetx;
 
-import com.google.common.primitives.Bytes;
-import org.jboss.netty.buffer.ChannelBuffer;
-import org.jboss.netty.buffer.ChannelBuffers;
-import org.jboss.netty.handler.codec.embedder.EncoderEmbedder;
-import org.junit.Test;
+import org.jboss.netty.channel.ChannelHandler;
 
-import static org.junit.Assert.assertArrayEquals;
+import com.google.common.collect.Multimap;
 
-public class DleStxEtxFramingEncoderTest {
+import de.uniluebeck.itm.netty.handlerstack.HandlerFactory;
 
-	@Test
-	public void testEncoding() {
 
-		byte[] payloadBytes = "hello, world".getBytes();
+public class DleStxEtxFramingDecoderFactory implements HandlerFactory {
 
-		EncoderEmbedder<ChannelBuffer> embedder = new EncoderEmbedder<ChannelBuffer>(new DleStxEtxFramingEncoder());
-		embedder.offer(ChannelBuffers.wrappedBuffer(payloadBytes));
+    @Override
+    public String getName() {
+        return "dlestxetx-framing-decoder";
+    }
 
-		ChannelBuffer encodedBuffer = embedder.poll();
-		byte[] encodedBytes = new byte[encodedBuffer.readableBytes()];
-		encodedBuffer.readBytes(encodedBytes);
+    @Override
+    public String getDescription() {
+        return "TODO"; //TODO Add description
+    }
 
-		assertArrayEquals(Bytes.concat(DleStxEtxConstants.DLE_STX, payloadBytes, DleStxEtxConstants.DLE_ETX), encodedBytes);
-	}
-
+    @Override
+    public ChannelHandler create(Multimap<String, String> properties) throws Exception {
+        return new DleStxEtxFramingDecoder();
+    }
 }

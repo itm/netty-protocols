@@ -20,7 +20,7 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package de.uniluebeck.itm.nettyrxtx.dlestxetx;
+package de.uniluebeck.itm.netty.handlerstack.dlestxetx;
 
 import org.jboss.netty.channel.ChannelHandler;
 
@@ -29,20 +29,20 @@ import com.google.common.collect.Multimap;
 import de.uniluebeck.itm.netty.handlerstack.HandlerFactory;
 
 
-public class DleStxEtxFramingDecoderFactory implements HandlerFactory {
+public class DleStxEtxFramingEncoderFactory implements HandlerFactory {
 
     @Override
     public String getName() {
-        return "dlestxetx-framing-decoder";
+        return "dlestxetx-framing-encoder";
     }
 
     @Override
     public String getDescription() {
-        return "TODO"; //TODO Add description
+        return "";
     }
 
     @Override
     public ChannelHandler create(Multimap<String, String> properties) throws Exception {
-        return new DleStxEtxFramingDecoder();
+        return new DleStxEtxFramingEncoder();
     }
 }

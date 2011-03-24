@@ -20,35 +20,51 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package de.uniluebeck.itm.nettyrxtx.isense;
+package de.uniluebeck.itm.netty.handlerstack.dlestxetx;
 
 import org.jboss.netty.buffer.ChannelBuffer;
+import org.jboss.netty.buffer.ChannelBuffers;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelHandlerContext;
-import org.jboss.netty.handler.codec.oneone.OneToOneDecoder;
+import org.jboss.netty.handler.codec.oneone.OneToOneEncoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ISensePacketDecoder extends OneToOneDecoder {
+import de.uniluebeck.itm.tr.util.StringUtils;
 
-    private static final Logger log = LoggerFactory.getLogger(ISensePacketDecoder.class);
+public class DleStxEtxFramingEncoder extends OneToOneEncoder {
+
+    private static final Logger log = LoggerFactory.getLogger(DleStxEtxFramingEncoder.class);
 
     /**
      * Package-private constructor for creation via factory only
      */
-    ISensePacketDecoder() {
+    DleStxEtxFramingEncoder() {
     }
 
     @Override
-    protected Object decode(final ChannelHandlerContext ctx, final Channel channel, final Object msg) throws Exception {
+    protected Object encode(final ChannelHandlerContext ctx, final Channel channel, final Object msg) throws Exception {
 
         if (!(msg instanceof ChannelBuffer)) {
             return msg;
         }
 
         ChannelBuffer buffer = (ChannelBuffer) msg;
-        ISensePacket iSensePacket = new ISensePacket(buffer);
-        log.trace("[{}] Decoded ISensePacket: {}", ctx.getName(), iSensePacket);
-        return iSensePacket;
+        ChannelBuffer packet = ChannelBuffers.dynamicBuffer(buffer.readableBytes() + 4);
+        packet.writeBytes(DleStxEtxConstants.DLE_STX);
+        for (int i = buffer.readerIndex(); i < (buffer.readerIndex() + buffer.readableBytes()); i++) {
+            byte b = buffer.getByte(i);
+            if (b == DleStxEtxConstants.DLE) {
+                packet.writeByte(DleStxEtxConstants.DLE);
+            }
+            packet.writeByte(b);
+        }
+        packet.writeBytes(DleStxEtxConstants.DLE_ETX);
+
+        if (log.isTraceEnabled()) {
+            log.trace("[{}] Encoded buffer: {}", ctx.getName(), StringUtils.toHexString(packet.toByteBuffer().array()));
+        }
+
+        return packet;
     }
 }

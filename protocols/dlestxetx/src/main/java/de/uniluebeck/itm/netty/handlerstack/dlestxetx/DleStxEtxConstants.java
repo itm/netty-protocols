@@ -20,29 +20,19 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package de.uniluebeck.itm.nettyrxtx.isense;
+package de.uniluebeck.itm.netty.handlerstack.dlestxetx;
 
-import org.jboss.netty.channel.ChannelHandler;
 
-import com.google.common.collect.Multimap;
+public class DleStxEtxConstants {
 
-import de.uniluebeck.itm.netty.handlerstack.HandlerFactory;
+	public static final byte DLE = 0x10;
 
-public class ISensePacketEncoderFactory implements HandlerFactory {
+	public static final byte STX = 0x02;
 
-    @Override
-    public String getName() {
-        return "isense-packet-encoder";
-    }
+	public static final byte ETX = 0x03;
 
-    @Override
-    public String getDescription() {
-        return "";
-    }
+	public static final byte[] DLE_STX = new byte[] { DLE, STX };
 
-    @Override
-    public ChannelHandler create(Multimap<String, String> properties) throws Exception {
-        return new ISensePacketEncoder();
-    }
+	public static final byte[] DLE_ETX = new byte[] { DLE, ETX };
 
 }
