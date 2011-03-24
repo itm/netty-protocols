@@ -119,6 +119,7 @@
 				<version>1.9.0</version>
 				<artifactId>maven-license-plugin</artifactId>
 				<configuration>
+					<strictCheck>true</strictCheck>
 					<header>src/etc/license-header.txt</header>
 				</configuration>
 			</plugin>
