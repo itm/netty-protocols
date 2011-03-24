@@ -69,8 +69,8 @@ public class DleStxEtxFramingDecoder extends FrameDecoder {
                 } else if (c == DleStxEtxConstants.ETX && foundPacket) {
 
                     // packet was completely received
-                    if (log.isTraceEnabled()) {
-                        log.trace(
+                    if (log.isDebugEnabled()) {
+                        log.debug(
                                 "[{}] Packet decoding completed: {}",
                                 new Object[] {
                                         ctx.getName(),

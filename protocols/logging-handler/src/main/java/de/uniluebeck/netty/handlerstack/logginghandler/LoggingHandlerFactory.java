@@ -20,55 +20,29 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package de.uniluebeck.itm.netty.handlerstack;
-
-import java.util.HashMap;
-import java.util.Map;
+package de.uniluebeck.netty.handlerstack.logginghandler;
 
 import org.jboss.netty.channel.ChannelHandler;
 
 import com.google.common.collect.Multimap;
 
-public class HandlerFactoryRegistry {
-    private Map<String, HandlerFactory> moduleFactories = new HashMap<String, HandlerFactory>();
+import de.uniluebeck.itm.netty.handlerstack.HandlerFactory;
 
-    public void register(HandlerFactory factory) throws Exception {
+public class LoggingHandlerFactory implements HandlerFactory {
 
-        if (moduleFactories.containsKey(factory.getName()))
-            throw new Exception("Factory of name " + factory.getName() + " already exists.");
-
-        moduleFactories.put(factory.getName(), factory);
-
-    }
-
-    public ChannelHandler create(String factoryName, Multimap<String, String> properties) throws Exception {
-
-        if (!moduleFactories.containsKey(factoryName))
-            throw new Exception("Factory of name " + factoryName + " unknown. " + this.toString());
-
-        return moduleFactories.get(factoryName).create(properties);
-    }
-
-    public Map<String, String> getNameAndDescriptions() {
-        Map<String, String> nameAndDescription = new HashMap<String, String>();
-
-        for (HandlerFactory factory : moduleFactories.values())
-            nameAndDescription.put(factory.getName(), factory.getDescription());
-
-        return nameAndDescription;
+    @Override
+    public String getName() {
+        return "logging-handler";
     }
 
     @Override
-    public String toString() {
-        StringBuilder b = new StringBuilder();
-        b.append("Known factories: ");
-        
-        for (Map.Entry<String, String> entry : getNameAndDescriptions().entrySet()) {
-            b.append(entry.getKey());
-            b.append(" ");
-        }
+    public String getDescription() {
+        return "";
+    }
 
-        return b.toString();
+    @Override
+    public ChannelHandler create(Multimap<String, String> properties) throws Exception {
+        return new LoggingHandler(); 
     }
 
 }

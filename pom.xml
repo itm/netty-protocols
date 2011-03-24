@@ -17,6 +17,7 @@
 		<module>factory</module>
 		<module>protocols/dlestxetx</module>
 		<module>protocols/isense</module>
+		<module>protocols/logging-handler</module>
 		<!--  
 		<module>protocols/remote-uart-protocol</module>
 		 -->

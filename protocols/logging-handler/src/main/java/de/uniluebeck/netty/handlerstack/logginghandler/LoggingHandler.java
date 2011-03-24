@@ -20,55 +20,50 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package de.uniluebeck.itm.netty.handlerstack;
+package de.uniluebeck.netty.handlerstack.logginghandler;
 
-import java.util.HashMap;
-import java.util.Map;
+import org.jboss.netty.channel.ChannelEvent;
+import org.jboss.netty.channel.ChannelHandlerContext;
+import org.jboss.netty.channel.ChannelStateEvent;
+import org.jboss.netty.channel.MessageEvent;
+import org.jboss.netty.channel.SimpleChannelHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import org.jboss.netty.channel.ChannelHandler;
+public class LoggingHandler extends SimpleChannelHandler {
 
-import com.google.common.collect.Multimap;
+    private static final Logger log = LoggerFactory.getLogger(LoggingHandler.class);
 
-public class HandlerFactoryRegistry {
-    private Map<String, HandlerFactory> moduleFactories = new HashMap<String, HandlerFactory>();
-
-    public void register(HandlerFactory factory) throws Exception {
-
-        if (moduleFactories.containsKey(factory.getName()))
-            throw new Exception("Factory of name " + factory.getName() + " already exists.");
-
-        moduleFactories.put(factory.getName(), factory);
-
-    }
-
-    public ChannelHandler create(String factoryName, Multimap<String, String> properties) throws Exception {
-
-        if (!moduleFactories.containsKey(factoryName))
-            throw new Exception("Factory of name " + factoryName + " unknown. " + this.toString());
-
-        return moduleFactories.get(factoryName).create(properties);
-    }
-
-    public Map<String, String> getNameAndDescriptions() {
-        Map<String, String> nameAndDescription = new HashMap<String, String>();
-
-        for (HandlerFactory factory : moduleFactories.values())
-            nameAndDescription.put(factory.getName(), factory.getDescription());
-
-        return nameAndDescription;
+    /**
+     * Package-private constructor for creation via factory only
+     */
+    LoggingHandler() {
     }
 
     @Override
-    public String toString() {
-        StringBuilder b = new StringBuilder();
-        b.append("Known factories: ");
-        
-        for (Map.Entry<String, String> entry : getNameAndDescriptions().entrySet()) {
-            b.append(entry.getKey());
-            b.append(" ");
-        }
-
-        return b.toString();
+    public void channelConnected(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
+        log.debug("{}", e);
+        super.channelConnected(ctx, e);
     }
 
+    @Override
+    public void channelDisconnected(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
+        log.debug("{}", e);
+        super.channelDisconnected(ctx, e);
+    }
+
+    @Override
+    public void handleDownstream(ChannelHandlerContext ctx, ChannelEvent e) throws Exception {
+        log.debug("{}", e);
+        super.handleDownstream(ctx, e);
+    }
+
+    @Override
+    public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) throws Exception {
+        log.debug("{}", e.getMessage());
+        super.messageReceived(ctx, e);
+    }
+
+
+    
 }
