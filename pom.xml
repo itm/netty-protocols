@@ -17,6 +17,7 @@
 		<module>factory</module>
 		<module>protocols/dlestxetx</module>
 		<module>protocols/isense</module>
+		<module>protocols/iseraerial</module>
 		<module>protocols/logging-handler</module>
 		<!--  
 		<module>protocols/remote-uart-protocol</module>
@@ -44,6 +45,11 @@
 			<dependency>
 				<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
 				<artifactId>remote-uart-protocol</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
+				<artifactId>iseraerial</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 
