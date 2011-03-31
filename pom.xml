@@ -15,13 +15,15 @@
 
 	<modules>
 		<module>factory</module>
+		<module>channel-flange</module>
+		<module>protocol-collection</module>
+
 		<module>protocols/dlestxetx</module>
 		<module>protocols/isense</module>
 		<module>protocols/iseraerial</module>
 		<module>protocols/logging-handler</module>
-		<!--  
-		<module>protocols/remote-uart-protocol</module>
-		 -->
+
+		<!-- <module>protocols/remote-uart-protocol</module> -->
 	</modules>
 
 	<dependencyManagement>
@@ -52,7 +54,11 @@
 				<artifactId>iseraerial</artifactId>
 				<version>${project.version}</version>
 			</dependency>
-
+			<dependency>
+				<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
+				<artifactId>logging-handler</artifactId>
+				<version>${project.version}</version>
+			</dependency>
 
 
 
@@ -119,7 +125,7 @@
 				</configuration>
 			</plugin>
 
-			<!--  mvn license:check / mvn license:format -->
+			<!-- mvn license:check / mvn license:format -->
 			<plugin>
 				<groupId>com.mycila.maven-license-plugin</groupId>
 				<version>1.9.0</version>
