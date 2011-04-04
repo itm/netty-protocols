@@ -46,7 +46,7 @@ public class ISerAerialPacketEncoder extends OneToOneEncoder {
         }
 
         ISerAerialOutgoingPacket packet = (ISerAerialOutgoingPacket) msg;
-        log.trace("[{}] Encoded ISensePacket: {}", ctx.getName(), packet);
+        log.trace("[{}] Encoded ISerAerialOutgoingPacket: {}", ctx.getName(), packet);
         return packet.getPacket();
     }
 }
