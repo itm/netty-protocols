@@ -23,7 +23,7 @@
 package de.uniluebeck.itm.nettyrxtx.rup;
 
 import com.google.common.collect.Maps;
-import de.uniluebeck.itm.nettyrxtx.dlestxetx.DleStxEtxConstants;
+import de.uniluebeck.itm.netty.handlerstack.dlestxetx.DleStxEtxConstants;
 import org.jboss.netty.buffer.ChannelBuffer;
 
 import java.nio.ByteBuffer;

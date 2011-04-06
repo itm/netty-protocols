@@ -27,16 +27,23 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Multimap;
+import com.google.common.collect.Multimaps;
+import de.uniluebeck.itm.netty.handlerstack.HandlerFactory;
+import de.uniluebeck.itm.netty.handlerstack.dlestxetx.DleStxEtxFramingDecoderFactory;
 import org.jboss.netty.handler.codec.embedder.DecoderEmbedder;
 import org.jboss.netty.util.internal.ExecutorUtil;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import de.uniluebeck.itm.nettyrxtx.dlestxetx.DleStxEtxFramingDecoderFactory;
 
 
 public class RUPPacketDecoderTest extends RUPPacketDecoderTestBase {
@@ -48,10 +55,15 @@ public class RUPPacketDecoderTest extends RUPPacketDecoderTestBase {
 	@Before
 	public void setUp() {
 		super.setUp();
+
 		scheduler = Executors.newScheduledThreadPool(1);
+
+		Map<HandlerFactory, Multimap<String, String>> channelUpstreamHandlerFactories = Maps.newHashMap();
+		channelUpstreamHandlerFactories.put(new DleStxEtxFramingDecoderFactory(), HashMultimap.<String, String>create());
+
 		decoder = new DecoderEmbedder<RUPPacket>(
 				new RUPFragmentDecoder(scheduler),
-				new RUPPacketDecoder(new DleStxEtxFramingDecoderFactory())
+				new RUPPacketDecoder(channelUpstreamHandlerFactories)
 		);
 	}
 

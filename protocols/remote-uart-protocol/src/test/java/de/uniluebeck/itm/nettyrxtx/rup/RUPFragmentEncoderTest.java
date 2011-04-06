@@ -23,8 +23,8 @@
 package de.uniluebeck.itm.nettyrxtx.rup;
 
 
-import de.uniluebeck.itm.nettyrxtx.isense.ISensePacket;
-import de.uniluebeck.itm.nettyrxtx.isense.ISensePacketType;
+import de.uniluebeck.itm.netty.handlerstack.isense.ISensePacket;
+import de.uniluebeck.itm.netty.handlerstack.isense.ISensePacketType;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.handler.codec.embedder.EncoderEmbedder;
 import org.junit.After;

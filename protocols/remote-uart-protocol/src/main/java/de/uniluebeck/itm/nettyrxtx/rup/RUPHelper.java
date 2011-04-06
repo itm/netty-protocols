@@ -24,8 +24,8 @@ package de.uniluebeck.itm.nettyrxtx.rup;
 
 
 import com.google.common.base.Preconditions;
-import de.uniluebeck.itm.nettyrxtx.isense.ISensePacket;
-import de.uniluebeck.itm.nettyrxtx.isense.ISensePacketType;
+import de.uniluebeck.itm.netty.handlerstack.isense.ISensePacket;
+import de.uniluebeck.itm.netty.handlerstack.isense.ISensePacketType;
 
 public class RUPHelper {
 

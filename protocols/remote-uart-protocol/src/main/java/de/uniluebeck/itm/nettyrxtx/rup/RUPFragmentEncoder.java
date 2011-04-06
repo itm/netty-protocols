@@ -22,8 +22,8 @@
  */
 package de.uniluebeck.itm.nettyrxtx.rup;
 
-import de.uniluebeck.itm.nettyrxtx.isense.ISensePacket;
-import de.uniluebeck.itm.nettyrxtx.isense.ISensePacketType;
+import de.uniluebeck.itm.netty.handlerstack.isense.ISensePacket;
+import de.uniluebeck.itm.netty.handlerstack.isense.ISensePacketType;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.handler.codec.oneone.OneToOneEncoder;

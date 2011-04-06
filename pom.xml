@@ -23,7 +23,7 @@
 		<module>protocols/iseraerial</module>
 		<module>protocols/logging-handler</module>
 
-		<!-- <module>protocols/remote-uart-protocol</module> -->
+		<module>protocols/remote-uart-protocol</module>
 	</modules>
 
 	<dependencyManagement>

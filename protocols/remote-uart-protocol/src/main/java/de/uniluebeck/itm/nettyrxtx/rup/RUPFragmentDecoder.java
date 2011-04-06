@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import de.uniluebeck.itm.netty.handlerstack.isense.ISensePacket;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.MessageEvent;
@@ -37,7 +38,6 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 
-import de.uniluebeck.itm.nettyrxtx.isense.ISensePacket;
 import de.uniluebeck.itm.tr.util.TimeDiff;
 
 /**

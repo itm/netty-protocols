@@ -24,7 +24,8 @@ package de.uniluebeck.itm.nettyrxtx.rup;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import de.uniluebeck.itm.nettyrxtx.ChannelDownstreamHandlerFactory;
+import com.google.common.collect.Multimap;
+import de.uniluebeck.itm.netty.handlerstack.HandlerFactory;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.channel.*;
 import org.jboss.netty.handler.codec.embedder.EncoderEmbedder;
@@ -34,6 +35,9 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+
+import static com.google.common.base.Throwables.propagate;
 
 
 public class RUPPacketEncoder extends SimpleChannelDownstreamHandler {
@@ -125,7 +129,7 @@ public class RUPPacketEncoder extends SimpleChannelDownstreamHandler {
 	 * A set of factories that are called to create ChannelDownstreamHandler instances upon a write request of a new
 	 * sender.
 	 */
-	private final ChannelDownstreamHandlerFactory[] channelDownstreamHandlerFactories;
+	private final Map<HandlerFactory, Multimap<String, String>> channelDownstreamHandlerFactories;
 
 	private Map<Long, Fragmenter> fragmenters = Maps.newHashMap();
 
@@ -142,7 +146,7 @@ public class RUPPacketEncoder extends SimpleChannelDownstreamHandler {
 	 * @param channelDownstreamHandlerFactories a set of factories that create e.g. encoders to encode a packets payload
 	 *
 	 */
-	public RUPPacketEncoder(int maximumFragmentSize, ChannelDownstreamHandlerFactory... channelDownstreamHandlerFactories) {
+	public RUPPacketEncoder(int maximumFragmentSize, Map<HandlerFactory, Multimap<String, String>> channelDownstreamHandlerFactories) {
 		this.maximumFragmentSize = maximumFragmentSize;
 		this.channelDownstreamHandlerFactories = channelDownstreamHandlerFactories;
 	}
@@ -196,11 +200,19 @@ public class RUPPacketEncoder extends SimpleChannelDownstreamHandler {
 
 	private ChannelDownstreamHandler[] createChannelDownstreamHandlers() {
 
-		ChannelDownstreamHandler[] channelDownstreamHandlers =
-				new ChannelDownstreamHandler[channelDownstreamHandlerFactories.length];
+		Set<HandlerFactory> keys = channelDownstreamHandlerFactories.keySet();
 
-		for (int i = 0; i < channelDownstreamHandlerFactories.length; i++) {
-			channelDownstreamHandlers[i] = channelDownstreamHandlerFactories[i].create();
+		ChannelDownstreamHandler[] channelDownstreamHandlers =
+				new ChannelDownstreamHandler[keys.size()];
+
+		int i = 0;
+		for (HandlerFactory key : keys) {
+			try {
+				channelDownstreamHandlers[i] = (ChannelDownstreamHandler) key.create(channelDownstreamHandlerFactories.get(key));
+			} catch (Exception e) {
+				propagate(e);
+			}
+			i++;
 		}
 
 		return channelDownstreamHandlers;

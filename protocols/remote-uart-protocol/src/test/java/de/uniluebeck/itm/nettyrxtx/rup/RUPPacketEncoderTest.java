@@ -23,8 +23,13 @@
 package de.uniluebeck.itm.nettyrxtx.rup;
 
 
-import de.uniluebeck.itm.nettyrxtx.dlestxetx.DleStxEtxConstants;
-import de.uniluebeck.itm.nettyrxtx.dlestxetx.DleStxEtxFramingEncoderFactory;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Multimap;
+import de.uniluebeck.itm.netty.handlerstack.HandlerFactory;
+import de.uniluebeck.itm.netty.handlerstack.dlestxetx.DleStxEtxConstants;
+import de.uniluebeck.itm.netty.handlerstack.dlestxetx.DleStxEtxFramingDecoderFactory;
+import de.uniluebeck.itm.netty.handlerstack.dlestxetx.DleStxEtxFramingEncoderFactory;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBuffers;
 import org.jboss.netty.handler.codec.embedder.EncoderEmbedder;
@@ -33,6 +38,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.nio.ByteBuffer;
+import java.util.Map;
 
 import static org.junit.Assert.*;
 
@@ -42,8 +48,15 @@ public class RUPPacketEncoderTest {
 
 	@Before
 	public void setUp() {
+
+		Map<HandlerFactory, Multimap<String, String>> channelDownstreamHandlerFactories = Maps.newHashMap();
+		channelDownstreamHandlerFactories.put(
+				new DleStxEtxFramingEncoderFactory(),
+				HashMultimap.<String, String>create()
+		);
+
 		encoder = new EncoderEmbedder<RUPFragment>(
-				new RUPPacketEncoder(19 + 10 /* header + payload */, new DleStxEtxFramingEncoderFactory())
+				new RUPPacketEncoder(19 + 10 /* header + payload */, channelDownstreamHandlerFactories)
 		);
 	}
 
