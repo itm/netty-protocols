@@ -24,7 +24,6 @@ package de.uniluebeck.itm.netty.handlerstack.isenseotap;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 import org.jboss.netty.channel.ChannelHandler;
 import org.slf4j.LoggerFactory;
@@ -38,6 +37,10 @@ public class OtapHandlerFactory implements HandlerFactory {
 
     private static final String THREAD_COUNT = "threadCount";
 
+    private static final String MAX_REREQUESTS = "maxReRequests";
+    
+    private static final String TIMEOUT_MULTIPLIER = "timeoutMultiplier";
+
     @Override
     public String getName() {
         return "isense-otap-handler";
@@ -50,15 +53,24 @@ public class OtapHandlerFactory implements HandlerFactory {
 
     @Override
     public ChannelHandler create(Multimap<String, String> properties) throws Exception {
+        short settingMaxRerequests = 30;
+        short settingTimeoutMultiplier = 100;
         int threadCount = 10;
-
-        log.debug("Creating new Otap Handler, threadCount: {}", new Object[] { threadCount });
+        
+        log.debug("Creating new Otap Handler, threadCount: {}, settingMaxRerequests: {}, settingTimeoutMultiplierMillis: {}",
+                new Object[] { threadCount, settingMaxRerequests, settingTimeoutMultiplier });
 
         if (properties.containsKey(THREAD_COUNT))
             threadCount = Integer.parseInt(properties.get(THREAD_COUNT).iterator().next());
 
         ScheduledExecutorService executorService = Executors.newScheduledThreadPool(threadCount);
 
-        return new OtapHandler(executorService);
+        if (properties.containsKey(MAX_REREQUESTS))
+            settingMaxRerequests = Short.parseShort(properties.get(MAX_REREQUESTS).iterator().next());
+        
+        if (properties.containsKey(TIMEOUT_MULTIPLIER))
+            settingTimeoutMultiplier = Short.parseShort(properties.get(TIMEOUT_MULTIPLIER).iterator().next());
+
+        return new OtapHandler(executorService, settingMaxRerequests, settingTimeoutMultiplier);
     }
 }
