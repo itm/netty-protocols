@@ -11,8 +11,8 @@
 		<relativePath>../../</relativePath>
 	</parent>
 
-	<artifactId>remote-uart-protocol</artifactId>
-	<name>Remote UART Protocol Decoder/Encoder</name>
+	<artifactId>isense-otap</artifactId>
+	<name>coalesenses iSense Over-the-Air-Programming</name>
 	<packaging>jar</packaging>
 
 	<dependencies>
@@ -26,7 +26,7 @@
 		</dependency>
 		<dependency>
 			<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
-			<artifactId>dlestxetx</artifactId>
+			<artifactId>iseraerial</artifactId>
 		</dependency>
 
 		<dependency>
@@ -38,12 +38,21 @@
 			<groupId>de.uniluebeck.itm</groupId>
 			<artifactId>tr.util</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>de.uniluebeck.itm</groupId>
+			<artifactId>tr.wsn-device-drivers</artifactId>
+		</dependency>
+
 
 		<dependency>
-			<groupId>com.google.guava</groupId>
-			<artifactId>guava</artifactId>
+			<groupId>com.coalesenses</groupId>
+			<artifactId>ieee-802.15.4-aes</artifactId>
 		</dependency>
-		
+		<dependency>
+			<groupId>com.coalesenses</groupId>
+			<artifactId>isense-binary-image</artifactId>
+		</dependency>
+
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>

@@ -19,8 +19,11 @@
 		<module>protocol-collection</module>
 
 		<module>protocols/dlestxetx</module>
+
 		<module>protocols/isense</module>
+		<module>protocols/isense-otap</module>
 		<module>protocols/iseraerial</module>
+
 		<module>protocols/logging-handler</module>
 		<module>protocols/remote-uart-protocol</module>
 		<module>protocols/swap</module>
@@ -61,13 +64,24 @@
 				<version>${project.version}</version>
 			</dependency>
 
+			<dependency>
+				<groupId>commons-configuration</groupId>
+				<artifactId>commons-configuration</artifactId>
+				<version>1.6</version>
+			</dependency>
 
 
 			<dependency>
 				<groupId>de.uniluebeck.itm</groupId>
 				<artifactId>tr.util</artifactId>
-				<version>0.6</version>
+				<version>0.6.1</version>
 			</dependency>
+			<dependency>
+				<groupId>de.uniluebeck.itm</groupId>
+				<artifactId>tr.wsn-device-drivers</artifactId>
+				<version>0.6.1</version>
+			</dependency>
+
 
 			<dependency>
 				<groupId>org.jboss.netty</groupId>
@@ -79,6 +93,17 @@
 				<groupId>com.google.guava</groupId>
 				<artifactId>guava</artifactId>
 				<version>r07</version>
+			</dependency>
+
+			<dependency>
+				<groupId>com.coalesenses</groupId>
+				<artifactId>ieee-802.15.4-aes</artifactId>
+				<version>0.0.1-SNAPSHOT</version>
+			</dependency>
+			<dependency>
+				<groupId>com.coalesenses</groupId>
+				<artifactId>isense-binary-image</artifactId>
+				<version>0.0.1-SNAPSHOT</version>
 			</dependency>
 
 			<dependency>
