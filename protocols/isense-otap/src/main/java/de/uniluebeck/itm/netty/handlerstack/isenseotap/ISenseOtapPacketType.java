@@ -20,13 +20,13 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package de.uniluebeck.itm.netty.handlerstack.isenseotap.generatedmessages;
+package de.uniluebeck.itm.netty.handlerstack.isenseotap;
 
-public class PacketTypes {
+public class ISenseOtapPacketType {
 
     /**
-     * @see https://github.com/itm/testbed-runtime/blob/master/iwsn/wsn-device-drivers/src/main/java/de/uniluebeck/itm/wsn/devicedrivers/generic/PacketTypes.java
+     * @see https://github.com/itm/testbed-runtime/blob/master/iwsn/wsn-device-drivers/src/main/java/de/uniluebeck/itm/wsn/devicedrivers/generic/ISenseOtapPacketType.java
      */
-    public static final int OTAP = 6;
+    public static final byte OTAP = 0x6;
     
 }

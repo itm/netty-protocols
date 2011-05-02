@@ -197,7 +197,7 @@ public class HandlerStack {
                 }
             }
 
-            ChannelHandler channelHandler = registry.create(factoryName, options);
+            ChannelHandler channelHandler = registry.create(handlerName, factoryName, options);
             handlerStack.add(new Tuple<String, ChannelHandler>(handlerName, channelHandler));
         }
 

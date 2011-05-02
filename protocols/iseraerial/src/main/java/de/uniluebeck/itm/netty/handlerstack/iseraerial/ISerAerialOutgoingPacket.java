@@ -25,42 +25,54 @@ package de.uniluebeck.itm.netty.handlerstack.iseraerial;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBuffers;
 
+import de.uniluebeck.itm.netty.handlerstack.util.NettyStringUtils;
+
 public class ISerAerialOutgoingPacket {
-    private static final int HEADER_LENGTH = 4;
-    private final ChannelBuffer buffer = ChannelBuffers.dynamicBuffer(HEADER_LENGTH + 127);
+    public static final short BROADCAST_ADDRESS_16_BIT = (short) 0xFFFF;
 
-    public ISerAerialOutgoingPacket() {
-        buffer.writeZero(HEADER_LENGTH);
+    private static final int SERAERIAL_HEADER_LENGTH = 4;
+
+    private final ChannelBuffer buffer;
+
+    public ISerAerialOutgoingPacket(short destination, byte options, ChannelBuffer payload) {
+
+        ChannelBuffer headerBuffer = ChannelBuffers.buffer(SERAERIAL_HEADER_LENGTH);
+
+        {// Set destination
+            headerBuffer.writeByte((byte) ((destination >> 8) & 0xFF));
+            headerBuffer.writeByte((byte) (destination & 0xFF));
+        }
+
+        {// Set option field
+            headerBuffer.writeByte(options & 0xFF);
+        }
+
+        {// Set length field (length of the payload)
+            int length = payload.readableBytes();
+            headerBuffer.writeByte(0xFF & length);
+        }
+
+        buffer = ChannelBuffers.wrappedBuffer(headerBuffer, payload);
+
     }
 
-    public int getDestination() {
-        return ((0xFF & buffer.getByte(0)) << 8) + (0xFF & buffer.getByte(1));
-    }
-
-    public void setDestination(int destination) {
-        buffer.setByte(0, (byte) ((destination >> 8) & 0xFF));
-        buffer.setByte(1, (byte) (destination & 0xFF));
-    }
-
-    public int getOptions() {
-        return buffer.getByte(2);
-    }
-
-    public void setOptions(int options) {
-        buffer.setByte(2, options & 0xFF);
-    }
-
-    public ChannelBuffer getPayload() {
-        return buffer.slice(HEADER_LENGTH, buffer.readableBytes() - HEADER_LENGTH);
-    }
-
-    private void setLength(int length) {
-        buffer.setByte(3, 0xFF & length);
-    }
-
-    public ChannelBuffer getPacket() {
-        setLength(buffer.readableBytes());
+    /** Returns the (unmodifiable) buffer that backs this packet */
+    public ChannelBuffer getBuffer() {
         return ChannelBuffers.unmodifiableBuffer(buffer);
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("ISerAerialOutgoingPacket [buffer=");
+        builder.append(NettyStringUtils.toHexString(buffer));
+        builder.append("]");
+        return builder.toString();
     }
 
 }

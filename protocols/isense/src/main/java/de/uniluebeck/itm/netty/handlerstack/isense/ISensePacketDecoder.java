@@ -31,12 +31,20 @@ import org.slf4j.LoggerFactory;
 
 public class ISensePacketDecoder extends OneToOneDecoder {
 
-    private static final Logger log = LoggerFactory.getLogger(ISensePacketDecoder.class);
+    private final Logger log;
 
     /**
      * Package-private constructor for creation via factory only
      */
     ISensePacketDecoder() {
+        this(null);
+    }
+
+    /**
+     * Package-private constructor for creation via factory only
+     */
+    ISensePacketDecoder(String instanceName) {
+        log = LoggerFactory.getLogger(instanceName != null ? instanceName : ISensePacketDecoder.class.getName());
     }
 
     @Override
@@ -48,7 +56,7 @@ public class ISensePacketDecoder extends OneToOneDecoder {
 
         ChannelBuffer buffer = (ChannelBuffer) msg;
         ISensePacket iSensePacket = new ISensePacket(buffer);
-        log.debug("[{}] Decoded ISensePacket: {}", ctx.getName(), iSensePacket);
+        log.debug("Decoded ISensePacket: {}", iSensePacket);
         return iSensePacket;
     }
 }

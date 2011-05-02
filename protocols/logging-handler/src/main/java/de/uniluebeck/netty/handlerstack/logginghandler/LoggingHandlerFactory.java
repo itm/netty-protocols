@@ -42,7 +42,12 @@ public class LoggingHandlerFactory implements HandlerFactory {
 
     @Override
     public ChannelHandler create(Multimap<String, String> properties) throws Exception {
-        return new LoggingHandler(); 
+        return new LoggingHandler();
+    }
+
+    @Override
+    public ChannelHandler create(String instanceName, Multimap<String, String> properties) throws Exception {
+        return new LoggingHandler(instanceName);
     }
 
 }

@@ -132,7 +132,7 @@ public class RUPPacketDecoder extends SimpleChannelUpstreamHandler {
 		RUPPacket[] reassembledPackets = reassembler.receiveFragment(fragment);
 
 		for (RUPPacket reassembledPacket : reassembledPackets) {
-			log.trace("[{}] Sending decoded RUPPacket upstream: {}", ctx.getName(), reassembledPacket);
+			log.trace("Sending decoded RUPPacket upstream: {}", reassembledPacket);
 			ctx.sendUpstream(new UpstreamMessageEvent(ctx.getChannel(), reassembledPacket, ctx.getChannel()
 					.getRemoteAddress()
 			)
@@ -175,7 +175,7 @@ public class RUPPacketDecoder extends SimpleChannelUpstreamHandler {
 		int i = 0;
 		for (HandlerFactory key : keys) {
 			try {
-				channelUpstreamHandlers[i] = (ChannelUpstreamHandler) key.create(channelUpstreamHandlerFactories.get(key));
+				channelUpstreamHandlers[i] = (ChannelUpstreamHandler) key.create(null, channelUpstreamHandlerFactories.get(key));
 			} catch (Exception e) {
 				propagate(e);
 			}

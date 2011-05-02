@@ -22,6 +22,7 @@
  */
 package de.uniluebeck.netty.handlerstack.logginghandler;
 
+import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.channel.ChannelEvent;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.ChannelStateEvent;
@@ -30,14 +31,24 @@ import org.jboss.netty.channel.SimpleChannelHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.uniluebeck.itm.tr.util.StringUtils;
+
 public class LoggingHandler extends SimpleChannelHandler {
 
-    private static final Logger log = LoggerFactory.getLogger(LoggingHandler.class);
+    private final Logger log;
 
     /**
      * Package-private constructor for creation via factory only
      */
     LoggingHandler() {
+        this(null);
+    }
+    
+    /**
+     * Package-private constructor for creation via factory only
+     */
+    LoggingHandler(String instanceName) {
+        log = LoggerFactory.getLogger(instanceName != null ? instanceName : LoggingHandler.class.getName());
     }
 
     @Override
@@ -54,16 +65,28 @@ public class LoggingHandler extends SimpleChannelHandler {
 
     @Override
     public void handleDownstream(ChannelHandlerContext ctx, ChannelEvent e) throws Exception {
-        log.debug("{}", e);
+//        log.debug("{}", e);
         super.handleDownstream(ctx, e);
     }
 
     @Override
     public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) throws Exception {
-        log.debug("{}", e.getMessage());
+        Object msg = e.getMessage();
+
+        if (msg instanceof ChannelBuffer) {
+
+            if (log.isDebugEnabled()) {
+                ChannelBuffer b = (ChannelBuffer) msg;
+                log.debug("Received channel buffer: {}",
+                        StringUtils.toHexString(b.array(), b.readerIndex(), b.readableBytes()));
+            }
+
+        } else {
+
+            log.debug("{}", e.getMessage());
+        }
+
         super.messageReceived(ctx, e);
     }
 
-
-    
 }

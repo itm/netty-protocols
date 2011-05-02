@@ -41,12 +41,12 @@ public class HandlerFactoryRegistry {
 
     }
 
-    public ChannelHandler create(String factoryName, Multimap<String, String> properties) throws Exception {
+    public ChannelHandler create(String instanceName, String factoryName, Multimap<String, String> properties) throws Exception {
 
         if (!moduleFactories.containsKey(factoryName))
             throw new Exception("Factory of name " + factoryName + " unknown. " + this.toString());
 
-        return moduleFactories.get(factoryName).create(properties);
+        return moduleFactories.get(factoryName).create(instanceName, properties);
     }
 
     public Map<String, String> getNameAndDescriptions() {

@@ -42,6 +42,11 @@ public class DleStxEtxFramingDecoderFactory implements HandlerFactory {
     }
 
     @Override
+    public ChannelHandler create(String instanceName, Multimap<String, String> properties) throws Exception {
+        return new DleStxEtxFramingDecoder(instanceName);
+    }
+
+    @Override
     public ChannelHandler create(Multimap<String, String> properties) throws Exception {
         return new DleStxEtxFramingDecoder();
     }

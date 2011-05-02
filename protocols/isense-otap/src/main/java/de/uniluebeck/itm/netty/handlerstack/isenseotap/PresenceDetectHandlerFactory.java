@@ -35,7 +35,7 @@ import de.uniluebeck.itm.netty.handlerstack.HandlerFactory;
 
 public class PresenceDetectHandlerFactory implements HandlerFactory {
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(PresenceDetectHandlerFactory.class);
-    
+
     private static final String PRESENCE_DETECT_INTERVAL = "presenceDetectInterval";
 
     private static final String DEVICE_TIMEOUT = "deviceTimeout";
@@ -54,8 +54,12 @@ public class PresenceDetectHandlerFactory implements HandlerFactory {
         return "";
     }
 
-    @Override
     public ChannelHandler create(Multimap<String, String> properties) throws Exception {
+        return create(null, properties);
+    }
+
+    @Override
+    public ChannelHandler create(String instanceName, Multimap<String, String> properties) throws Exception {
         int presenceDetectInterval = 150;
         int deviceTimeout = 160 * presenceDetectInterval;
         TimeUnit timeunit = TimeUnit.MILLISECONDS;
@@ -79,6 +83,6 @@ public class PresenceDetectHandlerFactory implements HandlerFactory {
                 "Creating new Presence Detect Handler presenceDetectInterval: {}, deviceTimeout: {}, timeunit: {}, threadCount: {}",
                 new Object[] { presenceDetectInterval, deviceTimeout, timeunit, threadCount });
 
-        return new PresenceDetectHandler(executorService, presenceDetectInterval, deviceTimeout, timeunit);
+        return new PresenceDetectHandler(instanceName, executorService, presenceDetectInterval, deviceTimeout, timeunit);
     }
 }

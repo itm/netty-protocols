@@ -53,7 +53,7 @@ import de.uniluebeck.itm.netty.handlerstack.isenseotap.generatedmessages.OtapPro
 import de.uniluebeck.itm.tr.util.TimeDiff;
 
 public class OtapHandler extends SimpleChannelHandler {
-    private static final Logger log = LoggerFactory.getLogger(OtapHandler.class);
+    private final Logger log;
 
     private final int maxDevicesPerPacket = new OtapInitRequest().participating_devices.value.length;
 
@@ -196,13 +196,13 @@ public class OtapHandler extends SimpleChannelHandler {
 
                 // Prepare the request using Fabric
                 OtapProgramRequest req = new OtapProgramRequest();
-                
+
                 req.chunk_no = chunk.getChunkNumber();
                 req.index = (short) packet.getIndex();
                 req.packets_in_chunk = (byte) chunk.getPacketCount();
                 req.overall_packet_no = packet.getOverallPacketNumber();
                 req.remaining = (short) remainingPacketsInChunk.size();
-                
+
                 byte[] code = packet.getContent();
                 req.code.count = (short) code.length;
                 for (int i = 0; i < req.code.value.length; i++) {
@@ -221,8 +221,10 @@ public class OtapHandler extends SimpleChannelHandler {
         }
     };
 
-    public OtapHandler(final ScheduledExecutorService executorService, short settingMaxRerequests,
+    public OtapHandler(final String instanceName, final ScheduledExecutorService executorService, short settingMaxRerequests,
             short settingTimeoutMultiplier) {
+
+        log = LoggerFactory.getLogger((instanceName != null) ? instanceName : OtapHandler.class.getName());
         this.executorService = executorService;
         this.settingMaxRerequests = settingMaxRerequests;
         this.settingTimeoutMultiplier = settingTimeoutMultiplier;
@@ -284,7 +286,6 @@ public class OtapHandler extends SimpleChannelHandler {
                 handleOtapInitReply(reply);
             } else {
                 log.warn("Ignoring otap init reply in wrong state {}: {}", state, reply);
-                return;
             }
 
         } else if (message instanceof OtapProgramReply) {
@@ -353,9 +354,9 @@ public class OtapHandler extends SimpleChannelHandler {
             for (int i = 0; i < reply.missing_indices.count; ++i) {
                 int packetIndex = reply.missing_indices.value[i];
                 OtapPacket packet = chunk.getPacketByIndex(packetIndex);
-                missingIndices.add(packetIndex);
 
                 if (packet != null) {
+                    missingIndices.add(packetIndex);
                     remainingPacketsInChunk.add(packet);
                 } else {
                     log.warn("Requested packet index {} not found in chunk {}", packetIndex, reply.chunk_no);
@@ -376,17 +377,13 @@ public class OtapHandler extends SimpleChannelHandler {
     *
     */
     private synchronized void prepareChunk(int number) {
-        log.info("Preparing chunk " + number);
-
         chunk = program.getChunk(number);
         remainingPacketsInChunk.clear();
         chunkTimeout.touch();
 
-        if (chunk == null) {
-            log.info("No more chunks available. Stopping OTAP. Done.");
-            stopProgramming();
+        if (chunk != null) {
+            log.info("Preparing chunk {} out of {}", number, program.getChunkCount());
 
-        } else {
             // Reset the chunk-complete flag on all devices
             for (OtapDevice d : devicesToProgram.values()) {
                 d.setChunkComplete(false);
@@ -395,6 +392,10 @@ public class OtapHandler extends SimpleChannelHandler {
             // Set the remaining packets to all packets in this chunk
             remainingPacketsInChunk.addAll(chunk.getPackets());
             log.debug("New chunk #{}, got " + remainingPacketsInChunk.size() + " packets to transmit", number);
+
+        } else {
+            log.info("No more chunks available. Stopping OTAP. Done.");
+            stopProgramming();
         }
 
     }

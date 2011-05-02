@@ -22,7 +22,6 @@
  */
 package de.uniluebeck.itm.netty.handlerstack.isenseotap;
 
-import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBuffers;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelHandlerContext;
@@ -37,15 +36,33 @@ import de.uniluebeck.itm.netty.handlerstack.isenseotap.generatedmessages.OtapPro
 import de.uniluebeck.itm.netty.handlerstack.isenseotap.generatedmessages.OtapProgramRequest;
 import de.uniluebeck.itm.netty.handlerstack.isenseotap.generatedmessages.PresenceDetectReply;
 import de.uniluebeck.itm.netty.handlerstack.isenseotap.generatedmessages.PresenceDetectRequest;
+import de.uniluebeck.itm.netty.handlerstack.iseraerial.ISerAerialOutgoingPacket;
 
 public class ISenseOtapPacketEncoder extends OneToOneEncoder {
 
-    private static final Logger log = LoggerFactory.getLogger(ISenseOtapPacketEncoder.class);
+    private final Logger log;
 
     /**
      * Package-private constructor for creation via factory only
      */
     ISenseOtapPacketEncoder() {
+        this(null);
+    }
+
+    /**
+     * Package-private constructor for creation via factory only
+     */
+    ISenseOtapPacketEncoder(String instanceName) {
+        log = LoggerFactory.getLogger(instanceName != null ? instanceName : ISenseOtapPacketEncoder.class.getName());
+    }
+
+    private byte[] computeCrc(byte[] payload) {
+        byte crc[] = { (byte) 0xAA, (byte) 0xAA, (byte) 0xAA, (byte) 0xAA };
+
+        for (int i = 0; i < payload.length; i++)
+            crc[i % 4] = (byte) (0xFF & (crc[i % 4] ^ payload[i]));
+
+        return crc;
     }
 
     @Override
@@ -66,9 +83,14 @@ public class ISenseOtapPacketEncoder extends OneToOneEncoder {
             bytes = MacroFabricSerializer.serialize((PresenceDetectReply) msg);
 
         if (bytes != null) {
-            ChannelBuffer buffer = ChannelBuffers.wrappedBuffer(bytes);
-            log.trace("[{}] Encoded PresenceDetectRequestPacket: {}", ctx.getName(), buffer);
-            return buffer;
+
+            ISerAerialOutgoingPacket iSerAerialPacket =
+                    new ISerAerialOutgoingPacket(ISerAerialOutgoingPacket.BROADCAST_ADDRESS_16_BIT, (byte) 0x0,
+                            ChannelBuffers.wrappedBuffer(bytes, computeCrc(bytes)));
+            
+            log.trace("Encoded {} otap packet with crc: {}", msg.getClass().getSimpleName(), iSerAerialPacket);
+            
+            return iSerAerialPacket;
 
         } else {
             log.warn("Could not encode packet {}, returning it.", msg);

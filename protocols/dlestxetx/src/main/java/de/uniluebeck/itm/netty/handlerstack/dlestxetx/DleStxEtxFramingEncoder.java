@@ -34,12 +34,20 @@ import de.uniluebeck.itm.tr.util.StringUtils;
 
 public class DleStxEtxFramingEncoder extends OneToOneEncoder {
 
-    private static final Logger log = LoggerFactory.getLogger(DleStxEtxFramingEncoder.class);
+    private final Logger log;
 
     /**
      * Package-private constructor for creation via factory only
      */
     DleStxEtxFramingEncoder() {
+        this(null);
+    }
+    
+    /**
+     * Package-private constructor for creation via factory only
+     */
+    DleStxEtxFramingEncoder(String instanceName) {
+        log = LoggerFactory.getLogger(instanceName != null ? instanceName : DleStxEtxFramingEncoder.class.getName());
     }
 
     @Override
@@ -62,7 +70,7 @@ public class DleStxEtxFramingEncoder extends OneToOneEncoder {
         packet.writeBytes(DleStxEtxConstants.DLE_ETX);
 
         if (log.isTraceEnabled()) {
-            log.trace("[{}] Encoded buffer: {}", ctx.getName(), StringUtils.toHexString(packet.toByteBuffer().array()));
+            log.trace("Encoded buffer: {}", StringUtils.toHexString(packet.toByteBuffer().array()));
         }
 
         return packet;

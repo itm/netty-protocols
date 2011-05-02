@@ -29,42 +29,58 @@ import org.jboss.netty.handler.codec.oneone.OneToOneDecoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.uniluebeck.itm.netty.handlerstack.isense.ISensePacket;
+import de.uniluebeck.itm.netty.handlerstack.isense.ISensePacketType;
+
 public class ISerAerialPacketDecoder extends OneToOneDecoder {
 
-    private static final Logger log = LoggerFactory.getLogger(ISerAerialPacketDecoder.class);
+    private final Logger log;
 
     /**
      * Package-private constructor for creation via factory only
      */
     ISerAerialPacketDecoder() {
+        this(null);
+    }
+    /**
+     * Package-private constructor for creation via factory only
+     */
+    ISerAerialPacketDecoder(String instanceName) {
+        log = LoggerFactory.getLogger(instanceName != null ? instanceName : ISerAerialPacketDecoder.class.getName());
     }
 
     @Override
     protected Object decode(final ChannelHandlerContext ctx, final Channel channel, final Object msg) throws Exception {
 
-        if (!(msg instanceof ChannelBuffer)) {
+        if (!(msg instanceof ISensePacket)) {
             return msg;
         }
-
-        ChannelBuffer buffer = (ChannelBuffer) msg;
-
-        if (!buffer.readable())
+        
+        ISensePacket iSensePacket = (ISensePacket) msg;
+        
+        if( iSensePacket.getType() != ISensePacketType.SERAERIAL.getValue())
             return msg;
 
-        int typeCode = buffer.getByte(0);
+        ChannelBuffer payload = iSensePacket.getPayload();
+        
+        if (!payload.readable())
+            return msg;
 
-        if (typeCode == ISerAerialIncomingPacket.TYPE_CODE) {
-            ISerAerialIncomingPacket packet = new ISerAerialIncomingPacket(buffer);
-            log.debug("[{}] Decoded incoming iSerAerial data packet: {}", ctx.getName(), packet);
+        //First byte of the payload is iSerAerial's subtype (packet or confirm)
+        int subtypeCode = payload.getByte(0);
+
+        if (subtypeCode == ISerAerialIncomingPacket.TYPE_CODE) {
+            ISerAerialIncomingPacket packet = new ISerAerialIncomingPacket(payload);
+            log.debug("Decoded incoming iSerAerial data packet: {}", packet);
             return packet;
 
-        } else if (typeCode == ISerAerialConfirmPacket.TYPE_CODE) {
-            ISerAerialConfirmPacket packet = new ISerAerialConfirmPacket(buffer);
-            log.debug("[{}] Decoded incoming iSerAerial confirm packet: {}", ctx.getName(), packet);
+        } else if (subtypeCode == ISerAerialConfirmPacket.TYPE_CODE) {
+            ISerAerialConfirmPacket packet = new ISerAerialConfirmPacket(payload);
+            log.debug("Decoded incoming iSerAerial confirm packet: {}", packet);
             return packet;
         }
 
-        log.warn("Unable to decode iSerAerial packet, unknown type code {} as first byte", typeCode);
+        log.warn("Unable to decode iSerAerial packet, unknown type code {} as first byte", subtypeCode);
         return msg;
     }
 }

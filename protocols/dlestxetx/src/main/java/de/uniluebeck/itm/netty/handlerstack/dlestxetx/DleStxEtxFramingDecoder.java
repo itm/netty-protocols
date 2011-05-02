@@ -34,7 +34,7 @@ import de.uniluebeck.itm.tr.util.StringUtils;
 
 public class DleStxEtxFramingDecoder extends FrameDecoder {
 
-    private static final Logger log = LoggerFactory.getLogger(DleStxEtxFramingDecoder.class);
+    private final Logger log;
 
     private boolean foundDLE;
 
@@ -46,7 +46,15 @@ public class DleStxEtxFramingDecoder extends FrameDecoder {
      * Package-private constructor for creation via factory only
      */
     DleStxEtxFramingDecoder() {
-        resetPacketState();
+        this(null);
+    }
+
+    /**
+     * Package-private constructor for creation via factory only
+     */
+    DleStxEtxFramingDecoder(String instanceName) {
+        log = LoggerFactory.getLogger(instanceName != null ? instanceName : DleStxEtxFramingDecoder.class.getName());
+        resetDecodingState();
     }
 
     @Override
@@ -71,14 +79,12 @@ public class DleStxEtxFramingDecoder extends FrameDecoder {
                     // packet was completely received
                     if (log.isDebugEnabled()) {
                         log.debug(
-                                "[{}] Packet decoding completed: {}",
-                                new Object[] {
-                                        ctx.getName(),
-                                        StringUtils.toHexString(packet.array(), packet.readerIndex(),
-                                                packet.readableBytes()) });
+                                "Packet decoding completed: {}",
+                                new Object[] { StringUtils.toHexString(packet.array(), packet.readerIndex(),
+                                        packet.readableBytes()) });
                     }
                     ChannelBuffer packetRead = packet;
-                    resetPacketState();
+                    resetDecodingState();
                     return packetRead;
 
                 } else if (c == DleStxEtxConstants.DLE && foundPacket) {
@@ -93,7 +99,7 @@ public class DleStxEtxFramingDecoder extends FrameDecoder {
                         log.warn("Incomplete packet received: {}",
                                 StringUtils.toHexString(packet.array(), packet.readerIndex(), packet.readableBytes()));
                     }
-                    resetPacketState();
+                    resetDecodingState();
                 }
 
             } else {
@@ -113,7 +119,7 @@ public class DleStxEtxFramingDecoder extends FrameDecoder {
         return null;
     }
 
-    private void resetPacketState() {
+    private void resetDecodingState() {
         foundDLE = false;
         foundPacket = false;
         packet = ChannelBuffers.dynamicBuffer(512);

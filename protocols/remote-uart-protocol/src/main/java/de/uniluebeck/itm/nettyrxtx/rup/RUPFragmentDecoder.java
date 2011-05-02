@@ -154,8 +154,8 @@ public class RUPFragmentDecoder extends SimpleChannelUpstreamHandler {
             packetBuffer.timeWindow.touch();
 
             if (log.isTraceEnabled()) {
-                log.trace("[{}] Received packet with sequenceNumber in window ({} -> {}): {}",
-                        new Object[] { ctx.getName(), packetBuffer.windowOffset,
+                log.trace("Received packet with sequenceNumber in window ({} -> {}): {}",
+                        new Object[] { packetBuffer.windowOffset,
                                 ((packetBuffer.windowOffset + packetBuffer.windowSize) % 255), fragment });
             }
 
@@ -173,8 +173,8 @@ public class RUPFragmentDecoder extends SimpleChannelUpstreamHandler {
         // discard packets outside window bounds
         else {
             if (log.isTraceEnabled()) {
-                log.trace("[{}] Ignored packet outside of packetBuffer window ({} -> {}): {}",
-                        new Object[] { ctx.getName(), packetBuffer.windowOffset,
+                log.trace("Ignored packet outside of packetBuffer window ({} -> {}): {}",
+                        new Object[] { packetBuffer.windowOffset,
                                 ((packetBuffer.windowOffset + packetBuffer.windowSize) % 255), fragment });
             }
         }
@@ -192,7 +192,7 @@ public class RUPFragmentDecoder extends SimpleChannelUpstreamHandler {
 
         // send packet upstream
         if (log.isTraceEnabled()) {
-            log.trace("[{}] Sending packet upstream: {}", ctx.getName(), packetFragment);
+            log.trace("Sending packet upstream: {}", packetFragment);
         }
 
         ctx.sendUpstream(new UpstreamMessageEvent(ctx.getChannel(), packetFragment, ctx.getChannel().getRemoteAddress()));

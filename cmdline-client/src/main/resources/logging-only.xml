@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<itm-netty-handlerstack>
+
+	<handler name="logging-handler" factory="logging-handler"/>
+ 
+</itm-netty-handlerstack>

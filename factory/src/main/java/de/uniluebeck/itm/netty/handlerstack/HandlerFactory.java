@@ -33,4 +33,6 @@ public interface HandlerFactory {
 	String getDescription();
 	
 	ChannelHandler create(Multimap<String, String> properties) throws Exception;
+	
+        ChannelHandler create(String instanceName, Multimap<String, String> properties) throws Exception;
 }

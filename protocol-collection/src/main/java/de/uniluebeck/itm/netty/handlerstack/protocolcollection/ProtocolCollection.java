@@ -27,6 +27,10 @@ import de.uniluebeck.itm.netty.handlerstack.dlestxetx.DleStxEtxFramingDecoderFac
 import de.uniluebeck.itm.netty.handlerstack.dlestxetx.DleStxEtxFramingEncoderFactory;
 import de.uniluebeck.itm.netty.handlerstack.isense.ISensePacketDecoderFactory;
 import de.uniluebeck.itm.netty.handlerstack.isense.ISensePacketEncoderFactory;
+import de.uniluebeck.itm.netty.handlerstack.isenseotap.ISenseOtapPacketDecoderFactory;
+import de.uniluebeck.itm.netty.handlerstack.isenseotap.ISenseOtapPacketEncoderFactory;
+import de.uniluebeck.itm.netty.handlerstack.isenseotap.OtapHandlerFactory;
+import de.uniluebeck.itm.netty.handlerstack.isenseotap.PresenceDetectHandlerFactory;
 import de.uniluebeck.itm.netty.handlerstack.iseraerial.ISerAerialPacketDecoderFactory;
 import de.uniluebeck.itm.netty.handlerstack.iseraerial.ISerAerialPacketEncoderFactory;
 import de.uniluebeck.netty.handlerstack.logginghandler.LoggingHandlerFactory;
@@ -45,6 +49,11 @@ public class ProtocolCollection {
         factory.register(new DleStxEtxFramingDecoderFactory());
         factory.register(new DleStxEtxFramingEncoderFactory());
 
+        factory.register(new ISenseOtapPacketDecoderFactory());
+        factory.register(new ISenseOtapPacketEncoderFactory());
+        factory.register(new PresenceDetectHandlerFactory());
+        factory.register(new OtapHandlerFactory());
+        
         factory.register(new LoggingHandlerFactory());
     }
 

@@ -26,7 +26,7 @@ package de.uniluebeck.itm.netty.handlerstack.isense;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBuffers;
 
-import de.uniluebeck.itm.tr.util.StringUtils;
+import de.uniluebeck.itm.netty.handlerstack.util.NettyStringUtils;
 
 public class ISensePacket {
 
@@ -96,7 +96,7 @@ public class ISensePacket {
 			String s = new String(payloadBuffer);
 			builder.append(s.endsWith("\n") ? s.substring(0, s.length() - 2) : s);
 		} else {
-			builder.append(StringUtils.toHexString(getPayload().array()));
+			builder.append(NettyStringUtils.toHexString(getPayload()));
 		}
 		builder.append("]");
 		return builder.toString();

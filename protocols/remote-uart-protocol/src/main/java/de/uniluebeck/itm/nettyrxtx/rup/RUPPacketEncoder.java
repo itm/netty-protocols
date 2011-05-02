@@ -161,7 +161,7 @@ public class RUPPacketEncoder extends SimpleChannelDownstreamHandler {
 
 
 		RUPPacket packet = (RUPPacket) e.getMessage();
-		log.trace("[{}] Encoding into fragments: {}", ctx.getName(), packet);
+		log.trace("Encoding into fragments: {}", packet);
 
 		// only messages need fragmentation, set sink, sink requests and sink responses don't
 		if (packet.getCmdType() != RUPPacket.Type.MESSAGE.getValue()) {
@@ -172,7 +172,7 @@ public class RUPPacketEncoder extends SimpleChannelDownstreamHandler {
 					packet.getSource(),
 					packet.getPayload()
 			);
-			log.trace("[{}] Sending non-MESSAGE type RUP packet downstream", ctx.getName(), packet);
+			log.trace("Sending non-MESSAGE type RUP packet downstream", packet);
 			ctx.sendDownstream(
 					new DownstreamMessageEvent(ctx.getChannel(), e.getFuture(), fragment, e.getRemoteAddress())
 			);
@@ -180,7 +180,7 @@ public class RUPPacketEncoder extends SimpleChannelDownstreamHandler {
 		}
 
 		for (RUPFragment fragment : getFragmenter(packet).fragment(packet)) {
-			log.trace("[{}] Sending fragment downstream: {}", ctx.getName(), fragment);
+			log.trace("Sending fragment downstream: {}", fragment);
 			ctx.sendDownstream(
 					new DownstreamMessageEvent(ctx.getChannel(), e.getFuture(), fragment, e.getRemoteAddress())
 			);
@@ -208,7 +208,7 @@ public class RUPPacketEncoder extends SimpleChannelDownstreamHandler {
 		int i = 0;
 		for (HandlerFactory key : keys) {
 			try {
-				channelDownstreamHandlers[i] = (ChannelDownstreamHandler) key.create(channelDownstreamHandlerFactories.get(key));
+				channelDownstreamHandlers[i] = (ChannelDownstreamHandler) key.create(null, channelDownstreamHandlerFactories.get(key));
 			} catch (Exception e) {
 				propagate(e);
 			}

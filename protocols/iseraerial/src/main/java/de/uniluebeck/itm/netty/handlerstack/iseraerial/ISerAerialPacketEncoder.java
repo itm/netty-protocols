@@ -30,12 +30,20 @@ import org.slf4j.LoggerFactory;
 
 public class ISerAerialPacketEncoder extends OneToOneEncoder {
 
-    private static final Logger log = LoggerFactory.getLogger(ISerAerialPacketEncoder.class);
+    private final Logger log;
 
     /**
      * Package-private constructor for creation via factory only
      */
     ISerAerialPacketEncoder() {
+        this(null);
+    }
+
+    /**
+     * Package-private constructor for creation via factory only
+     */
+    ISerAerialPacketEncoder(String instanceName) {
+        log = LoggerFactory.getLogger(instanceName != null ? instanceName : ISerAerialPacketEncoder.class.getName());
     }
 
     @Override
@@ -46,7 +54,7 @@ public class ISerAerialPacketEncoder extends OneToOneEncoder {
         }
 
         ISerAerialOutgoingPacket packet = (ISerAerialOutgoingPacket) msg;
-        log.trace("[{}] Encoded ISerAerialOutgoingPacket: {}", ctx.getName(), packet);
-        return packet.getPacket();
+        log.trace("Encoded ISerAerialOutgoingPacket: {}", packet);
+        return packet.getBuffer();
     }
 }

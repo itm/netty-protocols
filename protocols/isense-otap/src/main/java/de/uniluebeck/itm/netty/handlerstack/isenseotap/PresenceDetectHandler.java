@@ -42,7 +42,7 @@ import de.uniluebeck.itm.tr.util.TimedCache;
 import de.uniluebeck.itm.wsn.devicedrivers.generic.ChipType;
 
 public class PresenceDetectHandler extends SimpleChannelHandler {
-    private static final Logger log = LoggerFactory.getLogger(PresenceDetectHandler.class);
+    private final Logger log;
 
     private final ScheduledExecutorService executorService;
 
@@ -60,15 +60,16 @@ public class PresenceDetectHandler extends SimpleChannelHandler {
         @Override
         public void run() {
             if (channel != null) {
+                log.trace("Sending Presence Detect Request");
                 channel.write(new PresenceDetectRequest());
-                log.trace("Sent Presence Detect Request");
             }
         }
     };
 
-    
-    public PresenceDetectHandler(final ScheduledExecutorService executorService, final int presenceDetectInterval,
-            int deviceTimeout, final TimeUnit timeunit) {
+    public PresenceDetectHandler(final String instanceName, final ScheduledExecutorService executorService,
+            final int presenceDetectInterval, int deviceTimeout, final TimeUnit timeunit) {
+        log = LoggerFactory.getLogger((instanceName != null) ? instanceName : PresenceDetectHandler.class.getName());
+
         this.executorService = executorService;
         this.presenceDetectIntervalTimeunit = timeunit;
         this.presenceDetectInterval = presenceDetectInterval;
@@ -77,21 +78,28 @@ public class PresenceDetectHandler extends SimpleChannelHandler {
     }
 
     public void startPresenceDetect() {
-        stopPresenceDetect();
+        log.info("Starting presence detect");
+        stopPresenceDetectInternal();
         sendPresenceDetectRunnableSchedule =
                 executorService.scheduleWithFixedDelay(sendPresenceDetectRunnable, 0, presenceDetectInterval,
                         presenceDetectIntervalTimeunit);
 
     }
 
+    private void stopPresenceDetectInternal(){
+        if (sendPresenceDetectRunnableSchedule != null)
+            sendPresenceDetectRunnableSchedule.cancel(false);
+    }
+    
     public void stopPresenceDetect() {
-        sendPresenceDetectRunnableSchedule.cancel(false);
+        stopPresenceDetectInternal();
+        log.info("Stopped presence detect");
     }
 
     public Collection<OtapDevice> getDetectedDevices() {
         return detectedDevices.values();
     }
-    
+
     @Override
     public void channelDisconnected(final ChannelHandlerContext ctx, final ChannelStateEvent e) throws Exception {
         stopPresenceDetect();
@@ -104,6 +112,19 @@ public class PresenceDetectHandler extends SimpleChannelHandler {
         assert channel == null;
         channel = e.getChannel();
         super.channelConnected(ctx, e);
+    }
+
+    @Override
+    public void writeRequested(ChannelHandlerContext ctx, MessageEvent e) throws Exception {
+
+        if (e.getMessage() instanceof PresenceDetectControlStart) {
+            startPresenceDetect();
+        } else if (e.getMessage() instanceof PresenceDetectControlStop) {
+            stopPresenceDetect();
+        } else {
+            super.writeRequested(ctx, e);
+        }
+
     }
 
     @Override
@@ -125,9 +146,10 @@ public class PresenceDetectHandler extends SimpleChannelHandler {
         d.setChipType(ChipType.getChipType(reply.chip_type));
         d.setProtocolVersion(reply.protocol_version);
         d.getLastReception().touch();
-        
-        if( log.isDebugEnabled())
-            log.debug("Detected {} devices with ids: {}", detectedDevices.size(), Arrays.toString(detectedDevices.keySet().toArray()));
+
+        if (log.isDebugEnabled())
+            log.debug("Detected {} devices with ids: {}", detectedDevices.size(),
+                    Arrays.toString(detectedDevices.keySet().toArray()));
     }
 
     private OtapDevice getOrCreateDevice(int deviceId) {

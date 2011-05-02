@@ -32,14 +32,11 @@ public class OtapDevice {
 
     private int id;
     private ChipType chipType = ChipType.Unknown;
-    private boolean fitsToBinFileAndProtocolVersion = false;
     private int lqi;
     private TimeDiff lastReception = new TimeDiff();
     private TimeDiff lastMessageTransmitted = new TimeDiff();
     private boolean chunkComplete = false;
     private int chunkNo = -1;
-    private String statusMessage = null;
-    private double progress = 0.0;
     private long applicationID = 0;
     private int softwareRevision = 0;
     private int protocolVersion = 0;
@@ -91,32 +88,12 @@ public class OtapDevice {
         this.chunkComplete = chunkComplete;
     }
 
-    public String getStatusMessage() {
-        return statusMessage;
-    }
-
-    public void setStatusMessage(String message) {
-        statusMessage = message;
-    }
-
-    public double getProgress() {
-        return progress;
-    }
-
-    public void setProgress(double progress) {
-        this.progress = progress;
-    }
-
     public ChipType getChipType() {
         return chipType;
     }
 
     public void setChipType(ChipType chipType) {
         this.chipType = chipType;
-    }
-
-    public boolean programmable() {
-        return fitsToBinFileAndProtocolVersion;
     }
 
     public int getChunkNo() {
@@ -151,7 +128,9 @@ public class OtapDevice {
         return protocolVersion;
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.lang.Object#toString()
      */
     @Override
@@ -171,10 +150,6 @@ public class OtapDevice {
         builder.append(chunkComplete);
         builder.append(", chunkNo=");
         builder.append(chunkNo);
-        builder.append(", statusMessage=");
-        builder.append(statusMessage);
-        builder.append(", progress=");
-        builder.append(progress);
         builder.append(", applicationID=");
         builder.append(applicationID);
         builder.append(", softwareRevision=");
@@ -185,7 +160,9 @@ public class OtapDevice {
         return builder.toString();
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.lang.Object#hashCode()
      */
     @Override
@@ -196,7 +173,9 @@ public class OtapDevice {
         return result;
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.lang.Object#equals(java.lang.Object)
      */
     @Override
@@ -212,7 +191,5 @@ public class OtapDevice {
             return false;
         return true;
     }
-
-
 
 }

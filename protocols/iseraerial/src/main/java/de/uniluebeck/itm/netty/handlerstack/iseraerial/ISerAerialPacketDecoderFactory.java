@@ -42,7 +42,12 @@ public class ISerAerialPacketDecoderFactory implements HandlerFactory {
 
     @Override
     public ChannelHandler create(Multimap<String, String> properties) throws Exception {
-        return new ISerAerialPacketDecoder(); 
+        return new ISerAerialPacketDecoder();
+    }
+
+    @Override
+    public ChannelHandler create(String instanceName, Multimap<String, String> properties) throws Exception {
+        return new ISerAerialPacketDecoder(instanceName);
     }
 
 }

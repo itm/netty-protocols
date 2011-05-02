@@ -45,4 +45,9 @@ public class ISensePacketDecoderFactory implements HandlerFactory {
         return new ISensePacketDecoder(); 
     }
 
+    @Override
+    public ChannelHandler create(String instanceName, Multimap<String, String> properties) throws Exception {
+        return new ISensePacketDecoder(instanceName); 
+    }
+
 }

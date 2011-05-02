@@ -45,4 +45,9 @@ public class ISenseOtapPacketEncoderFactory implements HandlerFactory {
         return new ISenseOtapPacketEncoder();
     }
 
+    @Override
+    public ChannelHandler create(String instanceName, Multimap<String, String> properties) throws Exception {
+        return new ISenseOtapPacketEncoder(instanceName);
+    }
+
 }

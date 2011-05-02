@@ -53,6 +53,11 @@ public class OtapHandlerFactory implements HandlerFactory {
 
     @Override
     public ChannelHandler create(Multimap<String, String> properties) throws Exception {
+        return create(null, properties);
+    }
+    
+    @Override
+    public ChannelHandler create(String instanceName, Multimap<String, String> properties) throws Exception {
         short settingMaxRerequests = 30;
         short settingTimeoutMultiplier = 100;
         int threadCount = 10;
@@ -71,6 +76,6 @@ public class OtapHandlerFactory implements HandlerFactory {
         if (properties.containsKey(TIMEOUT_MULTIPLIER))
             settingTimeoutMultiplier = Short.parseShort(properties.get(TIMEOUT_MULTIPLIER).iterator().next());
 
-        return new OtapHandler(executorService, settingMaxRerequests, settingTimeoutMultiplier);
+        return new OtapHandler(null, executorService, settingMaxRerequests, settingTimeoutMultiplier);
     }
 }

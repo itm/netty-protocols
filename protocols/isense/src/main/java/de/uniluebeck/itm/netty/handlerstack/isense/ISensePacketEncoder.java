@@ -30,12 +30,20 @@ import org.slf4j.LoggerFactory;
 
 public class ISensePacketEncoder extends OneToOneEncoder {
 
-    private static final Logger log = LoggerFactory.getLogger(ISensePacketEncoder.class);
+    private final Logger log;
 
     /**
      * Package-private constructor for creation via factory only
      */
     ISensePacketEncoder() {
+        this(null);
+    }
+    
+    /**
+     * Package-private constructor for creation via factory only
+     */
+    ISensePacketEncoder(String instanceName) {
+        log = LoggerFactory.getLogger(instanceName != null ? instanceName : ISensePacketEncoder.class.getName());
     }
 
     @Override
@@ -46,7 +54,7 @@ public class ISensePacketEncoder extends OneToOneEncoder {
         }
 
         ISensePacket packet = (ISensePacket) msg;
-        log.trace("[{}] Encoded ISensePacket: {}", ctx.getName(), packet);
+        log.trace("Encoded ISensePacket: {}", packet);
         return packet.getBuffer();
     }
 }

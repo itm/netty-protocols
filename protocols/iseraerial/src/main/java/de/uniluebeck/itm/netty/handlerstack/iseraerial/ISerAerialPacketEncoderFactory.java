@@ -45,4 +45,9 @@ public class ISerAerialPacketEncoderFactory implements HandlerFactory {
         return new ISerAerialPacketEncoder();
     }
 
+    @Override
+    public ChannelHandler create(String instanceName, Multimap<String, String> properties) throws Exception {
+        return new ISerAerialPacketEncoder(instanceName);
+    }
+
 }

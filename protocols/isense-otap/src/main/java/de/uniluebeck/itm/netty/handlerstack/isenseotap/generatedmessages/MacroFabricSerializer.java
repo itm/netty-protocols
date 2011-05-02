@@ -25,6 +25,8 @@ package de.uniluebeck.itm.netty.handlerstack.isenseotap.generatedmessages;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 
+import de.uniluebeck.itm.netty.handlerstack.isenseotap.ISenseOtapPacketType;
+
 public final class MacroFabricSerializer {
 
     /**
@@ -47,7 +49,7 @@ public final class MacroFabricSerializer {
 
     public static byte[] serialize(PresenceDetectRequest dtype) {
         os = new ByteArrayOutputStream();
-        writeInteger(PacketTypes.OTAP, 1); // packet type
+        writeInteger(ISenseOtapPacketType.OTAP, 1); // packet type
         writeInteger(0, 1); // data type
         return os.toByteArray();
     }
@@ -63,7 +65,7 @@ public final class MacroFabricSerializer {
 
     public static byte[] serialize(PresenceDetectReply dtype) {
         os = new ByteArrayOutputStream();
-        writeInteger(PacketTypes.OTAP, 1); // packet type
+        writeInteger(ISenseOtapPacketType.OTAP, 1); // packet type
         writeInteger(1, 1); // data type
         writeInteger(dtype.device_id, 2);
         writeInteger(dtype.chip_type, 1);
@@ -91,7 +93,7 @@ public final class MacroFabricSerializer {
 
     public static byte[] serialize(OtapInitRequest dtype) {
         os = new ByteArrayOutputStream();
-        writeInteger(PacketTypes.OTAP, 1); // packet type
+        writeInteger(ISenseOtapPacketType.OTAP, 1); // packet type
         writeInteger(2, 1); // data type
         writeInteger(dtype.chunk_count, 1);
         writeInteger(dtype.timeout_multiplier_ms, 1);
@@ -120,7 +122,7 @@ public final class MacroFabricSerializer {
 
     public static byte[] serialize(OtapInitReply dtype) {
         os = new ByteArrayOutputStream();
-        writeInteger(PacketTypes.OTAP, 1); // packet type
+        writeInteger(ISenseOtapPacketType.OTAP, 1); // packet type
         writeInteger(3, 1); // data type
         writeInteger(dtype.device_id, 2);
         return os.toByteArray();
@@ -140,7 +142,7 @@ public final class MacroFabricSerializer {
 
     public static byte[] serialize(OtapProgramRequest dtype) {
         os = new ByteArrayOutputStream();
-        writeInteger(PacketTypes.OTAP, 1); // packet type
+        writeInteger(ISenseOtapPacketType.OTAP, 1); // packet type
         writeInteger(4, 1); // data type
         writeInteger(dtype.chunk_no, 1);
         writeInteger(dtype.packets_in_chunk, 1);
@@ -173,7 +175,7 @@ public final class MacroFabricSerializer {
 
     public static byte[] serialize(OtapProgramReply dtype) {
         os = new ByteArrayOutputStream();
-        writeInteger(PacketTypes.OTAP, 1); // packet type
+        writeInteger(ISenseOtapPacketType.OTAP, 1); // packet type
         writeInteger(5, 1); // data type
         writeInteger(dtype.device_id, 2);
         writeInteger(dtype.chunk_no, 1);

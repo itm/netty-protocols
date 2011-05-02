@@ -30,35 +30,46 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.uniluebeck.itm.netty.handlerstack.isenseotap.generatedmessages.MacroFabricSerializer;
-import de.uniluebeck.itm.tr.util.StringUtils;
+import de.uniluebeck.itm.netty.handlerstack.iseraerial.ISerAerialIncomingPacket;
 
 public class ISenseOtapPacketDecoder extends OneToOneDecoder {
 
-    private static final Logger log = LoggerFactory.getLogger(ISenseOtapPacketDecoder.class);
+    private final Logger log;
 
     /**
      * Package-private constructor for creation via factory only
      */
     ISenseOtapPacketDecoder() {
+        this(null);
+    }
+
+    /**
+     * Package-private constructor for creation via factory only
+     */
+    ISenseOtapPacketDecoder(String instanceName) {
+        log = LoggerFactory.getLogger(instanceName != null ? instanceName : ISenseOtapPacketDecoder.class.getName());
     }
 
     @Override
     protected Object decode(final ChannelHandlerContext ctx, final Channel channel, final Object msg) throws Exception {
-
-        if (!(msg instanceof ChannelBuffer))
+        if (!(msg instanceof ISerAerialIncomingPacket))
             return msg;
 
-        ChannelBuffer bytes = (ChannelBuffer) msg;
-        byte[] byteArray = new byte[bytes.readableBytes()];
-        bytes.getBytes(0, byteArray, 0, byteArray.length);
+        ISerAerialIncomingPacket serAerialMsg = (ISerAerialIncomingPacket) msg;
+        if (!serAerialMsg.getPayload().readable())
+            return msg;
+
+        //Try to deserialize, if not, null is returned.
+        ChannelBuffer payload = serAerialMsg.getPayload();
+        byte[] byteArray = new byte[payload.readableBytes()];
+        payload.getBytes(payload.readerIndex(), byteArray, 0, byteArray.length);
         Object result = MacroFabricSerializer.deserialize(byteArray);
 
         if (result == null) {
-            String text = "Unable to deserialize Otap Message: " + StringUtils.toHexString(byteArray);
-            log.error(text);
-            throw new Exception(text);
+            log.trace("Ignoring non-deserializable packet -> doesn't look like an OTAP packet");
+            return msg;
         }
-        
+
         return result;
     }
 }

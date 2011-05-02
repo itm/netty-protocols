@@ -26,7 +26,7 @@ import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBuffers;
 import org.slf4j.LoggerFactory;
 
-import de.uniluebeck.itm.tr.util.StringUtils;
+import de.uniluebeck.itm.netty.handlerstack.util.NettyStringUtils;
 
 public class ISerAerialIncomingPacket {
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(ISerAerialIncomingPacket.class);
@@ -95,18 +95,16 @@ public class ISerAerialIncomingPacket {
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
-        builder.append("ISerAerialIncomingPacket [buffer=");
-        builder.append(buffer);
-        builder.append(", getSource()=");
-        builder.append(getSource());
-        builder.append(", getDestination()=");
-        builder.append(getDestination());
-        builder.append(", getLinkQualityIndicator()=");
+        builder.append("ISerAerialIncomingPacket [source=0x");
+        builder.append(Integer.toString(getSource(), 16));
+        builder.append(", destination=0x");
+        builder.append(Integer.toString(getDestination(), 16));
+        builder.append(", lqi=");
         builder.append(getLinkQualityIndicator());
-        builder.append(", getInterface()=");
+        builder.append(", interface=");
         builder.append(getInterface());
-        builder.append(", getPayload()=");
-        builder.append(StringUtils.toHexString(getPayload().array()));
+        builder.append(", payload=");
+        builder.append(NettyStringUtils.toHexString(getPayload()));
         builder.append("]");
         return builder.toString();
     }
