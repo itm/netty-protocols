@@ -20,7 +20,7 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package de.uniluebeck.itm.netty.handlerstack.isenseotap;
+package de.uniluebeck.itm.netty.handlerstack.isenseotap.otap;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -48,6 +48,9 @@ import com.coalesenses.binaryimage.BinaryImage;
 import com.coalesenses.binaryimage.OtapChunk;
 import com.coalesenses.binaryimage.OtapPacket;
 
+import de.uniluebeck.itm.netty.handlerstack.isenseotap.ISenseOtapDevice;
+import de.uniluebeck.itm.netty.handlerstack.isenseotap.ISenseOtapProgramState;
+import de.uniluebeck.itm.netty.handlerstack.isenseotap.commands.ISenseOtapProgramRequest;
 import de.uniluebeck.itm.netty.handlerstack.isenseotap.generatedmessages.OtapInitReply;
 import de.uniluebeck.itm.netty.handlerstack.isenseotap.generatedmessages.OtapInitRequest;
 import de.uniluebeck.itm.netty.handlerstack.isenseotap.generatedmessages.OtapProgramReply;

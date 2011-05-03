@@ -1,4 +1,4 @@
-package de.uniluebeck.itm.netty.handlerstack.isenseotap;
+package de.uniluebeck.itm.netty.handlerstack.isenseotap.commands;
 
 import java.util.Set;
 

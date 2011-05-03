@@ -20,7 +20,7 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package de.uniluebeck.itm.netty.handlerstack.isenseotap;
+package de.uniluebeck.itm.netty.handlerstack.isenseotap.presencedetect;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -37,6 +37,9 @@ import org.jboss.netty.channel.UpstreamMessageEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.uniluebeck.itm.netty.handlerstack.isenseotap.ISenseOtapDevice;
+import de.uniluebeck.itm.netty.handlerstack.isenseotap.commands.PresenceDetectControlStart;
+import de.uniluebeck.itm.netty.handlerstack.isenseotap.commands.PresenceDetectControlStop;
 import de.uniluebeck.itm.netty.handlerstack.isenseotap.generatedmessages.PresenceDetectReply;
 import de.uniluebeck.itm.netty.handlerstack.isenseotap.generatedmessages.PresenceDetectRequest;
 import de.uniluebeck.itm.tr.util.TimedCache;

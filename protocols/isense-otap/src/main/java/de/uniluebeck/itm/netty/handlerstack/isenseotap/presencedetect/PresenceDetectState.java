@@ -1,4 +1,4 @@
-package de.uniluebeck.itm.netty.handlerstack.isenseotap;
+package de.uniluebeck.itm.netty.handlerstack.isenseotap.presencedetect;
 
 import java.util.Set;
 

@@ -20,19 +20,33 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package de.uniluebeck.itm.netty.handlerstack.isenseotap;
+package de.uniluebeck.itm.netty.handlerstack.isenseotap.presencedetect;
+
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import org.jboss.netty.channel.ChannelHandler;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Multimap;
 
 import de.uniluebeck.itm.netty.handlerstack.HandlerFactory;
 
-public class ISenseOtapPacketDecoderFactory implements HandlerFactory {
+public class PresenceDetectHandlerFactory implements HandlerFactory {
+    private static final org.slf4j.Logger log = LoggerFactory.getLogger(PresenceDetectHandlerFactory.class);
+
+    private static final String PRESENCE_DETECT_INTERVAL = "presenceDetectInterval";
+
+    private static final String DEVICE_TIMEOUT = "deviceTimeout";
+
+    private static final String TIMEUNIT = "timeunit";
+
+    private static final String THREAD_COUNT = "threadCount";
 
     @Override
     public String getName() {
-        return "isense-otap-packet-decoder";
+        return "isense-otap-presence-detect-handler";
     }
 
     @Override
@@ -40,14 +54,35 @@ public class ISenseOtapPacketDecoderFactory implements HandlerFactory {
         return "";
     }
 
-    @Override
     public ChannelHandler create(Multimap<String, String> properties) throws Exception {
-        return new ISenseOtapPacketDecoder(); 
+        return create(null, properties);
     }
 
     @Override
     public ChannelHandler create(String instanceName, Multimap<String, String> properties) throws Exception {
-        return new ISenseOtapPacketDecoder(instanceName); 
-    }
+        int presenceDetectInterval = 2000;
+        int deviceTimeout = 160 * presenceDetectInterval;
+        TimeUnit timeunit = TimeUnit.MILLISECONDS;
+        int threadCount = 10;
 
+        if (properties.containsKey(PRESENCE_DETECT_INTERVAL))
+            presenceDetectInterval = Integer.parseInt(properties.get(PRESENCE_DETECT_INTERVAL).iterator().next());
+
+        if (properties.containsKey(DEVICE_TIMEOUT))
+            deviceTimeout = Integer.parseInt(properties.get(DEVICE_TIMEOUT).iterator().next());
+
+        if (properties.containsKey(TIMEUNIT))
+            timeunit = TimeUnit.valueOf(properties.get(TIMEUNIT).iterator().next());
+
+        if (properties.containsKey(THREAD_COUNT))
+            threadCount = Integer.parseInt(properties.get(THREAD_COUNT).iterator().next());
+
+        ScheduledExecutorService executorService = Executors.newScheduledThreadPool(threadCount);
+
+        log.debug(
+                "Creating new Presence Detect Handler presenceDetectInterval: {}, deviceTimeout: {}, timeunit: {}, threadCount: {}",
+                new Object[] { presenceDetectInterval, deviceTimeout, timeunit, threadCount });
+
+        return new PresenceDetectHandler(instanceName, executorService, presenceDetectInterval, deviceTimeout, timeunit);
+    }
 }
