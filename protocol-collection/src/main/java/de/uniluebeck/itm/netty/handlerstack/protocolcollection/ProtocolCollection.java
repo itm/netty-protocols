@@ -29,9 +29,10 @@ import de.uniluebeck.itm.netty.handlerstack.dlestxetx.DleStxEtxFramingDecoderFac
 import de.uniluebeck.itm.netty.handlerstack.dlestxetx.DleStxEtxFramingEncoderFactory;
 import de.uniluebeck.itm.netty.handlerstack.isense.ISensePacketDecoderFactory;
 import de.uniluebeck.itm.netty.handlerstack.isense.ISensePacketEncoderFactory;
+import de.uniluebeck.itm.netty.handlerstack.isenseotap.ISenseOtapAutomatedHandlerFactory;
+import de.uniluebeck.itm.netty.handlerstack.isenseotap.ISenseOtapHandlerFactory;
 import de.uniluebeck.itm.netty.handlerstack.isenseotap.ISenseOtapPacketDecoderFactory;
 import de.uniluebeck.itm.netty.handlerstack.isenseotap.ISenseOtapPacketEncoderFactory;
-import de.uniluebeck.itm.netty.handlerstack.isenseotap.ISenseOtapHandlerFactory;
 import de.uniluebeck.itm.netty.handlerstack.isenseotap.PresenceDetectHandlerFactory;
 import de.uniluebeck.itm.netty.handlerstack.iseraerial.ISerAerialPacketDecoderFactory;
 import de.uniluebeck.itm.netty.handlerstack.iseraerial.ISerAerialPacketEncoderFactory;
@@ -55,6 +56,7 @@ public class ProtocolCollection {
         registry.register(new ISenseOtapPacketEncoderFactory());
         registry.register(new PresenceDetectHandlerFactory());
         registry.register(new ISenseOtapHandlerFactory());
+        registry.register(new ISenseOtapAutomatedHandlerFactory());
         
         registry.register(new IShellInterpreterHandlerFactory());
         

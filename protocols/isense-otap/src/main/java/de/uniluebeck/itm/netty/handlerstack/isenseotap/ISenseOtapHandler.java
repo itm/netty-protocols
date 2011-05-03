@@ -36,7 +36,9 @@ import java.util.concurrent.TimeUnit;
 
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelHandlerContext;
-import org.jboss.netty.channel.ChannelStateEvent;
+import org.jboss.netty.channel.Channels;
+import org.jboss.netty.channel.DownstreamMessageEvent;
+import org.jboss.netty.channel.LifeCycleAwareChannelHandler;
 import org.jboss.netty.channel.MessageEvent;
 import org.jboss.netty.channel.SimpleChannelHandler;
 import org.slf4j.Logger;
@@ -50,9 +52,10 @@ import de.uniluebeck.itm.netty.handlerstack.isenseotap.generatedmessages.OtapIni
 import de.uniluebeck.itm.netty.handlerstack.isenseotap.generatedmessages.OtapInitRequest;
 import de.uniluebeck.itm.netty.handlerstack.isenseotap.generatedmessages.OtapProgramReply;
 import de.uniluebeck.itm.netty.handlerstack.isenseotap.generatedmessages.OtapProgramRequest;
+import de.uniluebeck.itm.netty.handlerstack.util.HandlerTools;
 import de.uniluebeck.itm.tr.util.TimeDiff;
 
-public class ISenseOtapHandler extends SimpleChannelHandler {
+public class ISenseOtapHandler extends SimpleChannelHandler implements LifeCycleAwareChannelHandler {
     private final Logger log;
 
     private final int maxDevicesPerPacket = new OtapInitRequest().participating_devices.value.length;
@@ -79,8 +82,6 @@ public class ISenseOtapHandler extends SimpleChannelHandler {
 
     private TimeDiff chunkTimeout = new TimeDiff();
 
-    private Channel channel = null;
-
     private BinaryImage program = null;
 
     /** A set of devices selected to program, they must all ack before they are programmed */
@@ -88,6 +89,8 @@ public class ISenseOtapHandler extends SimpleChannelHandler {
 
     /** The actual set of devices that are reprogrammed */
     private Map<Integer, ISenseOtapDevice> devicesToProgram;
+
+    private Set<Integer> failedDevices;
 
     private OtapChunk chunk = null;
 
@@ -107,13 +110,18 @@ public class ISenseOtapHandler extends SimpleChannelHandler {
 
         private void send(OtapInitRequest req) {
             log.debug("Sending otap init request: {}", req);
-            channel.write(req); // TODO
+
+            Channel channel = context.getChannel();
+
+            DownstreamMessageEvent msg =
+                    new DownstreamMessageEvent(channel, Channels.succeededFuture(channel), req,
+                            channel.getRemoteAddress());
+            context.sendDownstream(msg);
         }
 
         @Override
         public void run() {
-
-            if (channel == null)
+            if (context == null)
                 return;
 
             OtapInitRequest req = createRequest();
@@ -147,6 +155,7 @@ public class ISenseOtapHandler extends SimpleChannelHandler {
                 // Switch state
                 log.info("Switching from state {} to {}.", state, State.OTAP_PROGRAM);
                 state = State.OTAP_PROGRAM;
+                failedDevices = new HashSet<Integer>();
 
                 // Cancel otap init schedule
                 sendOtapInitRequestsSchedule.cancel(false);
@@ -179,7 +188,7 @@ public class ISenseOtapHandler extends SimpleChannelHandler {
     private final Runnable sendOtapProgramRequestsRunnable = new Runnable() {
         @Override
         public void run() {
-            if (channel == null)
+            if (context == null)
                 return;
 
             if (state != State.OTAP_PROGRAM) {
@@ -217,11 +226,13 @@ public class ISenseOtapHandler extends SimpleChannelHandler {
                         + req.overall_packet_no + "], Remaining[" + req.remaining + "], RevisionNo[" + "]");
 
                 // Send the packet
-                channel.write(req); // TODO
+                HandlerTools.sendDownstream(req, context);
             }
 
         }
     };
+
+    private ChannelHandlerContext context;
 
     public ISenseOtapHandler(final String instanceName, final ScheduledExecutorService executorService,
             short settingMaxRerequests, short settingTimeoutMultiplier) {
@@ -263,20 +274,6 @@ public class ISenseOtapHandler extends SimpleChannelHandler {
             switchToProgrammingStateSchedule.cancel(false);
 
         state = State.IDLE;
-    }
-
-    @Override
-    public void channelDisconnected(final ChannelHandlerContext ctx, final ChannelStateEvent e) throws Exception {
-        stopProgramming();
-        channel = null;
-        super.channelDisconnected(ctx, e);
-    }
-
-    @Override
-    public void channelConnected(final ChannelHandlerContext ctx, final ChannelStateEvent e) throws Exception {
-        assert channel == null;
-        channel = e.getChannel();
-        super.channelConnected(ctx, e);
     }
 
     @Override
@@ -384,6 +381,8 @@ public class ISenseOtapHandler extends SimpleChannelHandler {
             if (log.isDebugEnabled())
                 log.debug("Device {} misses packets {}", reply.device_id, Arrays.toString(missingIndices.toArray()));
 
+            sendStateUpstream();
+            
         } else {
             log.debug("No missing indices at {}, chunk ", Integer.toHexString(reply.device_id), reply.chunk_no);
             device.setChunkComplete(true);
@@ -413,6 +412,7 @@ public class ISenseOtapHandler extends SimpleChannelHandler {
 
         } else {
             log.info("No more chunks available. Stopping OTAP. Done.");
+            sendStateUpstream();
             stopProgramming();
         }
 
@@ -435,6 +435,7 @@ public class ISenseOtapHandler extends SimpleChannelHandler {
         }
 
         for (ISenseOtapDevice d : failedDevicesToRemove) {
+            this.failedDevices.add(d.getId());
             devicesToProgram.remove(d.getId());
         }
 
@@ -464,6 +465,44 @@ public class ISenseOtapHandler extends SimpleChannelHandler {
             log.debug("All devices received all packets in chunk");
 
         return allPacketsAtAllDevicesRX;
+    }
+
+    private void sendStateUpstream() {
+        HandlerTools.sendUpstream(getCurrentState(), context);
+    }
+
+    private ISenseOtapProgramState getCurrentState() {
+        Set<Integer> devicesToBeProgrammed = new HashSet<Integer>(devicesToProgram.keySet());
+        Set<Integer> failedDevices = new HashSet<Integer>(this.failedDevices);
+        Set<Integer> doneDevices = new HashSet<Integer>();
+
+        for (ISenseOtapDevice device : devicesToProgram.values())
+            if (device.isChunkComplete() && device.getChunkNo() == program.getChunkCount() - 1)
+                doneDevices.add(device.getId());
+
+        return new ISenseOtapProgramState(devicesToBeProgrammed, failedDevices, doneDevices);
+
+    }
+
+    @Override
+    public void afterAdd(ChannelHandlerContext ctx) throws Exception {
+        assert context == null;
+        this.context = ctx;
+    }
+
+    @Override
+    public void afterRemove(ChannelHandlerContext ctx) throws Exception {
+        this.context = null;
+    }
+
+    @Override
+    public void beforeAdd(ChannelHandlerContext ctx) throws Exception {
+        // Nothing to do
+    }
+
+    @Override
+    public void beforeRemove(ChannelHandlerContext ctx) throws Exception {
+        // Nothing to do
     }
 
 }

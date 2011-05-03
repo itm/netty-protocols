@@ -22,8 +22,7 @@
  */
 package de.uniluebeck.itm.netty.handlerstack.isenseotap;
 
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import org.jboss.netty.channel.ChannelHandler;
 import org.slf4j.LoggerFactory;
@@ -32,18 +31,18 @@ import com.google.common.collect.Multimap;
 
 import de.uniluebeck.itm.netty.handlerstack.HandlerFactory;
 
-public class ISenseOtapHandlerFactory implements HandlerFactory {
-    private static final org.slf4j.Logger log = LoggerFactory.getLogger(ISenseOtapHandlerFactory.class);
+public class ISenseOtapAutomatedHandlerFactory implements HandlerFactory {
+    private static final org.slf4j.Logger log = LoggerFactory.getLogger(ISenseOtapAutomatedHandlerFactory.class);
 
-    private static final String THREAD_COUNT = "threadCount";
+    private static final String PRESENCE_DETECT_TIMEOUT = "presenceDetectTimeout";
+    private static final String PRESENCE_DETECT_TIMEOUT_TIMEUNIT = "presenceDetectTimeoutTimeUnit";
 
-    private static final String MAX_REREQUESTS = "maxReRequests";
-
-    private static final String TIMEOUT_MULTIPLIER = "timeoutMultiplier";
+    private static final String PROGRAMMING_TIMEOUT = "programmingTimeout";
+    private static final String PROGRAMMING_TIMEOUT_TIMEUNIT = "programmingTimeoutTimeUnit";
 
     @Override
     public String getName() {
-        return "isense-otap-handler";
+        return "isense-otap-automated-handler";
     }
 
     @Override
@@ -58,25 +57,31 @@ public class ISenseOtapHandlerFactory implements HandlerFactory {
 
     @Override
     public ChannelHandler create(String instanceName, Multimap<String, String> properties) throws Exception {
-        short settingMaxRerequests = 30;
-        short settingTimeoutMultiplier = 100;
-        int threadCount = 10;
+        long presenceDetectTimeout = 30;
+        TimeUnit presenceDetectTimeoutTimeUnit = TimeUnit.SECONDS;
 
-        if (properties.containsKey(THREAD_COUNT))
-            threadCount = Integer.parseInt(properties.get(THREAD_COUNT).iterator().next());
+        long programmingTimeout = 10;
+        TimeUnit programmingTimeoutTimeUnit = TimeUnit.MINUTES;
 
-        ScheduledExecutorService executorService = Executors.newScheduledThreadPool(threadCount);
+        if (properties.containsKey(PRESENCE_DETECT_TIMEOUT))
+            presenceDetectTimeout = Integer.parseInt(properties.get(PRESENCE_DETECT_TIMEOUT).iterator().next());
 
-        if (properties.containsKey(MAX_REREQUESTS))
-            settingMaxRerequests = Short.parseShort(properties.get(MAX_REREQUESTS).iterator().next());
+        if (properties.containsKey(PRESENCE_DETECT_TIMEOUT_TIMEUNIT))
+            presenceDetectTimeoutTimeUnit =
+                    TimeUnit.valueOf(properties.get(PRESENCE_DETECT_TIMEOUT_TIMEUNIT).iterator().next());
 
-        if (properties.containsKey(TIMEOUT_MULTIPLIER))
-            settingTimeoutMultiplier = Short.parseShort(properties.get(TIMEOUT_MULTIPLIER).iterator().next());
+        if (properties.containsKey(PROGRAMMING_TIMEOUT))
+            programmingTimeout = Integer.parseInt(properties.get(PROGRAMMING_TIMEOUT).iterator().next());
 
-        log.debug(
-                "Creating new Otap Handler, threadCount: {}, settingMaxRerequests: {}, settingTimeoutMultiplierMillis: {}",
-                new Object[] { threadCount, settingMaxRerequests, settingTimeoutMultiplier });
+        if (properties.containsKey(PROGRAMMING_TIMEOUT_TIMEUNIT))
+            programmingTimeoutTimeUnit =
+                    TimeUnit.valueOf(properties.get(PROGRAMMING_TIMEOUT_TIMEUNIT).iterator().next());
 
-        return new ISenseOtapHandler(null, executorService, settingMaxRerequests, settingTimeoutMultiplier);
+        log.debug("Creating new Otap Automated Handler, presenceDetectTimeout: {}{}, programmingTimeout: {}{}",
+                new Object[] { presenceDetectTimeout, presenceDetectTimeoutTimeUnit, programmingTimeout,
+                        programmingTimeoutTimeUnit });
+
+        return new ISenseOtapAutomatedHandler(instanceName, presenceDetectTimeout, presenceDetectTimeoutTimeUnit, programmingTimeout,
+                programmingTimeoutTimeUnit);
     }
 }

@@ -114,34 +114,27 @@ public class Main {
 
         final Set<Integer> otapDevices = Sets.newHashSet(0x1b87);
         final byte[] otapProgram = Files.toByteArray(new File("src/main/resources/iSenseDemoApp.bin"));
-        
+
         SimpleChannelHandler leftStackHandler = new SimpleChannelHandler() {
 
-            
-            /* (non-Javadoc)
-             * @see org.jboss.netty.channel.SimpleChannelHandler#channelConnected(org.jboss.netty.channel.ChannelHandlerContext, org.jboss.netty.channel.ChannelStateEvent)
+            /*
+             * (non-Javadoc)
+             * 
+             * @see
+             * org.jboss.netty.channel.SimpleChannelHandler#channelConnected(org.jboss.netty.channel.ChannelHandlerContext
+             * , org.jboss.netty.channel.ChannelStateEvent)
              */
             @Override
             public void channelConnected(ChannelHandlerContext ctx, final ChannelStateEvent e) throws Exception {
                 executorService.submit(new Runnable() {
-                    /* (non-Javadoc)
+                    /*
+                     * (non-Javadoc)
+                     * 
                      * @see java.lang.Runnable#run()
                      */
                     @Override
                     public void run() {
                         e.getChannel().write(new IShellInterpreterSetChannelMessage((byte) 21));
-                        try {
-                            Thread.sleep(500);
-                        } catch (InterruptedException e1) {
-                            log.debug(" :" + e1, e1);
-                        }
-                        e.getChannel().write(new PresenceDetectControlStart());
-                        try {
-                            Thread.sleep(5000);
-                        } catch (InterruptedException e1) {
-                            log.debug(" :" + e1, e1);
-                        }
-                        e.getChannel().write(new PresenceDetectControlStop());
                         try {
                             Thread.sleep(500);
                         } catch (InterruptedException e1) {
@@ -153,8 +146,11 @@ public class Main {
                 super.channelConnected(ctx, e);
             }
 
-            /* (non-Javadoc)
-             * @see org.jboss.netty.channel.SimpleChannelHandler#channelDisconnected(org.jboss.netty.channel.ChannelHandlerContext, org.jboss.netty.channel.ChannelStateEvent)
+            /*
+             * (non-Javadoc)
+             * 
+             * @see org.jboss.netty.channel.SimpleChannelHandler#channelDisconnected(org.jboss.netty.channel.
+             * ChannelHandlerContext, org.jboss.netty.channel.ChannelStateEvent)
              */
             @Override
             public void channelDisconnected(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
@@ -201,7 +197,7 @@ public class Main {
 
         // "Switch" to the new setup (must be called after using any setters to activate the new configuration)
         stack.performSetup();
-        
+
         // Run the program until the user enters "exit".
         BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
         System.err.println("Enter 'exit' to exit.");

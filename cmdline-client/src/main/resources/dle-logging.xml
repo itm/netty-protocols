@@ -4,6 +4,7 @@
 
 	<handler name="logging-handler" factory="logging-handler" />
 
+	<handler name="isense-otap-automated-handler" factory="isense-otap-automated-handler" />
 	<handler name="isense-otap-handler" factory="isense-otap-handler" />
 	<handler name="isense-otap-presence-detect-handler" factory="isense-otap-presence-detect-handler" />
 	<handler name="isense-ishell-interpreter" factory="isense-ishell-interpreter" />
