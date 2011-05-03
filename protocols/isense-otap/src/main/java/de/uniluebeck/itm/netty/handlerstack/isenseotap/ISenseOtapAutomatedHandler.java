@@ -12,6 +12,7 @@ import de.uniluebeck.itm.netty.handlerstack.util.HandlerTools;
 import de.uniluebeck.itm.tr.util.StringUtils;
 import de.uniluebeck.itm.tr.util.TimeDiff;
 
+//TODO Handle timeouts properly (e.g., if the lower layers don't behave as expected)
 public class ISenseOtapAutomatedHandler extends SimpleChannelHandler implements LifeCycleAwareChannelHandler {
     private final org.slf4j.Logger log;
 
