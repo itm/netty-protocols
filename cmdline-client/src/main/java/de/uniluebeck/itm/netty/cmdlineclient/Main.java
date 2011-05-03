@@ -4,7 +4,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -37,9 +36,7 @@ import de.uniluebeck.itm.netty.channelflange.ChannelFlange;
 import de.uniluebeck.itm.netty.handlerstack.HandlerFactoryRegistry;
 import de.uniluebeck.itm.netty.handlerstack.HandlerStack;
 import de.uniluebeck.itm.netty.handlerstack.isenseotap.ISenseOtapProgramRequest;
-import de.uniluebeck.itm.netty.handlerstack.isenseotap.PresenceDetectControlStart;
 import de.uniluebeck.itm.netty.handlerstack.isenseotap.PresenceDetectControlStop;
-import de.uniluebeck.itm.netty.handlerstack.isenseotap.generatedmessages.OtapProgramRequest;
 import de.uniluebeck.itm.netty.handlerstack.protocolcollection.ProtocolCollection;
 import de.uniluebeck.itm.nettyrxtx.RXTXChannelFactory;
 import de.uniluebeck.itm.nettyrxtx.RXTXDeviceAddress;
@@ -50,6 +47,7 @@ public class Main {
         options.addOption("d", "device", true, "Device address (e.g., /dev/ttyUSB0)");
         options.addOption("f", "file", true, "A config file");
         options.addOption("v", "verbose", false, "Verbose logging output");
+        options.addOption("x", "xtremlyverbose", false, "Extremly verbose logging output");
         options.addOption("h", "help", false, "Help output");
     }
 
@@ -78,11 +76,16 @@ public class Main {
         try {
             CommandLine line = new PosixParser().parse(options, args);
 
+            Logger.getRootLogger().setLevel(Level.INFO);
+
             // Check if verbose output should be used
             if (line.hasOption('v')) {
+                Logger.getRootLogger().setLevel(Level.DEBUG);
+            }
+            
+            // Check if xtremlyverbose output should be used
+            if (line.hasOption('x')) {
                 Logger.getRootLogger().setLevel(Level.TRACE);
-            } else {
-                Logger.getRootLogger().setLevel(Level.INFO);
             }
 
             // Output help and exit
