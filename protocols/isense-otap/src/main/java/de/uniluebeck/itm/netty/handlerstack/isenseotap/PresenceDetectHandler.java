@@ -33,6 +33,7 @@ import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.ChannelStateEvent;
 import org.jboss.netty.channel.MessageEvent;
 import org.jboss.netty.channel.SimpleChannelHandler;
+import org.jboss.netty.channel.UpstreamMessageEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,7 +55,7 @@ public class PresenceDetectHandler extends SimpleChannelHandler {
 
     private ScheduledFuture<?> sendPresenceDetectRunnableSchedule;
 
-    private final TimedCache<Integer, OtapDevice> detectedDevices;
+    private final TimedCache<Integer, ISenseOtapDevice> detectedDevices;
 
     private final Runnable sendPresenceDetectRunnable = new Runnable() {
         @Override
@@ -74,7 +75,7 @@ public class PresenceDetectHandler extends SimpleChannelHandler {
         this.presenceDetectIntervalTimeunit = timeunit;
         this.presenceDetectInterval = presenceDetectInterval;
 
-        detectedDevices = new TimedCache<Integer, OtapDevice>(deviceTimeout, timeunit);
+        detectedDevices = new TimedCache<Integer, ISenseOtapDevice>(deviceTimeout, timeunit);
     }
 
     public void startPresenceDetect() {
@@ -96,7 +97,7 @@ public class PresenceDetectHandler extends SimpleChannelHandler {
         log.info("Stopped presence detect");
     }
 
-    public Collection<OtapDevice> getDetectedDevices() {
+    public Collection<ISenseOtapDevice> getDetectedDevices() {
         return detectedDevices.values();
     }
 
@@ -139,7 +140,7 @@ public class PresenceDetectHandler extends SimpleChannelHandler {
         PresenceDetectReply reply = (PresenceDetectReply) message;
         log.debug("Received presence detect reply: {}", reply);
 
-        OtapDevice d = getOrCreateDevice(reply.device_id);
+        ISenseOtapDevice d = getOrAddDevice(reply.device_id);
 
         d.setApplicationID(reply.application_id);
         d.setSoftwareRevision(reply.revision_no);
@@ -150,13 +151,18 @@ public class PresenceDetectHandler extends SimpleChannelHandler {
         if (log.isDebugEnabled())
             log.debug("Detected {} devices with ids: {}", detectedDevices.size(),
                     Arrays.toString(detectedDevices.keySet().toArray()));
+        
+        ctx.sendUpstream(new UpstreamMessageEvent(ctx.getChannel(), new PresenceDetectState(detectedDevices.keySet()), ctx.getChannel().getRemoteAddress()));
     }
 
-    private OtapDevice getOrCreateDevice(int deviceId) {
-        OtapDevice device = detectedDevices.get(deviceId);
-        if (device == null)
-            device = new OtapDevice();
-
+    private ISenseOtapDevice getOrAddDevice(int deviceId) {
+        ISenseOtapDevice device = detectedDevices.get(deviceId);
+        if (device == null) {
+            device = new ISenseOtapDevice();
+            device.setId(deviceId);
+            detectedDevices.put(deviceId, device);
+        }
+        
         return device;
     }
 }

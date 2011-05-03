@@ -38,16 +38,16 @@ public class ISerAerialOutgoingPacket {
 
         ChannelBuffer headerBuffer = ChannelBuffers.buffer(SERAERIAL_HEADER_LENGTH);
 
-        {// Set destination
+        {// Set destination (bytes 0-1)
             headerBuffer.writeByte((byte) ((destination >> 8) & 0xFF));
             headerBuffer.writeByte((byte) (destination & 0xFF));
         }
 
-        {// Set option field
+        {// Set option field  (byte 2)
             headerBuffer.writeByte(options & 0xFF);
         }
 
-        {// Set length field (length of the payload)
+        {// Set length field (length of the payload) -  (byte 3)
             int length = payload.readableBytes();
             headerBuffer.writeByte(0xFF & length);
         }

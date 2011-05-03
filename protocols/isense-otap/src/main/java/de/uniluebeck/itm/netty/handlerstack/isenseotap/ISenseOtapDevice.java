@@ -28,7 +28,7 @@ import de.uniluebeck.itm.wsn.devicedrivers.generic.ChipType;
 /**
  * @author Dennis Pfisterer
  */
-public class OtapDevice {
+public class ISenseOtapDevice {
 
     private int id;
     private ChipType chipType = ChipType.Unknown;
@@ -41,10 +41,10 @@ public class OtapDevice {
     private int softwareRevision = 0;
     private int protocolVersion = 0;
 
-    public OtapDevice() {
+    public ISenseOtapDevice() {
     }
 
-    public OtapDevice(int id) {
+    public ISenseOtapDevice(int id) {
         this.id = id;
     }
 
@@ -136,7 +136,7 @@ public class OtapDevice {
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
-        builder.append("OtapDevice [id=");
+        builder.append("ISenseOtapDevice [id=");
         builder.append(id);
         builder.append(", chipType=");
         builder.append(chipType);
@@ -186,7 +186,7 @@ public class OtapDevice {
             return false;
         if (getClass() != obj.getClass())
             return false;
-        OtapDevice other = (OtapDevice) obj;
+        ISenseOtapDevice other = (ISenseOtapDevice) obj;
         if (id != other.id)
             return false;
         return true;

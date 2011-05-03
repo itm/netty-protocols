@@ -32,8 +32,8 @@ import com.google.common.collect.Multimap;
 
 import de.uniluebeck.itm.netty.handlerstack.HandlerFactory;
 
-public class OtapHandlerFactory implements HandlerFactory {
-    private static final org.slf4j.Logger log = LoggerFactory.getLogger(OtapHandlerFactory.class);
+public class ISenseOtapHandlerFactory implements HandlerFactory {
+    private static final org.slf4j.Logger log = LoggerFactory.getLogger(ISenseOtapHandlerFactory.class);
 
     private static final String THREAD_COUNT = "threadCount";
 
@@ -76,6 +76,6 @@ public class OtapHandlerFactory implements HandlerFactory {
         if (properties.containsKey(TIMEOUT_MULTIPLIER))
             settingTimeoutMultiplier = Short.parseShort(properties.get(TIMEOUT_MULTIPLIER).iterator().next());
 
-        return new OtapHandler(null, executorService, settingMaxRerequests, settingTimeoutMultiplier);
+        return new ISenseOtapHandler(null, executorService, settingMaxRerequests, settingTimeoutMultiplier);
     }
 }

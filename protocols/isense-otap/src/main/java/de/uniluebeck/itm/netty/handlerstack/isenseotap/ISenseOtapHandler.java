@@ -52,7 +52,7 @@ import de.uniluebeck.itm.netty.handlerstack.isenseotap.generatedmessages.OtapPro
 import de.uniluebeck.itm.netty.handlerstack.isenseotap.generatedmessages.OtapProgramRequest;
 import de.uniluebeck.itm.tr.util.TimeDiff;
 
-public class OtapHandler extends SimpleChannelHandler {
+public class ISenseOtapHandler extends SimpleChannelHandler {
     private final Logger log;
 
     private final int maxDevicesPerPacket = new OtapInitRequest().participating_devices.value.length;
@@ -87,7 +87,7 @@ public class OtapHandler extends SimpleChannelHandler {
     private Set<Integer> devicesSelectedToProgram;
 
     /** The actual set of devices that are reprogrammed */
-    private Map<Integer, OtapDevice> devicesToProgram;
+    private Map<Integer, ISenseOtapDevice> devicesToProgram;
 
     private OtapChunk chunk = null;
 
@@ -107,11 +107,12 @@ public class OtapHandler extends SimpleChannelHandler {
 
         private void send(OtapInitRequest req) {
             log.debug("Sending otap init request: {}", req);
-            channel.write(req);
+            channel.write(req); // TODO
         }
 
         @Override
         public void run() {
+
             if (channel == null)
                 return;
 
@@ -121,6 +122,7 @@ public class OtapHandler extends SimpleChannelHandler {
             int currentDeviceCount = 0;
             for (Integer id : devicesSelectedToProgram) {
                 req.participating_devices.value[currentDeviceCount] = id;
+                req.participating_devices.count++;
                 currentDeviceCount++;
 
                 if (currentDeviceCount == maxDevicesPerPacket) {
@@ -215,16 +217,16 @@ public class OtapHandler extends SimpleChannelHandler {
                         + req.overall_packet_no + "], Remaining[" + req.remaining + "], RevisionNo[" + "]");
 
                 // Send the packet
-                channel.write(req);
+                channel.write(req); // TODO
             }
 
         }
     };
 
-    public OtapHandler(final String instanceName, final ScheduledExecutorService executorService, short settingMaxRerequests,
-            short settingTimeoutMultiplier) {
+    public ISenseOtapHandler(final String instanceName, final ScheduledExecutorService executorService,
+            short settingMaxRerequests, short settingTimeoutMultiplier) {
 
-        log = LoggerFactory.getLogger((instanceName != null) ? instanceName : OtapHandler.class.getName());
+        log = LoggerFactory.getLogger((instanceName != null) ? instanceName : ISenseOtapHandler.class.getName());
         this.executorService = executorService;
         this.settingMaxRerequests = settingMaxRerequests;
         this.settingTimeoutMultiplier = settingTimeoutMultiplier;
@@ -234,8 +236,10 @@ public class OtapHandler extends SimpleChannelHandler {
     public void startProgramming(Set<Integer> devices, BinaryImage program) {
         stopProgramming();
 
+        this.program = program;
+
         devicesSelectedToProgram = new HashSet<Integer>(devices);
-        devicesToProgram = new HashMap<Integer, OtapDevice>();
+        devicesToProgram = new HashMap<Integer, ISenseOtapDevice>();
 
         sendOtapInitRequestsSchedule =
                 executorService.scheduleWithFixedDelay(sendOtapInitRequestsRunnable, 0, otapInitInterval,
@@ -276,6 +280,20 @@ public class OtapHandler extends SimpleChannelHandler {
     }
 
     @Override
+    public void writeRequested(ChannelHandlerContext ctx, MessageEvent e) throws Exception {
+        Object message = e.getMessage();
+        if (message instanceof ISenseOtapProgramRequest) {
+
+            ISenseOtapProgramRequest request = (ISenseOtapProgramRequest) message;
+            log.debug("Received programming request. Starting to program...");
+            startProgramming(request.getOtapDevices(), new BinaryImage(request.getOtapProgram()));
+
+        } else {
+            super.writeRequested(ctx, e);
+        }
+    }
+
+    @Override
     public void messageReceived(final ChannelHandlerContext ctx, final MessageEvent e) throws Exception {
         Object message = e.getMessage();
 
@@ -293,7 +311,7 @@ public class OtapHandler extends SimpleChannelHandler {
 
             if (state == State.OTAP_PROGRAM) {
 
-                OtapDevice device = devicesToProgram.get(reply.device_id);
+                ISenseOtapDevice device = devicesToProgram.get(reply.device_id);
                 if (device != null) {
                     handleOtapProgramReply(device, reply);
                 } else {
@@ -315,7 +333,7 @@ public class OtapHandler extends SimpleChannelHandler {
         log.debug("Init Reply Received: {}", reply);
 
         if (!devicesToProgram.containsKey(reply.device_id)) {
-            devicesToProgram.put(reply.device_id, new OtapDevice(reply.device_id));
+            devicesToProgram.put(reply.device_id, new ISenseOtapDevice(reply.device_id));
             log.debug("Added new participating device {}, now got {} out of {} desired.", new Object[] {
                     reply.device_id, devicesToProgram.size(), devicesSelectedToProgram.size() });
         }
@@ -331,7 +349,7 @@ public class OtapHandler extends SimpleChannelHandler {
 
     }
 
-    private void handleOtapProgramReply(OtapDevice device, OtapProgramReply reply) {
+    private void handleOtapProgramReply(ISenseOtapDevice device, OtapProgramReply reply) {
         // Only react to matching replies, discard old ones
         if (chunk.getChunkNumber() != reply.chunk_no) {
             log.trace("Ignoring old message from {} with chunk {}.", reply.device_id, reply.chunk_no);
@@ -385,7 +403,7 @@ public class OtapHandler extends SimpleChannelHandler {
             log.info("Preparing chunk {} out of {}", number, program.getChunkCount());
 
             // Reset the chunk-complete flag on all devices
-            for (OtapDevice d : devicesToProgram.values()) {
+            for (ISenseOtapDevice d : devicesToProgram.values()) {
                 d.setChunkComplete(false);
             }
 
@@ -405,9 +423,9 @@ public class OtapHandler extends SimpleChannelHandler {
     */
     private synchronized void checkLeapToNextChunk() {
         // Remove failed devices
-        List<OtapDevice> failedDevicesToRemove = new LinkedList<OtapDevice>();
+        List<ISenseOtapDevice> failedDevicesToRemove = new LinkedList<ISenseOtapDevice>();
 
-        for (OtapDevice device : devicesToProgram.values()) {
+        for (ISenseOtapDevice device : devicesToProgram.values()) {
             if (device.getChunkNo() + 1 < chunk.getChunkNumber()) {
                 failedDevicesToRemove.add(device);
                 log.warn(
@@ -416,7 +434,7 @@ public class OtapHandler extends SimpleChannelHandler {
             }
         }
 
-        for (OtapDevice d : failedDevicesToRemove) {
+        for (ISenseOtapDevice d : failedDevicesToRemove) {
             devicesToProgram.remove(d.getId());
         }
 
@@ -436,7 +454,7 @@ public class OtapHandler extends SimpleChannelHandler {
         }
 
         boolean allPacketsAtAllDevicesRX = true;
-        for (OtapDevice d : devicesToProgram.values()) {
+        for (ISenseOtapDevice d : devicesToProgram.values()) {
             if (!d.isChunkComplete()) {
                 allPacketsAtAllDevicesRX = false;
             }

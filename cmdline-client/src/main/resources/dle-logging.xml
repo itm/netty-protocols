@@ -2,23 +2,24 @@
 
 <itm-netty-handlerstack>
 
-	<handler name="logging-handler" factory="logging-handler"/>
+	<handler name="logging-handler" factory="logging-handler" />
 
- 	<handler name="isense-otap-presence-detect-handler" factory="isense-otap-presence-detect-handler"/>
- 	<handler name="isense-ishell-interpreter" factory="isense-ishell-interpreter"/>
- 	
- 	<handler name="isense-otap-packet-decoder" factory="isense-otap-packet-decoder"/>
- 	<handler name="isense-otap-packet-encoder" factory="isense-otap-packet-encoder"/>
- 	
- 	<handler name="iseraerial-packet-encoder" factory="iseraerial-packet-encoder"/>
- 	<handler name="iseraerial-packet-decoder" factory="iseraerial-packet-decoder"/>
+	<handler name="isense-otap-handler" factory="isense-otap-handler" />
+	<handler name="isense-otap-presence-detect-handler" factory="isense-otap-presence-detect-handler" />
+	<handler name="isense-ishell-interpreter" factory="isense-ishell-interpreter" />
 
- 	<handler name="isense-packet-encoder" factory="isense-packet-encoder"/>
- 	<handler name="isense-packet-decoder" factory="isense-packet-decoder"/>
+	<handler name="isense-otap-packet-decoder" factory="isense-otap-packet-decoder" />
+	<handler name="isense-otap-packet-encoder" factory="isense-otap-packet-encoder" />
 
- 	<handler name="dle-node-encoder" factory="dlestxetx-framing-encoder"/>
-	<handler name="dle-node-decoder" factory="dlestxetx-framing-decoder"/>
+	<handler name="iseraerial-packet-encoder" factory="iseraerial-packet-encoder" />
+	<handler name="iseraerial-packet-decoder" factory="iseraerial-packet-decoder" />
 
-	<handler name="logging-handler1" factory="logging-handler"/>
+	<handler name="isense-packet-encoder" factory="isense-packet-encoder" />
+	<handler name="isense-packet-decoder" factory="isense-packet-decoder" />
+
+	<handler name="dle-node-encoder" factory="dlestxetx-framing-encoder" />
+	<handler name="dle-node-decoder" factory="dlestxetx-framing-decoder" />
+
+	<handler name="logging-handler1" factory="logging-handler" />
 
 </itm-netty-handlerstack>

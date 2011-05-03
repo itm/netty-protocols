@@ -79,8 +79,6 @@ public class ISerAerialPacketEncoder extends SimpleChannelHandler {
         }
 
         ISerAerialOutgoingPacket packet = (ISerAerialOutgoingPacket) msg;
-        
-        
         ISensePacket iSensePacket = new ISensePacket(ISensePacketType.SERAERIAL.getValue(), packet.getBuffer());
         
         log.trace("Encoded and enqueued ISerAerialOutgoingPacket: {}", packet);

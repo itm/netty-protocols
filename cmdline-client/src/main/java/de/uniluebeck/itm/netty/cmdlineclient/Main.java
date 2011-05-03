@@ -4,6 +4,9 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import org.apache.commons.cli.CommandLine;
@@ -27,12 +30,16 @@ import org.jboss.netty.channel.group.DefaultChannelGroup;
 import org.slf4j.LoggerFactory;
 
 import com.coalesenses.isense.ishell.interpreter.IShellInterpreterSetChannelMessage;
+import com.google.common.collect.Sets;
+import com.google.common.io.Files;
 
 import de.uniluebeck.itm.netty.channelflange.ChannelFlange;
 import de.uniluebeck.itm.netty.handlerstack.HandlerFactoryRegistry;
 import de.uniluebeck.itm.netty.handlerstack.HandlerStack;
+import de.uniluebeck.itm.netty.handlerstack.isenseotap.ISenseOtapProgramRequest;
 import de.uniluebeck.itm.netty.handlerstack.isenseotap.PresenceDetectControlStart;
 import de.uniluebeck.itm.netty.handlerstack.isenseotap.PresenceDetectControlStop;
+import de.uniluebeck.itm.netty.handlerstack.isenseotap.generatedmessages.OtapProgramRequest;
 import de.uniluebeck.itm.netty.handlerstack.protocolcollection.ProtocolCollection;
 import de.uniluebeck.itm.nettyrxtx.RXTXChannelFactory;
 import de.uniluebeck.itm.nettyrxtx.RXTXDeviceAddress;
@@ -102,8 +109,12 @@ public class Main {
 
         ChannelGroup allChannels = new DefaultChannelGroup();
 
-        ClientBootstrap bootstrap = new ClientBootstrap(new RXTXChannelFactory(Executors.newCachedThreadPool()));
+        final ExecutorService executorService = Executors.newCachedThreadPool();
+        ClientBootstrap bootstrap = new ClientBootstrap(new RXTXChannelFactory(executorService));
 
+        final Set<Integer> otapDevices = Sets.newHashSet(0x1b87);
+        final byte[] otapProgram = Files.toByteArray(new File("src/main/resources/iSenseDemoApp.bin"));
+        
         SimpleChannelHandler leftStackHandler = new SimpleChannelHandler() {
 
             
@@ -111,9 +122,34 @@ public class Main {
              * @see org.jboss.netty.channel.SimpleChannelHandler#channelConnected(org.jboss.netty.channel.ChannelHandlerContext, org.jboss.netty.channel.ChannelStateEvent)
              */
             @Override
-            public void channelConnected(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
-                e.getChannel().write(new IShellInterpreterSetChannelMessage((byte) 21));
-                e.getChannel().write(new PresenceDetectControlStart());
+            public void channelConnected(ChannelHandlerContext ctx, final ChannelStateEvent e) throws Exception {
+                executorService.submit(new Runnable() {
+                    /* (non-Javadoc)
+                     * @see java.lang.Runnable#run()
+                     */
+                    @Override
+                    public void run() {
+                        e.getChannel().write(new IShellInterpreterSetChannelMessage((byte) 21));
+                        try {
+                            Thread.sleep(500);
+                        } catch (InterruptedException e1) {
+                            log.debug(" :" + e1, e1);
+                        }
+                        e.getChannel().write(new PresenceDetectControlStart());
+                        try {
+                            Thread.sleep(5000);
+                        } catch (InterruptedException e1) {
+                            log.debug(" :" + e1, e1);
+                        }
+                        e.getChannel().write(new PresenceDetectControlStop());
+                        try {
+                            Thread.sleep(500);
+                        } catch (InterruptedException e1) {
+                            log.debug(" :" + e1, e1);
+                        }
+                        e.getChannel().write(new ISenseOtapProgramRequest(otapDevices, otapProgram));
+                    }
+                });
                 super.channelConnected(ctx, e);
             }
 
