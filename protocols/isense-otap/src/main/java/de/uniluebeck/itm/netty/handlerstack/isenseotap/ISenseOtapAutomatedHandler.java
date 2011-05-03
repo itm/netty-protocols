@@ -68,6 +68,7 @@ public class ISenseOtapAutomatedHandler extends SimpleChannelHandler implements 
                 programRequest = (ISenseOtapProgramRequest) message;
                 state = State.PRESENCE_DETECT;
                 presenceDetectStart.touch();
+                HandlerTools.sendDownstream(new PresenceDetectControlStart(), context);
             } else {
                 // TODO Inform upstream handlers
                 log.error("Already in non-IDLE state {}. Ignoring request.", state);
