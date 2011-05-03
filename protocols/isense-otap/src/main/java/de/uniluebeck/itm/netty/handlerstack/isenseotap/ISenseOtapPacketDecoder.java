@@ -48,6 +48,7 @@ public class ISenseOtapPacketDecoder extends OneToOneDecoder {
      */
     ISenseOtapPacketDecoder(String instanceName) {
         log = LoggerFactory.getLogger(instanceName != null ? instanceName : ISenseOtapPacketDecoder.class.getName());
+        log.debug("New instance");
     }
 
     @Override
@@ -65,11 +66,12 @@ public class ISenseOtapPacketDecoder extends OneToOneDecoder {
         payload.getBytes(payload.readerIndex(), byteArray, 0, byteArray.length);
         Object result = MacroFabricSerializer.deserialize(byteArray);
 
+        //Not an OTAP packet, return the original object
         if (result == null) {
-            log.trace("Ignoring non-deserializable packet -> doesn't look like an OTAP packet");
             return msg;
         }
 
+        //Return the decoded OTAP object
         return result;
     }
 }

@@ -22,6 +22,8 @@
  */
 package de.uniluebeck.itm.netty.handlerstack.protocolcollection;
 
+import com.coalesenses.isense.ishell.interpreter.IShellInterpreterHandlerFactory;
+
 import de.uniluebeck.itm.netty.handlerstack.HandlerFactoryRegistry;
 import de.uniluebeck.itm.netty.handlerstack.dlestxetx.DleStxEtxFramingDecoderFactory;
 import de.uniluebeck.itm.netty.handlerstack.dlestxetx.DleStxEtxFramingEncoderFactory;
@@ -38,23 +40,25 @@ import de.uniluebeck.netty.handlerstack.logginghandler.LoggingHandlerFactory;
 public class ProtocolCollection {
 
     /** Registers all Plug-ins from ITM's netty handlerstack project with the factory */
-    public static void registerProtocols(HandlerFactoryRegistry factory) throws Exception {
+    public static void registerProtocols(HandlerFactoryRegistry registry) throws Exception {
 
-        factory.register(new ISerAerialPacketDecoderFactory());
-        factory.register(new ISerAerialPacketEncoderFactory());
+        registry.register(new ISerAerialPacketDecoderFactory());
+        registry.register(new ISerAerialPacketEncoderFactory());
 
-        factory.register(new ISensePacketDecoderFactory());
-        factory.register(new ISensePacketEncoderFactory());
+        registry.register(new ISensePacketDecoderFactory());
+        registry.register(new ISensePacketEncoderFactory());
 
-        factory.register(new DleStxEtxFramingDecoderFactory());
-        factory.register(new DleStxEtxFramingEncoderFactory());
+        registry.register(new DleStxEtxFramingDecoderFactory());
+        registry.register(new DleStxEtxFramingEncoderFactory());
 
-        factory.register(new ISenseOtapPacketDecoderFactory());
-        factory.register(new ISenseOtapPacketEncoderFactory());
-        factory.register(new PresenceDetectHandlerFactory());
-        factory.register(new OtapHandlerFactory());
+        registry.register(new ISenseOtapPacketDecoderFactory());
+        registry.register(new ISenseOtapPacketEncoderFactory());
+        registry.register(new PresenceDetectHandlerFactory());
+        registry.register(new OtapHandlerFactory());
         
-        factory.register(new LoggingHandlerFactory());
+        registry.register(new IShellInterpreterHandlerFactory());
+        
+        registry.register(new LoggingHandlerFactory());
     }
 
 }

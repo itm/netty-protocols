@@ -25,6 +25,7 @@
 		<module>protocols/isense</module>
 		<module>protocols/isense-otap</module>
 		<module>protocols/iseraerial</module>
+		<module>protocols/isense-ishell-interpreter</module>
 
 		<module>protocols/logging-handler</module>
 		<module>protocols/remote-uart-protocol</module>
@@ -83,6 +84,11 @@
 			<dependency>
 				<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
 				<artifactId>isense-otap</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
+				<artifactId>isense-ishell-interpreter</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 

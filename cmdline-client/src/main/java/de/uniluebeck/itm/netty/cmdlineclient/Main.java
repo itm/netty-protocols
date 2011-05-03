@@ -26,6 +26,8 @@ import org.jboss.netty.channel.group.ChannelGroup;
 import org.jboss.netty.channel.group.DefaultChannelGroup;
 import org.slf4j.LoggerFactory;
 
+import com.coalesenses.isense.ishell.interpreter.IShellInterpreterSetChannelMessage;
+
 import de.uniluebeck.itm.netty.channelflange.ChannelFlange;
 import de.uniluebeck.itm.netty.handlerstack.HandlerFactoryRegistry;
 import de.uniluebeck.itm.netty.handlerstack.HandlerStack;
@@ -110,6 +112,7 @@ public class Main {
              */
             @Override
             public void channelConnected(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
+                e.getChannel().write(new IShellInterpreterSetChannelMessage((byte) 21));
                 e.getChannel().write(new PresenceDetectControlStart());
                 super.channelConnected(ctx, e);
             }

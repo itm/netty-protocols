@@ -25,20 +25,20 @@ package de.uniluebeck.itm.netty.handlerstack.iseraerial;
 import java.util.HashMap;
 import java.util.Map;
 
-public enum ISerAerialPacketType {
+public enum ISerAerialPacketSubType {
     PACKET((byte) (0xFF & 0x00)), CONFIRM((byte) (0xFF & 0x01));
 
-    private static final Map<Byte, ISerAerialPacketType> typesMap = new HashMap<Byte, ISerAerialPacketType>();
+    private static final Map<Byte, ISerAerialPacketSubType> typesMap = new HashMap<Byte, ISerAerialPacketSubType>();
 
     static {
-        for (ISerAerialPacketType packetType : ISerAerialPacketType.values()) {
+        for (ISerAerialPacketSubType packetType : ISerAerialPacketSubType.values()) {
             typesMap.put(packetType.value, packetType);
         }
     }
 
     private final byte value;
 
-    ISerAerialPacketType(byte value) {
+    ISerAerialPacketSubType(byte value) {
         this.value = value;
     }
 
@@ -47,9 +47,9 @@ public enum ISerAerialPacketType {
      * 
      * @param value
      *            the packet's type
-     * @return an ISerAerialPacketType enum constant or {@code null} if unknown
+     * @return an ISerAerialPacketSubType enum constant or {@code null} if unknown
      */
-    public static ISerAerialPacketType fromValue(byte value) {
+    public static ISerAerialPacketSubType fromValue(byte value) {
         return typesMap.get(value);
     }
 

@@ -53,7 +53,6 @@ public class ISerAerialOutgoingPacket {
         }
 
         buffer = ChannelBuffers.wrappedBuffer(headerBuffer, payload);
-
     }
 
     /** Returns the (unmodifiable) buffer that backs this packet */

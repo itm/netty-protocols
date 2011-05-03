@@ -22,15 +22,23 @@
  */
 package de.uniluebeck.itm.netty.handlerstack.iseraerial;
 
-import org.jboss.netty.channel.Channel;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+
 import org.jboss.netty.channel.ChannelHandlerContext;
-import org.jboss.netty.handler.codec.oneone.OneToOneEncoder;
+import org.jboss.netty.channel.MessageEvent;
+import org.jboss.netty.channel.SimpleChannelHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ISerAerialPacketEncoder extends OneToOneEncoder {
+import de.uniluebeck.itm.netty.handlerstack.isense.ISensePacket;
+import de.uniluebeck.itm.netty.handlerstack.isense.ISensePacketType;
+import de.uniluebeck.itm.netty.handlerstack.util.StopAndWaitPacketSender;
 
+public class ISerAerialPacketEncoder extends SimpleChannelHandler {
     private final Logger log;
+
+    private final StopAndWaitPacketSender<ISensePacket> queue;
 
     /**
      * Package-private constructor for creation via factory only
@@ -44,17 +52,39 @@ public class ISerAerialPacketEncoder extends OneToOneEncoder {
      */
     ISerAerialPacketEncoder(String instanceName) {
         log = LoggerFactory.getLogger(instanceName != null ? instanceName : ISerAerialPacketEncoder.class.getName());
+
+        queue =
+                new StopAndWaitPacketSender<ISensePacket>(instanceName + "-queue",
+                        Executors.newSingleThreadScheduledExecutor(), 500, TimeUnit.MILLISECONDS);
     }
 
     @Override
-    protected Object encode(final ChannelHandlerContext ctx, final Channel channel, final Object msg) throws Exception {
+    public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) throws Exception {
+
+        if (!(e.getMessage() instanceof ISerAerialConfirmPacket)) {
+            super.messageReceived(ctx, e);
+            return;
+        }
+
+        queue.confirmReceived();
+    }
+
+    @Override
+    public void writeRequested(ChannelHandlerContext ctx, MessageEvent e) throws Exception {
+        Object msg = e.getMessage();
 
         if (!(msg instanceof ISerAerialOutgoingPacket)) {
-            return msg;
+            super.writeRequested(ctx, e);
+            return;
         }
 
         ISerAerialOutgoingPacket packet = (ISerAerialOutgoingPacket) msg;
-        log.trace("Encoded ISerAerialOutgoingPacket: {}", packet);
-        return packet.getBuffer();
+        
+        
+        ISensePacket iSensePacket = new ISensePacket(ISensePacketType.SERAERIAL.getValue(), packet.getBuffer());
+        
+        log.trace("Encoded and enqueued ISerAerialOutgoingPacket: {}", packet);
+        queue.enqeue(iSensePacket, ctx, e.getFuture());
     }
+
 }

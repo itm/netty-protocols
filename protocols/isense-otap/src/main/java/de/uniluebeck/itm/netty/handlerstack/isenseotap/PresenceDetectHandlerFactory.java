@@ -60,7 +60,7 @@ public class PresenceDetectHandlerFactory implements HandlerFactory {
 
     @Override
     public ChannelHandler create(String instanceName, Multimap<String, String> properties) throws Exception {
-        int presenceDetectInterval = 150;
+        int presenceDetectInterval = 2000;
         int deviceTimeout = 160 * presenceDetectInterval;
         TimeUnit timeunit = TimeUnit.MILLISECONDS;
         int threadCount = 10;
