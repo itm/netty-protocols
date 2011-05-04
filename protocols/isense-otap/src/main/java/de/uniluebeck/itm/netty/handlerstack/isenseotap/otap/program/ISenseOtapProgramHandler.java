@@ -20,7 +20,7 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package de.uniluebeck.itm.netty.handlerstack.isenseotap.otap;
+package de.uniluebeck.itm.netty.handlerstack.isenseotap.otap.program;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -34,10 +34,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelHandlerContext;
-import org.jboss.netty.channel.Channels;
-import org.jboss.netty.channel.DownstreamMessageEvent;
 import org.jboss.netty.channel.LifeCycleAwareChannelHandler;
 import org.jboss.netty.channel.MessageEvent;
 import org.jboss.netty.channel.SimpleChannelHandler;
@@ -49,143 +46,35 @@ import com.coalesenses.binaryimage.OtapChunk;
 import com.coalesenses.binaryimage.OtapPacket;
 
 import de.uniluebeck.itm.netty.handlerstack.isenseotap.ISenseOtapDevice;
-import de.uniluebeck.itm.netty.handlerstack.isenseotap.ISenseOtapProgramState;
-import de.uniluebeck.itm.netty.handlerstack.isenseotap.commands.ISenseOtapProgramRequest;
-import de.uniluebeck.itm.netty.handlerstack.isenseotap.generatedmessages.OtapInitReply;
-import de.uniluebeck.itm.netty.handlerstack.isenseotap.generatedmessages.OtapInitRequest;
 import de.uniluebeck.itm.netty.handlerstack.isenseotap.generatedmessages.OtapProgramReply;
 import de.uniluebeck.itm.netty.handlerstack.isenseotap.generatedmessages.OtapProgramRequest;
 import de.uniluebeck.itm.netty.handlerstack.util.HandlerTools;
 import de.uniluebeck.itm.tr.util.TimeDiff;
 
-public class ISenseOtapHandler extends SimpleChannelHandler implements LifeCycleAwareChannelHandler {
+public class ISenseOtapProgramHandler extends SimpleChannelHandler implements LifeCycleAwareChannelHandler {
     private final Logger log;
 
-    private final int maxDevicesPerPacket = new OtapInitRequest().participating_devices.value.length;
-
-    private enum State {
-        IDLE, OTAP_INIT, OTAP_PROGRAM
-    };
-
-    private State state = State.IDLE;
-
     private final ScheduledExecutorService executorService;
-
-    private final long otapInitInterval = 500;// TODO correct values
-    private final TimeUnit otapInitIntervalTimeUnit = TimeUnit.MILLISECONDS;// TODO correct values
-
-    private final long otapInitMaxDuration = 30; // TODO correct values
-    private final TimeUnit otapInitMaxDurationTimeUnit = TimeUnit.SECONDS; // TODO correct values
-
-    private final long otapProgramInterval = 500; // TODO correct values
+    private final long otapProgramInterval = 100; // TODO correct values
     private final TimeUnit otapProgramIntervalTimeUnit = TimeUnit.MILLISECONDS; // TODO correct values
 
     private final short settingMaxRerequests;
     private final short settingTimeoutMultiplier;
 
+    private ChannelHandlerContext context;
+
+    private ISenseOtapProgramResult programStatus;
+
     private TimeDiff chunkTimeout = new TimeDiff();
 
-    private BinaryImage program = null;
-
-    /** A set of devices selected to program, they must all ack before they are programmed */
-    private Set<Integer> devicesSelectedToProgram;
-
     /** The actual set of devices that are reprogrammed */
-    private Map<Integer, ISenseOtapDevice> devicesToProgram;
-
-    private Set<Integer> failedDevices;
+    private final Map<Integer, ISenseOtapDevice> devicesToProgram = new HashMap<Integer, ISenseOtapDevice>();
 
     private OtapChunk chunk = null;
+    private BinaryImage programImage = null;
 
     /** The remaining packets in the current chunk. These have not been received by all devices yet. */
     private Set<OtapPacket> remainingPacketsInChunk = new TreeSet<OtapPacket>();
-
-    private ScheduledFuture<?> sendOtapInitRequestsSchedule;
-    private final Runnable sendOtapInitRequestsRunnable = new Runnable() {
-
-        private OtapInitRequest createRequest() {
-            OtapInitRequest req = new OtapInitRequest();
-            req.chunk_count = program.getChunkCount();
-            req.max_re_requests = settingMaxRerequests;
-            req.timeout_multiplier_ms = settingTimeoutMultiplier;
-            return req;
-        }
-
-        private void send(OtapInitRequest req) {
-            log.debug("Sending otap init request: {}", req);
-
-            Channel channel = context.getChannel();
-
-            DownstreamMessageEvent msg =
-                    new DownstreamMessageEvent(channel, Channels.succeededFuture(channel), req,
-                            channel.getRemoteAddress());
-            context.sendDownstream(msg);
-        }
-
-        @Override
-        public void run() {
-            if (context == null)
-                return;
-
-            OtapInitRequest req = createRequest();
-
-            // Send a number of otap init requests with maxDevicesPerPacket devices per request (size issue)
-            int currentDeviceCount = 0;
-            for (Integer id : devicesSelectedToProgram) {
-                req.participating_devices.value[currentDeviceCount] = id;
-                req.participating_devices.count++;
-                currentDeviceCount++;
-
-                if (currentDeviceCount == maxDevicesPerPacket) {
-                    send(req);
-                    currentDeviceCount = 0;
-                    req = createRequest();
-                }
-            }
-
-            // Send the last packet (if there is one)
-            if (currentDeviceCount > 0 && currentDeviceCount < maxDevicesPerPacket)
-                send(req);
-        }
-    };
-
-    private ScheduledFuture<?> switchToProgrammingStateSchedule;
-    private final Runnable switchToProgrammingStateRunnable = new Runnable() {
-
-        @Override
-        public void run() {
-            if (state == State.OTAP_INIT) {
-                // Switch state
-                log.info("Switching from state {} to {}.", state, State.OTAP_PROGRAM);
-                state = State.OTAP_PROGRAM;
-                failedDevices = new HashSet<Integer>();
-
-                // Cancel otap init schedule
-                sendOtapInitRequestsSchedule.cancel(false);
-
-                // Calculate chunk timeout
-                int maxPacketsPerChunk = 0;
-                for (int i = 0; i < program.getChunkCount(); ++i)
-                    maxPacketsPerChunk = Math.max(maxPacketsPerChunk, program.getPacketCount(i, i));
-
-                int magicTimeoutMillis = settingMaxRerequests * maxPacketsPerChunk * settingTimeoutMultiplier + 10000;
-                chunkTimeout.setTimeOutMillis(magicTimeoutMillis);
-                log.debug("Setting chunk timeout to {} ms.", magicTimeoutMillis);
-
-                // Prepare the first chunk transmission
-                prepareChunk(0);
-
-                // Schedule the runnable to send program requests
-                sendOtapProgramRequestsSchedule =
-                        executorService.scheduleWithFixedDelay(sendOtapProgramRequestsRunnable, 0, otapProgramInterval,
-                                otapProgramIntervalTimeUnit);
-
-            } else {
-                log.error("Unable to switch from state {} to {}.", state, State.OTAP_PROGRAM);
-            }
-
-        }
-    };
 
     private ScheduledFuture<?> sendOtapProgramRequestsSchedule;
     private final Runnable sendOtapProgramRequestsRunnable = new Runnable() {
@@ -194,8 +83,8 @@ public class ISenseOtapHandler extends SimpleChannelHandler implements LifeCycle
             if (context == null)
                 return;
 
-            if (state != State.OTAP_PROGRAM) {
-                log.warn("Not in state {} but {}, returning.", State.OTAP_PROGRAM, state);
+            if (programImage == null) {
+                log.warn("Not in programming state");
                 return;
             }
 
@@ -235,81 +124,76 @@ public class ISenseOtapHandler extends SimpleChannelHandler implements LifeCycle
         }
     };
 
-    private ChannelHandlerContext context;
-
-    public ISenseOtapHandler(final String instanceName, final ScheduledExecutorService executorService,
+    public ISenseOtapProgramHandler(final String instanceName, final ScheduledExecutorService executorService,
             short settingMaxRerequests, short settingTimeoutMultiplier) {
 
-        log = LoggerFactory.getLogger((instanceName != null) ? instanceName : ISenseOtapHandler.class.getName());
+        log = LoggerFactory.getLogger((instanceName != null) ? instanceName : ISenseOtapProgramHandler.class.getName());
         this.executorService = executorService;
         this.settingMaxRerequests = settingMaxRerequests;
         this.settingTimeoutMultiplier = settingTimeoutMultiplier;
 
     }
 
-    public void startProgramming(Set<Integer> devices, BinaryImage program) {
+    public void startProgramming(ISenseOtapProgramRequest programRequest) {
         stopProgramming();
+        this.programStatus = new ISenseOtapProgramResult(programRequest.getDevicesToProgram());
 
-        this.program = program;
+        for (Integer deviceId : programRequest.getDevicesToProgram())
+            devicesToProgram.put(deviceId, new ISenseOtapDevice(deviceId));
 
-        devicesSelectedToProgram = new HashSet<Integer>(devices);
-        devicesToProgram = new HashMap<Integer, ISenseOtapDevice>();
+        programImage = new BinaryImage(programRequest.getOtapProgram());
 
-        sendOtapInitRequestsSchedule =
-                executorService.scheduleWithFixedDelay(sendOtapInitRequestsRunnable, 0, otapInitInterval,
-                        otapInitIntervalTimeUnit);
+        // Calculate chunk timeout
+        {
+            int maxPacketsPerChunk = 0;
+            for (int i = 0; i < programImage.getChunkCount(); ++i)
+                maxPacketsPerChunk = Math.max(maxPacketsPerChunk, programImage.getPacketCount(i, i));
 
-        switchToProgrammingStateSchedule =
-                executorService.schedule(switchToProgrammingStateRunnable, otapInitMaxDuration,
-                        otapInitMaxDurationTimeUnit);
+            int magicTimeoutMillis = settingMaxRerequests * maxPacketsPerChunk * settingTimeoutMultiplier + 10000;
+            chunkTimeout.setTimeOutMillis(magicTimeoutMillis);
+            log.debug("Setting chunk timeout to {} ms.", magicTimeoutMillis);
 
-        state = State.OTAP_INIT;
+            // Prepare the first chunk transmission
+            prepareChunk(0);
+        }
+
+        // Schedule the runnable to send program requests
+        sendOtapProgramRequestsSchedule =
+                executorService.scheduleWithFixedDelay(sendOtapProgramRequestsRunnable, 0, otapProgramInterval,
+                        otapProgramIntervalTimeUnit);
     }
 
     public void stopProgramming() {
-        if (sendOtapInitRequestsSchedule != null)
-            sendOtapInitRequestsSchedule.cancel(false);
-
         if (sendOtapProgramRequestsSchedule != null)
             sendOtapProgramRequestsSchedule.cancel(false);
 
-        if (switchToProgrammingStateSchedule != null)
-            switchToProgrammingStateSchedule.cancel(false);
-
-        state = State.IDLE;
+        sendOtapProgramRequestsSchedule = null;
+        programImage = null;
+        devicesToProgram.clear();
     }
 
     @Override
     public void writeRequested(ChannelHandlerContext ctx, MessageEvent e) throws Exception {
         Object message = e.getMessage();
+
         if (message instanceof ISenseOtapProgramRequest) {
-
-            ISenseOtapProgramRequest request = (ISenseOtapProgramRequest) message;
             log.debug("Received programming request. Starting to program...");
-            startProgramming(request.getOtapDevices(), new BinaryImage(request.getOtapProgram()));
-
+            ISenseOtapProgramRequest request = (ISenseOtapProgramRequest) message;
+            startProgramming(request);
         } else {
             super.writeRequested(ctx, e);
         }
+
     }
 
     @Override
     public void messageReceived(final ChannelHandlerContext ctx, final MessageEvent e) throws Exception {
         Object message = e.getMessage();
 
-        if (message instanceof OtapInitReply) {
-            OtapInitReply reply = (OtapInitReply) message;
-
-            if (state == State.OTAP_INIT) {
-                handleOtapInitReply(reply);
-            } else {
-                log.warn("Ignoring otap init reply in wrong state {}: {}", state, reply);
-            }
-
-        } else if (message instanceof OtapProgramReply) {
+        if (message instanceof OtapProgramReply) {
             OtapProgramReply reply = (OtapProgramReply) message;
 
-            if (state == State.OTAP_PROGRAM) {
+            if (programImage != null) {
 
                 ISenseOtapDevice device = devicesToProgram.get(reply.device_id);
                 if (device != null) {
@@ -319,32 +203,11 @@ public class ISenseOtapHandler extends SimpleChannelHandler implements LifeCycle
                 }
 
             } else {
-                log.warn("Ignoring otap program reply in wrong state {}: {}", state, reply);
+                log.warn("Ignoring otap program reply in wrong state");
             }
 
         } else {
             super.messageReceived(ctx, e);
-        }
-
-    }
-
-    private void handleOtapInitReply(OtapInitReply reply) {
-
-        log.debug("Init Reply Received: {}", reply);
-
-        if (!devicesToProgram.containsKey(reply.device_id)) {
-            devicesToProgram.put(reply.device_id, new ISenseOtapDevice(reply.device_id));
-            log.debug("Added new participating device {}, now got {} out of {} desired.", new Object[] {
-                    reply.device_id, devicesToProgram.size(), devicesSelectedToProgram.size() });
-        }
-
-        // Check if all devices have sent acks
-        if (devicesSelectedToProgram.size() == devicesToProgram.keySet().size()) {
-            log.info("All {} devices have acknowledged. Switching to program state", devicesToProgram.size());
-            switchToProgrammingStateSchedule.cancel(false);
-            switchToProgrammingStateSchedule =
-                    executorService.schedule(switchToProgrammingStateRunnable, 0, TimeUnit.MILLISECONDS);
-
         }
 
     }
@@ -358,7 +221,7 @@ public class ISenseOtapHandler extends SimpleChannelHandler implements LifeCycle
 
         // Ignore replies for devices that have completed the current chunk
         if (device.getChunkNo() == reply.chunk_no && device.isChunkComplete()) {
-            log.trace("Ignoring message from {}, chunk {} is complete.", reply.device_id, reply.chunk_no);
+            log.trace("Ignoring message from {}, chunk {} is complete on this device.", reply.device_id, reply.chunk_no);
             return;
         }
 
@@ -384,25 +247,38 @@ public class ISenseOtapHandler extends SimpleChannelHandler implements LifeCycle
             if (log.isDebugEnabled())
                 log.debug("Device {} misses packets {}", reply.device_id, Arrays.toString(missingIndices.toArray()));
 
-            sendStateUpstream();
-            
+            if (device.isChunkComplete() && device.getChunkNo() == programImage.getChunkCount() - 1)
+                programStatus.addDoneDevice(device.getId());
+
         } else {
             log.debug("No missing indices at {}, chunk ", Integer.toHexString(reply.device_id), reply.chunk_no);
             device.setChunkComplete(true);
+            
+            if( isDeviceFullyProgrammed(device))
+            {
+                programStatus.addDoneDevice(device.getId());
+                log.info("Device {} is fully programmed. Now got {} done devices.", device.getId(), programStatus.getDoneDevices().size());
+            }
         }
 
     }
 
+    private boolean isDeviceFullyProgrammed(ISenseOtapDevice device) {
+        if ( device.getChunkNo() + 1 == programImage.getChunkCount()  && device.isChunkComplete() )
+            return true;
+        return false;
+    }
+    
     /**
     *
     */
     private synchronized void prepareChunk(int number) {
-        chunk = program.getChunk(number);
+        chunk = programImage.getChunk(number);
         remainingPacketsInChunk.clear();
         chunkTimeout.touch();
 
         if (chunk != null) {
-            log.info("Preparing chunk {} out of {}", number, program.getChunkCount());
+            log.info("Preparing chunk {} out of {}", number, programImage.getChunkCount());
 
             // Reset the chunk-complete flag on all devices
             for (ISenseOtapDevice d : devicesToProgram.values()) {
@@ -415,7 +291,7 @@ public class ISenseOtapHandler extends SimpleChannelHandler implements LifeCycle
 
         } else {
             log.info("No more chunks available. Stopping OTAP. Done.");
-            sendStateUpstream();
+            HandlerTools.sendUpstream(programStatus, context);
             stopProgramming();
         }
 
@@ -438,7 +314,7 @@ public class ISenseOtapHandler extends SimpleChannelHandler implements LifeCycle
         }
 
         for (ISenseOtapDevice d : failedDevicesToRemove) {
-            this.failedDevices.add(d.getId());
+            programStatus.addFailedDevice(d.getId());
             devicesToProgram.remove(d.getId());
         }
 
@@ -452,12 +328,8 @@ public class ISenseOtapHandler extends SimpleChannelHandler implements LifeCycle
     *
     */
     private boolean getAllDevicesReceivedAllPacketsInChunk() {
-
-        if (devicesToProgram.size() <= 0) {
-            return false;
-        }
-
         boolean allPacketsAtAllDevicesRX = true;
+
         for (ISenseOtapDevice d : devicesToProgram.values()) {
             if (!d.isChunkComplete()) {
                 allPacketsAtAllDevicesRX = false;
@@ -468,23 +340,6 @@ public class ISenseOtapHandler extends SimpleChannelHandler implements LifeCycle
             log.debug("All devices received all packets in chunk");
 
         return allPacketsAtAllDevicesRX;
-    }
-
-    private void sendStateUpstream() {
-        HandlerTools.sendUpstream(getCurrentState(), context);
-    }
-
-    private ISenseOtapProgramState getCurrentState() {
-        Set<Integer> devicesToBeProgrammed = new HashSet<Integer>(devicesToProgram.keySet());
-        Set<Integer> failedDevices = new HashSet<Integer>(this.failedDevices);
-        Set<Integer> doneDevices = new HashSet<Integer>();
-
-        for (ISenseOtapDevice device : devicesToProgram.values())
-            if (device.isChunkComplete() && device.getChunkNo() == program.getChunkCount() - 1)
-                doneDevices.add(device.getId());
-
-        return new ISenseOtapProgramState(devicesToBeProgrammed, failedDevices, doneDevices);
-
     }
 
     @Override

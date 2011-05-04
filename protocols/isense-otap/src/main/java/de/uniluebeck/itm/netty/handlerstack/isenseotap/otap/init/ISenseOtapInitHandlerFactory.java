@@ -20,30 +20,19 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package de.uniluebeck.itm.netty.handlerstack.isenseotap.otap;
-
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
+package de.uniluebeck.itm.netty.handlerstack.isenseotap.otap.init;
 
 import org.jboss.netty.channel.ChannelHandler;
-import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Multimap;
 
 import de.uniluebeck.itm.netty.handlerstack.HandlerFactory;
 
-public class ISenseOtapHandlerFactory implements HandlerFactory {
-    private static final org.slf4j.Logger log = LoggerFactory.getLogger(ISenseOtapHandlerFactory.class);
-
-    private static final String THREAD_COUNT = "threadCount";
-
-    private static final String MAX_REREQUESTS = "maxReRequests";
-
-    private static final String TIMEOUT_MULTIPLIER = "timeoutMultiplier";
+public class ISenseOtapInitHandlerFactory implements HandlerFactory {
 
     @Override
     public String getName() {
-        return "isense-otap-handler";
+        return "isense-otap-init-handler";
     }
 
     @Override
@@ -58,25 +47,6 @@ public class ISenseOtapHandlerFactory implements HandlerFactory {
 
     @Override
     public ChannelHandler create(String instanceName, Multimap<String, String> properties) throws Exception {
-        short settingMaxRerequests = 30;
-        short settingTimeoutMultiplier = 100;
-        int threadCount = 10;
-
-        if (properties.containsKey(THREAD_COUNT))
-            threadCount = Integer.parseInt(properties.get(THREAD_COUNT).iterator().next());
-
-        ScheduledExecutorService executorService = Executors.newScheduledThreadPool(threadCount);
-
-        if (properties.containsKey(MAX_REREQUESTS))
-            settingMaxRerequests = Short.parseShort(properties.get(MAX_REREQUESTS).iterator().next());
-
-        if (properties.containsKey(TIMEOUT_MULTIPLIER))
-            settingTimeoutMultiplier = Short.parseShort(properties.get(TIMEOUT_MULTIPLIER).iterator().next());
-
-        log.debug(
-                "Creating new Otap Handler, threadCount: {}, settingMaxRerequests: {}, settingTimeoutMultiplierMillis: {}",
-                new Object[] { threadCount, settingMaxRerequests, settingTimeoutMultiplier });
-
-        return new ISenseOtapHandler(null, executorService, settingMaxRerequests, settingTimeoutMultiplier);
+        return new ISenseOtapInitHandler(instanceName);
     }
 }

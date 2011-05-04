@@ -2,10 +2,10 @@ package de.uniluebeck.itm.netty.handlerstack.isenseotap.presencedetect;
 
 import java.util.Set;
 
-public class PresenceDetectState {
+public class PresenceDetectStatus {
     Set<Integer> detectedDevices;
 
-    public PresenceDetectState(Set<Integer> detectedDevices) {
+    public PresenceDetectStatus(Set<Integer> detectedDevices) {
         super();
         this.detectedDevices = detectedDevices;
     }

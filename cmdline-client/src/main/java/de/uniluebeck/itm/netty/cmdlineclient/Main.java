@@ -7,6 +7,7 @@ import java.io.InputStreamReader;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
@@ -35,9 +36,11 @@ import com.google.common.io.Files;
 import de.uniluebeck.itm.netty.channelflange.ChannelFlange;
 import de.uniluebeck.itm.netty.handlerstack.HandlerFactoryRegistry;
 import de.uniluebeck.itm.netty.handlerstack.HandlerStack;
-import de.uniluebeck.itm.netty.handlerstack.isenseotap.commands.ISenseOtapProgramRequest;
-import de.uniluebeck.itm.netty.handlerstack.isenseotap.commands.PresenceDetectControlStop;
+import de.uniluebeck.itm.netty.handlerstack.isenseotap.ISenseOtapAutomatedProgrammingRequest;
+import de.uniluebeck.itm.netty.handlerstack.isenseotap.otap.program.ISenseOtapProgramRequest;
+import de.uniluebeck.itm.netty.handlerstack.isenseotap.presencedetect.PresenceDetectControlStop;
 import de.uniluebeck.itm.netty.handlerstack.protocolcollection.ProtocolCollection;
+import de.uniluebeck.itm.netty.handlerstack.util.DurationPlusUnit;
 import de.uniluebeck.itm.nettyrxtx.RXTXChannelFactory;
 import de.uniluebeck.itm.nettyrxtx.RXTXDeviceAddress;
 
@@ -82,7 +85,7 @@ public class Main {
             if (line.hasOption('v')) {
                 Logger.getRootLogger().setLevel(Level.DEBUG);
             }
-            
+
             // Check if xtremlyverbose output should be used
             if (line.hasOption('x')) {
                 Logger.getRootLogger().setLevel(Level.TRACE);
@@ -130,20 +133,27 @@ public class Main {
             @Override
             public void channelConnected(ChannelHandlerContext ctx, final ChannelStateEvent e) throws Exception {
                 executorService.submit(new Runnable() {
-                    /*
-                     * (non-Javadoc)
-                     * 
-                     * @see java.lang.Runnable#run()
-                     */
                     @Override
                     public void run() {
-                        e.getChannel().write(new IShellInterpreterSetChannelMessage((byte) 21));
+                        e.getChannel().write(new IShellInterpreterSetChannelMessage((byte) 11));
                         try {
                             Thread.sleep(500);
                         } catch (InterruptedException e1) {
                             log.debug(" :" + e1, e1);
                         }
-                        e.getChannel().write(new ISenseOtapProgramRequest(otapDevices, otapProgram));
+
+                        DurationPlusUnit presenceDetectTimeout = new DurationPlusUnit(30, TimeUnit.SECONDS);
+                        DurationPlusUnit initTimeout = new DurationPlusUnit(1, TimeUnit.MINUTES);
+                        DurationPlusUnit programmingTimeout = new DurationPlusUnit(10, TimeUnit.MINUTES);
+                        short maxRerequests = 30;
+                        short timeoutMultiplier = 1000;
+
+                        ISenseOtapAutomatedProgrammingRequest req =
+                                new ISenseOtapAutomatedProgrammingRequest(otapDevices, otapProgram,
+                                        presenceDetectTimeout, initTimeout, programmingTimeout, maxRerequests,
+                                        timeoutMultiplier);
+
+                        e.getChannel().write(req);
                     }
                 });
                 super.channelConnected(ctx, e);

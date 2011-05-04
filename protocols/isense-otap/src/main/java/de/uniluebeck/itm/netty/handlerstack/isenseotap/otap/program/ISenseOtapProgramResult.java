@@ -1,19 +1,15 @@
-package de.uniluebeck.itm.netty.handlerstack.isenseotap;
+package de.uniluebeck.itm.netty.handlerstack.isenseotap.otap.program;
 
 import java.util.HashSet;
 import java.util.Set;
 
-public class ISenseOtapProgramState {
-    private Set<Integer> devicesToBeProgrammed;
-    private Set<Integer> failedDevices;
-    private Set<Integer> doneDevices;
+public class ISenseOtapProgramResult {
+    private final Set<Integer> devicesToBeProgrammed;
+    private Set<Integer> failedDevices = new HashSet<Integer>();
+    private Set<Integer> doneDevices = new HashSet<Integer>();;
 
-    public ISenseOtapProgramState(Set<Integer> devicesToBeProgrammed, Set<Integer> failedDevices,
-            Set<Integer> doneDevices) {
-        super();
+    public ISenseOtapProgramResult(Set<Integer> devicesToBeProgrammed) {
         this.devicesToBeProgrammed = devicesToBeProgrammed;
-        this.failedDevices = failedDevices;
-        this.doneDevices = doneDevices;
     }
 
     public boolean isDone() {
@@ -21,6 +17,14 @@ public class ISenseOtapProgramState {
         doneAndFailed.addAll(failedDevices);
 
         return devicesToBeProgrammed.containsAll(doneAndFailed);
+    }
+
+    void addFailedDevice(Integer deviceId) {
+        failedDevices.add(deviceId);
+    }
+
+    void addDoneDevice(Integer deviceId) {
+        doneDevices.add(deviceId);
     }
 
     /**

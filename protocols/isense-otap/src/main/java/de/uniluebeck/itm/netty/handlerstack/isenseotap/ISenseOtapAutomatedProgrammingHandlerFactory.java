@@ -20,43 +20,36 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package de.uniluebeck.itm.netty.handlerstack.isense;
+package de.uniluebeck.itm.netty.handlerstack.isenseotap;
 
-import org.jboss.netty.buffer.ChannelBuffer;
-import org.jboss.netty.channel.Channel;
-import org.jboss.netty.channel.ChannelHandlerContext;
-import org.jboss.netty.handler.codec.oneone.OneToOneDecoder;
-import org.slf4j.Logger;
+import org.jboss.netty.channel.ChannelHandler;
 import org.slf4j.LoggerFactory;
 
-public class ISensePacketDecoder extends OneToOneDecoder {
+import com.google.common.collect.Multimap;
 
-    private final Logger log;
+import de.uniluebeck.itm.netty.handlerstack.HandlerFactory;
 
-    /**
-     * Package-private constructor for creation via factory only
-     */
-    ISensePacketDecoder() {
-        this(null);
-    }
+public class ISenseOtapAutomatedProgrammingHandlerFactory implements HandlerFactory {
+    private static final org.slf4j.Logger log = LoggerFactory.getLogger(ISenseOtapAutomatedProgrammingHandlerFactory.class);
 
-    /**
-     * Package-private constructor for creation via factory only
-     */
-    ISensePacketDecoder(String instanceName) {
-        log = LoggerFactory.getLogger(instanceName != null ? instanceName : ISensePacketDecoder.class.getName());
+    @Override
+    public String getName() {
+        return "isense-otap-automated-handler";
     }
 
     @Override
-    protected Object decode(final ChannelHandlerContext ctx, final Channel channel, final Object msg) throws Exception {
+    public String getDescription() {
+        return "";
+    }
 
-        if (!(msg instanceof ChannelBuffer)) {
-            return msg;
-        }
+    @Override
+    public ChannelHandler create(Multimap<String, String> properties) throws Exception {
+        return create(null, properties);
+    }
 
-        ChannelBuffer buffer = (ChannelBuffer) msg;
-        ISensePacket iSensePacket = new ISensePacket(buffer);
-        log.trace("Decoded ISensePacket: {}", iSensePacket);
-        return iSensePacket;
+    @Override
+    public ChannelHandler create(String instanceName, Multimap<String, String> properties) throws Exception {
+        log.debug("Creating new Otap Automated Handler: {}", instanceName);
+        return new ISenseOtapAutomatedProgrammingHandler(instanceName);
     }
 }

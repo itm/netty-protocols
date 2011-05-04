@@ -38,8 +38,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.uniluebeck.itm.netty.handlerstack.isenseotap.ISenseOtapDevice;
-import de.uniluebeck.itm.netty.handlerstack.isenseotap.commands.PresenceDetectControlStart;
-import de.uniluebeck.itm.netty.handlerstack.isenseotap.commands.PresenceDetectControlStop;
 import de.uniluebeck.itm.netty.handlerstack.isenseotap.generatedmessages.PresenceDetectReply;
 import de.uniluebeck.itm.netty.handlerstack.isenseotap.generatedmessages.PresenceDetectRequest;
 import de.uniluebeck.itm.tr.util.TimedCache;
@@ -155,7 +153,7 @@ public class PresenceDetectHandler extends SimpleChannelHandler {
             log.debug("Detected {} devices with ids: {}", detectedDevices.size(),
                     Arrays.toString(detectedDevices.keySet().toArray()));
         
-        ctx.sendUpstream(new UpstreamMessageEvent(ctx.getChannel(), new PresenceDetectState(detectedDevices.keySet()), ctx.getChannel().getRemoteAddress()));
+        ctx.sendUpstream(new UpstreamMessageEvent(ctx.getChannel(), new PresenceDetectStatus(detectedDevices.keySet()), ctx.getChannel().getRemoteAddress()));
     }
 
     private ISenseOtapDevice getOrAddDevice(int deviceId) {

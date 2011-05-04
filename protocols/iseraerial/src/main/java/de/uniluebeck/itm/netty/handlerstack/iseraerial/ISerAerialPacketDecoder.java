@@ -71,12 +71,12 @@ public class ISerAerialPacketDecoder extends OneToOneDecoder {
 
         if (subtypeCode == ISerAerialIncomingPacket.TYPE_CODE) {
             ISerAerialIncomingPacket packet = new ISerAerialIncomingPacket(payload);
-            log.debug("Decoded incoming iSerAerial data packet: {}", packet);
+            log.trace("Decoded incoming iSerAerial data packet: {}", packet);
             return packet;
 
         } else if (subtypeCode == ISerAerialConfirmPacket.TYPE_CODE) {
             ISerAerialConfirmPacket packet = new ISerAerialConfirmPacket(payload);
-            log.debug("Decoded incoming iSerAerial confirm packet: {}", packet);
+            log.trace("Decoded incoming iSerAerial confirm packet: {}", packet);
             return packet;
         }
 

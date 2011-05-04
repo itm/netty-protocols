@@ -1,22 +1,22 @@
-package de.uniluebeck.itm.netty.handlerstack.isenseotap.commands;
+package de.uniluebeck.itm.netty.handlerstack.isenseotap.otap.program;
 
 import java.util.Set;
 
 public class ISenseOtapProgramRequest {
 
-    private final Set<Integer> otapDevices;
+    private final Set<Integer> devicesToProgram;
     private final byte[] otapProgram;
 
     public ISenseOtapProgramRequest(Set<Integer> otapDevices, byte[] otapProgram) {
-        this.otapDevices = otapDevices;
+        this.devicesToProgram = otapDevices;
         this.otapProgram = otapProgram;
     }
 
     /**
-     * @return the otapDevices
+     * @return the devicesToProgram
      */
-    public Set<Integer> getOtapDevices() {
-        return otapDevices;
+    public Set<Integer> getDevicesToProgram() {
+        return devicesToProgram;
     }
 
     /**
