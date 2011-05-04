@@ -22,6 +22,7 @@
  */
 package de.uniluebeck.itm.netty.handlerstack.isenseotap.otap.program;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -33,6 +34,7 @@ import java.util.TreeSet;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
 
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.LifeCycleAwareChannelHandler;
@@ -50,6 +52,7 @@ import de.uniluebeck.itm.netty.handlerstack.isenseotap.generatedmessages.OtapPro
 import de.uniluebeck.itm.netty.handlerstack.isenseotap.generatedmessages.OtapProgramRequest;
 import de.uniluebeck.itm.netty.handlerstack.util.HandlerTools;
 import de.uniluebeck.itm.tr.util.TimeDiff;
+import java.io.ByteArrayInputStream;
 
 public class ISenseOtapProgramHandler extends SimpleChannelHandler implements LifeCycleAwareChannelHandler {
     private final Logger log;
@@ -141,7 +144,13 @@ public class ISenseOtapProgramHandler extends SimpleChannelHandler implements Li
         for (Integer deviceId : programRequest.getDevicesToProgram())
             devicesToProgram.put(deviceId, new ISenseOtapDevice(deviceId));
 
-        programImage = new BinaryImage(programRequest.getOtapProgram());
+        
+        ByteArrayInputStream programStream = new ByteArrayInputStream(programRequest.getOtapProgram());
+        try {
+            programImage = new BinaryImage(programStream);
+        } catch (IOException ex) {
+            java.util.logging.Logger.getLogger(ISenseOtapProgramHandler.class.getName()).log(Level.SEVERE, null, ex);
+        }
 
         // Calculate chunk timeout
         {

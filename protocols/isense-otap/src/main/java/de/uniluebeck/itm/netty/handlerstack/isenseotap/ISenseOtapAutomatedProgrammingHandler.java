@@ -22,7 +22,10 @@
  */
 package de.uniluebeck.itm.netty.handlerstack.isenseotap;
 
+import java.io.IOException;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.LifeCycleAwareChannelHandler;
@@ -42,6 +45,7 @@ import de.uniluebeck.itm.netty.handlerstack.isenseotap.presencedetect.PresenceDe
 import de.uniluebeck.itm.netty.handlerstack.util.HandlerTools;
 import de.uniluebeck.itm.tr.util.StringUtils;
 import de.uniluebeck.itm.tr.util.TimeDiff;
+import java.io.ByteArrayInputStream;
 
 public class ISenseOtapAutomatedProgrammingHandler extends SimpleChannelHandler implements LifeCycleAwareChannelHandler {
     private final org.slf4j.Logger log;
@@ -141,7 +145,15 @@ public class ISenseOtapAutomatedProgrammingHandler extends SimpleChannelHandler 
         Set<Integer> detectedDevices = message.getDetectedDevices();
         log.info("Detected devices: {}", StringUtils.toString(detectedDevices, ","));
 
-        BinaryImage program = new BinaryImage(programRequest.getOtapProgram());
+        ByteArrayInputStream programStream = new ByteArrayInputStream(programRequest.getOtapProgram());
+           
+
+        BinaryImage program = null;
+        try {
+            program = new BinaryImage(programStream);
+        } catch (IOException ex) {
+            Logger.getLogger(ISenseOtapAutomatedProgrammingHandler.class.getName()).log(Level.SEVERE, null, ex);
+        }
 
         ISenseOtapInitStartCommand command =
                 new ISenseOtapInitStartCommand(detectedDevices, programRequest.getOtapInitTimeout(),
