@@ -30,11 +30,11 @@ import de.uniluebeck.itm.netty.handlerstack.dlestxetx.DleStxEtxFramingEncoderFac
 import de.uniluebeck.itm.netty.handlerstack.isense.ISensePacketDecoderFactory;
 import de.uniluebeck.itm.netty.handlerstack.isense.ISensePacketEncoderFactory;
 import de.uniluebeck.itm.netty.handlerstack.isenseotap.ISenseOtapAutomatedProgrammingHandlerFactory;
-import de.uniluebeck.itm.netty.handlerstack.isenseotap.otap.ISenseOtapPacketDecoderFactory;
-import de.uniluebeck.itm.netty.handlerstack.isenseotap.otap.ISenseOtapPacketEncoderFactory;
-import de.uniluebeck.itm.netty.handlerstack.isenseotap.otap.init.ISenseOtapInitHandlerFactory;
-import de.uniluebeck.itm.netty.handlerstack.isenseotap.otap.program.ISenseOtapProgramHandlerFactory;
+import de.uniluebeck.itm.netty.handlerstack.isenseotap.ISenseOtapPacketDecoderFactory;
+import de.uniluebeck.itm.netty.handlerstack.isenseotap.ISenseOtapPacketEncoderFactory;
+import de.uniluebeck.itm.netty.handlerstack.isenseotap.init.ISenseOtapInitHandlerFactory;
 import de.uniluebeck.itm.netty.handlerstack.isenseotap.presencedetect.PresenceDetectHandlerFactory;
+import de.uniluebeck.itm.netty.handlerstack.isenseotap.program.ISenseOtapProgramHandlerFactory;
 import de.uniluebeck.itm.netty.handlerstack.iseraerial.ISerAerialPacketDecoderFactory;
 import de.uniluebeck.itm.netty.handlerstack.iseraerial.ISerAerialPacketEncoderFactory;
 import de.uniluebeck.netty.handlerstack.logginghandler.LoggingHandlerFactory;

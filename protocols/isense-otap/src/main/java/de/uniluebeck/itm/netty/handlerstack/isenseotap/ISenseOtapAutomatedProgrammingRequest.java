@@ -24,7 +24,7 @@ package de.uniluebeck.itm.netty.handlerstack.isenseotap;
 
 import java.util.Set;
 
-import de.uniluebeck.itm.netty.handlerstack.isenseotap.otap.program.ISenseOtapProgramRequest;
+import de.uniluebeck.itm.netty.handlerstack.isenseotap.program.ISenseOtapProgramRequest;
 import de.uniluebeck.itm.netty.handlerstack.util.DurationPlusUnit;
 
 public class ISenseOtapAutomatedProgrammingRequest extends ISenseOtapProgramRequest {

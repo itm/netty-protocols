@@ -59,7 +59,6 @@ import de.uniluebeck.itm.netty.channelflange.ChannelFlange;
 import de.uniluebeck.itm.netty.handlerstack.HandlerFactoryRegistry;
 import de.uniluebeck.itm.netty.handlerstack.HandlerStack;
 import de.uniluebeck.itm.netty.handlerstack.isenseotap.ISenseOtapAutomatedProgrammingRequest;
-import de.uniluebeck.itm.netty.handlerstack.isenseotap.otap.program.ISenseOtapProgramRequest;
 import de.uniluebeck.itm.netty.handlerstack.isenseotap.presencedetect.PresenceDetectControlStop;
 import de.uniluebeck.itm.netty.handlerstack.protocolcollection.ProtocolCollection;
 import de.uniluebeck.itm.netty.handlerstack.util.DurationPlusUnit;

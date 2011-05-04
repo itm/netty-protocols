@@ -22,10 +22,7 @@
  */
 package de.uniluebeck.itm.netty.handlerstack.isenseotap;
 
-import java.io.IOException;
 import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.LifeCycleAwareChannelHandler;
@@ -35,17 +32,16 @@ import org.slf4j.LoggerFactory;
 
 import com.coalesenses.binaryimage.BinaryImage;
 
-import de.uniluebeck.itm.netty.handlerstack.isenseotap.otap.init.ISenseOtapInitResult;
-import de.uniluebeck.itm.netty.handlerstack.isenseotap.otap.init.ISenseOtapInitStartCommand;
-import de.uniluebeck.itm.netty.handlerstack.isenseotap.otap.program.ISenseOtapProgramRequest;
-import de.uniluebeck.itm.netty.handlerstack.isenseotap.otap.program.ISenseOtapProgramResult;
+import de.uniluebeck.itm.netty.handlerstack.isenseotap.init.ISenseOtapInitResult;
+import de.uniluebeck.itm.netty.handlerstack.isenseotap.init.ISenseOtapInitStartCommand;
 import de.uniluebeck.itm.netty.handlerstack.isenseotap.presencedetect.PresenceDetectControlStart;
 import de.uniluebeck.itm.netty.handlerstack.isenseotap.presencedetect.PresenceDetectControlStop;
 import de.uniluebeck.itm.netty.handlerstack.isenseotap.presencedetect.PresenceDetectStatus;
+import de.uniluebeck.itm.netty.handlerstack.isenseotap.program.ISenseOtapProgramRequest;
+import de.uniluebeck.itm.netty.handlerstack.isenseotap.program.ISenseOtapProgramResult;
 import de.uniluebeck.itm.netty.handlerstack.util.HandlerTools;
 import de.uniluebeck.itm.tr.util.StringUtils;
 import de.uniluebeck.itm.tr.util.TimeDiff;
-import java.io.ByteArrayInputStream;
 
 public class ISenseOtapAutomatedProgrammingHandler extends SimpleChannelHandler implements LifeCycleAwareChannelHandler {
     private final org.slf4j.Logger log;
@@ -73,10 +69,11 @@ public class ISenseOtapAutomatedProgrammingHandler extends SimpleChannelHandler 
 
             if (state == State.PRESENCE_DETECT) {
                 PresenceDetectStatus result = (PresenceDetectStatus) message;
-                boolean isDetectedAllDevices = result.getDetectedDevices().containsAll(programRequest.getDevicesToProgram());
+                boolean isDetectedAllDevices =
+                        result.getDetectedDevices().containsAll(programRequest.getDevicesToProgram());
                 boolean isTimeout = presenceDetectStart.isTimeout();
-                
-                if( isDetectedAllDevices || isTimeout ) {
+
+                if (isDetectedAllDevices || isTimeout) {
                     log.info("Detected all devices ({}) or timeout ({}).", isDetectedAllDevices, isTimeout);
                     switchToInitMode((PresenceDetectStatus) message);
                 }
@@ -129,10 +126,10 @@ public class ISenseOtapAutomatedProgrammingHandler extends SimpleChannelHandler 
 
     private void switchToPresenceDetectMode(ISenseOtapAutomatedProgrammingRequest request) {
         state = State.PRESENCE_DETECT;
-        
+
         this.programRequest = request;
         this.presenceDetectStart = new TimeDiff(request.getPresenceDetectTimeout().toMillis());
-        
+
         HandlerTools.sendDownstream(new PresenceDetectControlStart(), context);
     }
 
@@ -141,19 +138,11 @@ public class ISenseOtapAutomatedProgrammingHandler extends SimpleChannelHandler 
         state = State.OTAP_INIT;
 
         HandlerTools.sendDownstream(new PresenceDetectControlStop(), context);
-        
+
         Set<Integer> detectedDevices = message.getDetectedDevices();
         log.info("Detected devices: {}", StringUtils.toString(detectedDevices, ","));
 
-        ByteArrayInputStream programStream = new ByteArrayInputStream(programRequest.getOtapProgram());
-           
-
-        BinaryImage program = null;
-        try {
-            program = new BinaryImage(programStream);
-        } catch (IOException ex) {
-            Logger.getLogger(ISenseOtapAutomatedProgrammingHandler.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        BinaryImage program = new BinaryImage(programRequest.getOtapProgram());
 
         ISenseOtapInitStartCommand command =
                 new ISenseOtapInitStartCommand(detectedDevices, programRequest.getOtapInitTimeout(),
