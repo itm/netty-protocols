@@ -28,9 +28,8 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelHandlerContext;
-import org.jboss.netty.channel.ChannelStateEvent;
+import org.jboss.netty.channel.LifeCycleAwareChannelHandler;
 import org.jboss.netty.channel.MessageEvent;
 import org.jboss.netty.channel.SimpleChannelHandler;
 import org.jboss.netty.channel.UpstreamMessageEvent;
@@ -40,10 +39,11 @@ import org.slf4j.LoggerFactory;
 import de.uniluebeck.itm.netty.handlerstack.isenseotap.ISenseOtapDevice;
 import de.uniluebeck.itm.netty.handlerstack.isenseotap.generatedmessages.PresenceDetectReply;
 import de.uniluebeck.itm.netty.handlerstack.isenseotap.generatedmessages.PresenceDetectRequest;
+import de.uniluebeck.itm.netty.handlerstack.util.HandlerTools;
 import de.uniluebeck.itm.tr.util.TimedCache;
 import de.uniluebeck.itm.wsn.devicedrivers.generic.ChipType;
 
-public class PresenceDetectHandler extends SimpleChannelHandler {
+public class PresenceDetectHandler extends SimpleChannelHandler implements LifeCycleAwareChannelHandler {
     private final Logger log;
 
     private final ScheduledExecutorService executorService;
@@ -52,7 +52,7 @@ public class PresenceDetectHandler extends SimpleChannelHandler {
 
     private final TimeUnit presenceDetectIntervalTimeunit;
 
-    private Channel channel = null;
+    private ChannelHandlerContext context = null;
 
     private ScheduledFuture<?> sendPresenceDetectRunnableSchedule;
 
@@ -61,9 +61,9 @@ public class PresenceDetectHandler extends SimpleChannelHandler {
     private final Runnable sendPresenceDetectRunnable = new Runnable() {
         @Override
         public void run() {
-            if (channel != null) {
+            if (context != null) {
                 log.trace("Sending Presence Detect Request");
-                channel.write(new PresenceDetectRequest());
+                HandlerTools.sendDownstream(new PresenceDetectRequest(), context);
             }
         }
     };
@@ -88,11 +88,11 @@ public class PresenceDetectHandler extends SimpleChannelHandler {
 
     }
 
-    private void stopPresenceDetectInternal(){
+    private void stopPresenceDetectInternal() {
         if (sendPresenceDetectRunnableSchedule != null)
             sendPresenceDetectRunnableSchedule.cancel(false);
     }
-    
+
     public void stopPresenceDetect() {
         stopPresenceDetectInternal();
         log.info("Stopped presence detect");
@@ -100,20 +100,6 @@ public class PresenceDetectHandler extends SimpleChannelHandler {
 
     public Collection<ISenseOtapDevice> getDetectedDevices() {
         return detectedDevices.values();
-    }
-
-    @Override
-    public void channelDisconnected(final ChannelHandlerContext ctx, final ChannelStateEvent e) throws Exception {
-        stopPresenceDetect();
-        channel = null;
-        super.channelDisconnected(ctx, e);
-    }
-
-    @Override
-    public void channelConnected(final ChannelHandlerContext ctx, final ChannelStateEvent e) throws Exception {
-        assert channel == null;
-        channel = e.getChannel();
-        super.channelConnected(ctx, e);
     }
 
     @Override
@@ -152,8 +138,9 @@ public class PresenceDetectHandler extends SimpleChannelHandler {
         if (log.isDebugEnabled())
             log.debug("Detected {} devices with ids: {}", detectedDevices.size(),
                     Arrays.toString(detectedDevices.keySet().toArray()));
-        
-        ctx.sendUpstream(new UpstreamMessageEvent(ctx.getChannel(), new PresenceDetectStatus(detectedDevices.keySet()), ctx.getChannel().getRemoteAddress()));
+
+        ctx.sendUpstream(new UpstreamMessageEvent(ctx.getChannel(), new PresenceDetectStatus(detectedDevices.keySet()),
+                ctx.getChannel().getRemoteAddress()));
     }
 
     private ISenseOtapDevice getOrAddDevice(int deviceId) {
@@ -163,7 +150,31 @@ public class PresenceDetectHandler extends SimpleChannelHandler {
             device.setId(deviceId);
             detectedDevices.put(deviceId, device);
         }
-        
+
         return device;
+    }
+
+    @Override
+    public void afterAdd(ChannelHandlerContext ctx) throws Exception {
+        if (context != null) {
+            throw new RuntimeException("A single instance may only be added once to a pipeline.");
+        }
+
+        this.context = ctx;
+    }
+
+    @Override
+    public void afterRemove(ChannelHandlerContext ctx) throws Exception {
+        this.context = null;
+    }
+
+    @Override
+    public void beforeAdd(ChannelHandlerContext ctx) throws Exception {
+        // Nothing to do
+    }
+
+    @Override
+    public void beforeRemove(ChannelHandlerContext ctx) throws Exception {
+        // Nothing to do
     }
 }

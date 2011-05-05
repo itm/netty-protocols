@@ -31,6 +31,7 @@ import org.jboss.netty.channel.SimpleChannelHandler;
 import org.slf4j.LoggerFactory;
 
 import com.coalesenses.binaryimage.BinaryImage;
+import com.google.common.collect.Sets;
 
 import de.uniluebeck.itm.netty.handlerstack.isenseotap.init.ISenseOtapInitResult;
 import de.uniluebeck.itm.netty.handlerstack.isenseotap.init.ISenseOtapInitStartCommand;
@@ -141,11 +142,13 @@ public class ISenseOtapAutomatedProgrammingHandler extends SimpleChannelHandler 
 
         Set<Integer> detectedDevices = message.getDetectedDevices();
         log.info("Detected devices: {}", StringUtils.toString(detectedDevices, ","));
-
+        
+        Set<Integer> detectedDevicesToProgram = Sets.intersection(detectedDevices, programRequest.getDevicesToProgram());
+        
         BinaryImage program = new BinaryImage(programRequest.getOtapProgram());
 
         ISenseOtapInitStartCommand command =
-                new ISenseOtapInitStartCommand(detectedDevices, programRequest.getOtapInitTimeout(),
+                new ISenseOtapInitStartCommand(detectedDevicesToProgram, programRequest.getOtapInitTimeout(),
                         program.getChunkCount(), programRequest.getMaxRerequests(),
                         programRequest.getTimeoutMultiplier());
 

@@ -24,7 +24,6 @@ package com.coalesenses.isense.ishell.interpreter;
 
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBuffers;
-import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.ChannelStateEvent;
 import org.jboss.netty.channel.MessageEvent;
@@ -33,11 +32,12 @@ import org.slf4j.LoggerFactory;
 
 import de.uniluebeck.itm.netty.handlerstack.isense.ISensePacket;
 import de.uniluebeck.itm.netty.handlerstack.isense.ISensePacketType;
+import de.uniluebeck.itm.netty.handlerstack.util.HandlerTools;
 
 public class IShellInterpreterHandler extends SimpleChannelHandler {
     private final org.slf4j.Logger log;
 
-    private Channel channel;
+    private ChannelHandlerContext context;
 
     /**
      * Package-private constructor for creation via factory only
@@ -55,13 +55,13 @@ public class IShellInterpreterHandler extends SimpleChannelHandler {
 
     @Override
     public void channelDisconnected(final ChannelHandlerContext ctx, final ChannelStateEvent e) throws Exception {
-        channel = null;
+        context = null;
         super.channelDisconnected(ctx, e);
     }
 
     @Override
     public void channelConnected(final ChannelHandlerContext ctx, final ChannelStateEvent e) throws Exception {
-        channel = e.getChannel();
+        context = ctx;
         super.channelConnected(ctx, e);
     }
 
@@ -78,7 +78,7 @@ public class IShellInterpreterHandler extends SimpleChannelHandler {
     }
 
     public void setChannel(byte channelNumber) {
-        if (this.channel == null) {
+        if (this.context == null) {
             throw new RuntimeException("Channel not yet connected");
         }
 
@@ -88,7 +88,7 @@ public class IShellInterpreterHandler extends SimpleChannelHandler {
         buffer.writeByte(channelNumber);
 
         log.debug("Setting channel to {}", channelNumber);
-        channel.write(new ISensePacket(buffer));
+        HandlerTools.sendDownstream(new ISensePacket(buffer), context);
     }
 
 }
