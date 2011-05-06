@@ -29,7 +29,6 @@ import java.io.InputStreamReader;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
@@ -60,7 +59,6 @@ import de.uniluebeck.itm.netty.handlerstack.HandlerStack;
 import de.uniluebeck.itm.netty.handlerstack.isenseotap.ISenseOtapAutomatedProgrammingRequest;
 import de.uniluebeck.itm.netty.handlerstack.isenseotap.presencedetect.PresenceDetectControlStop;
 import de.uniluebeck.itm.netty.handlerstack.protocolcollection.ProtocolCollection;
-import de.uniluebeck.itm.netty.handlerstack.util.DurationPlusUnit;
 import de.uniluebeck.itm.nettyrxtx.RXTXChannelFactory;
 import de.uniluebeck.itm.nettyrxtx.RXTXDeviceAddress;
 
@@ -139,7 +137,7 @@ public class Main {
         ClientBootstrap bootstrap = new ClientBootstrap(new RXTXChannelFactory(executorService));
 
         final Set<Integer> otapDevices = Sets.newHashSet();
-        
+
         final int[] wisebedISenseDevices =
                 new int[] { 0x1bb3, 0x99a8, 0x997e, 0x14e2, 0x1cca, 0xf85d, 0x5a34, 0xcf04, 0xcc33, 0x151f, 0x1c6c,
                         0x1c73, 0x61e1, 0xf7b7, 0x61e5, 0x1c2c, 0x1bd8, 0x1bb0, 0xcc3a, 0x85a4, 0x80f5, 0x599d, 0xcbe4,
@@ -147,11 +145,10 @@ public class Main {
                         0xcff1, 0x1cd2, 0x7e6c, 0xcc43, 0x85ba, 0x9960, 0x9961, 0x14f7, 0x96f9, 0xc179, 0x96df, 0x9995,
                         0x971e, 0xcbe5, 0x1234, 0x14e0, 0x96f0, 0x1721, 0x5980 };
 
-        
-        for( Integer id : wisebedISenseDevices)
-            otapDevices.add(id);
+//        for (Integer id : wisebedISenseDevices)
+//            otapDevices.add(id);
         otapDevices.add(0x1b87);
-        
+
         final byte[] otapProgram = Files.toByteArray(new File("src/main/resources/iSenseDemoApp.bin"));
 
         SimpleChannelHandler leftStackHandler = new SimpleChannelHandler() {
@@ -175,20 +172,13 @@ public class Main {
                             log.debug(" :" + e1, e1);
                         }
 
-                        DurationPlusUnit presenceDetectTimeout = new DurationPlusUnit(30, TimeUnit.SECONDS);
-                        DurationPlusUnit initTimeout = new DurationPlusUnit(1, TimeUnit.MINUTES);
-                        DurationPlusUnit programmingTimeout = new DurationPlusUnit(10, TimeUnit.MINUTES);
-                        short maxRerequests = 50;
-                        short timeoutMultiplier = 10;
-
                         ISenseOtapAutomatedProgrammingRequest req =
-                                new ISenseOtapAutomatedProgrammingRequest(otapDevices, otapProgram,
-                                        presenceDetectTimeout, initTimeout, programmingTimeout, maxRerequests,
-                                        timeoutMultiplier);
+                                new ISenseOtapAutomatedProgrammingRequest(otapDevices, otapProgram);
 
                         e.getChannel().write(req);
                     }
                 });
+                
                 super.channelConnected(ctx, e);
             }
 

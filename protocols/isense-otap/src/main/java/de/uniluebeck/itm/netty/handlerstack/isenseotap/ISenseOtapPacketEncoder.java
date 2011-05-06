@@ -23,11 +23,14 @@
 package de.uniluebeck.itm.netty.handlerstack.isenseotap;
 
 import org.jboss.netty.buffer.ChannelBuffers;
-import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelHandlerContext;
-import org.jboss.netty.handler.codec.oneone.OneToOneEncoder;
+import org.jboss.netty.channel.MessageEvent;
+import org.jboss.netty.channel.SimpleChannelDownstreamHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.coalesenses.tools.iSenseAes;
+import com.coalesenses.tools.iSenseAes128BitKey;
 
 import de.uniluebeck.itm.netty.handlerstack.isenseotap.generatedmessages.MacroFabricSerializer;
 import de.uniluebeck.itm.netty.handlerstack.isenseotap.generatedmessages.OtapInitReply;
@@ -37,10 +40,13 @@ import de.uniluebeck.itm.netty.handlerstack.isenseotap.generatedmessages.OtapPro
 import de.uniluebeck.itm.netty.handlerstack.isenseotap.generatedmessages.PresenceDetectReply;
 import de.uniluebeck.itm.netty.handlerstack.isenseotap.generatedmessages.PresenceDetectRequest;
 import de.uniluebeck.itm.netty.handlerstack.iseraerial.ISerAerialOutgoingPacket;
+import de.uniluebeck.itm.netty.handlerstack.util.HandlerTools;
 
-public class ISenseOtapPacketEncoder extends OneToOneEncoder {
+public class ISenseOtapPacketEncoder extends SimpleChannelDownstreamHandler {
 
     private final Logger log;
+
+    private iSenseAes aes = null;
 
     /**
      * Package-private constructor for creation via factory only
@@ -66,7 +72,8 @@ public class ISenseOtapPacketEncoder extends OneToOneEncoder {
     }
 
     @Override
-    protected Object encode(final ChannelHandlerContext ctx, final Channel channel, final Object msg) throws Exception {
+    public void writeRequested(ChannelHandlerContext ctx, MessageEvent e) throws Exception {
+        Object msg = e.getMessage();
         byte[] bytes = null;
 
         if (msg instanceof OtapInitReply)
@@ -81,20 +88,37 @@ public class ISenseOtapPacketEncoder extends OneToOneEncoder {
             bytes = MacroFabricSerializer.serialize((PresenceDetectRequest) msg);
         else if (msg instanceof PresenceDetectReply)
             bytes = MacroFabricSerializer.serialize((PresenceDetectReply) msg);
+        else if (msg instanceof ISenseOtapPacketEncoderSetAESKeyRequest) {
+
+            iSenseAes128BitKey key = ((ISenseOtapPacketEncoderSetAESKeyRequest) msg).getKey();
+
+            if (key != null) {
+                log.info("Encrypting payload of otap packets");
+                this.aes = new iSenseAes(key);
+            } else {
+                log.info("Disabled otap payload encryption");
+                this.aes = null;
+            }
+            
+            return;
+        }
 
         if (bytes != null) {
+
+            if (aes != null) {
+                log.trace(("Encrypted otap payload wit AES"));
+                bytes = aes.encodeWithRandomNonce(bytes);
+            }
 
             ISerAerialOutgoingPacket iSerAerialPacket =
                     new ISerAerialOutgoingPacket(ISerAerialOutgoingPacket.BROADCAST_ADDRESS_16_BIT, (byte) 0x0,
                             ChannelBuffers.wrappedBuffer(bytes, computeCrc(bytes)));
-            
-            log.trace("Encoded {} otap packet with crc: {}", msg.getClass().getSimpleName(), iSerAerialPacket);
-            
-            return iSerAerialPacket;
 
+            log.trace("Encoded {} otap packet with crc: {}", msg.getClass().getSimpleName(), iSerAerialPacket);
+
+            HandlerTools.sendDownstream(iSerAerialPacket, ctx);
         } else {
-            log.warn("Could not encode packet {}, returning it.", msg);
-            return msg;
+            super.writeRequested(ctx, e);
         }
 
     }

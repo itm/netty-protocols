@@ -24,6 +24,7 @@ package de.uniluebeck.itm.netty.handlerstack.isenseotap;
 
 import java.util.Set;
 
+import org.jboss.netty.channel.ChannelEvent;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.LifeCycleAwareChannelHandler;
 import org.jboss.netty.channel.MessageEvent;
@@ -60,6 +61,18 @@ public class ISenseOtapAutomatedProgrammingHandler extends SimpleChannelHandler 
         log =
                 LoggerFactory.getLogger((instanceName != null) ? instanceName
                         : ISenseOtapAutomatedProgrammingHandler.class.getName());
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.jboss.netty.channel.SimpleChannelHandler#handleDownstream(org.jboss.netty.channel.ChannelHandlerContext,
+     * org.jboss.netty.channel.ChannelEvent)
+     */
+    @Override
+    public void handleDownstream(ChannelHandlerContext ctx, ChannelEvent e) throws Exception {
+        // TODO Auto-generated method stub
+        super.handleDownstream(ctx, e);
     }
 
     @Override
@@ -144,9 +157,10 @@ public class ISenseOtapAutomatedProgrammingHandler extends SimpleChannelHandler 
 
         Set<Integer> detectedDevices = message.getDetectedDevices();
         log.info("Detected devices: {}", StringUtils.toString(detectedDevices, ","));
-        
-        Set<Integer> detectedDevicesToProgram = Sets.intersection(detectedDevices, programRequest.getDevicesToProgram());
-        
+
+        Set<Integer> detectedDevicesToProgram =
+                Sets.intersection(detectedDevices, programRequest.getDevicesToProgram());
+
         BinaryImage program = new BinaryImage(programRequest.getOtapProgram());
 
         ISenseOtapInitStartCommand command =
@@ -174,6 +188,11 @@ public class ISenseOtapAutomatedProgrammingHandler extends SimpleChannelHandler 
         ISenseOtapProgramRequest request =
                 new ISenseOtapProgramRequest(otapInitResult.getInitializedDevices(), programRequest.getOtapProgram());
 
+        // Select the desired AES encryption/decryption
+        HandlerTools.sendDownstream(new ISenseOtapPacketEncoderSetAESKeyRequest(programRequest.getAesKey()), context);
+        HandlerTools.sendDownstream(new ISenseOtapPacketDecoderSetAESKeyRequest(programRequest.getAesKey()), context);
+
+        // Send the programming request downstream
         HandlerTools.sendDownstream(request, context);
     }
 
@@ -188,6 +207,12 @@ public class ISenseOtapAutomatedProgrammingHandler extends SimpleChannelHandler 
 
         state = State.IDLE;
         programRequest = null;
+
+        // Disable AES encryption
+        HandlerTools.sendDownstream(new ISenseOtapPacketEncoderSetAESKeyRequest(null), context);
+        HandlerTools.sendDownstream(new ISenseOtapPacketDecoderSetAESKeyRequest(null), context);
+
+        // Send result upstream
         HandlerTools.sendUpstream(message, context);
     }
 

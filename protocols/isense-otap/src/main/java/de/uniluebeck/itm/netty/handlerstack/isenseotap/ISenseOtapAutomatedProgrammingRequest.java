@@ -23,30 +23,25 @@
 package de.uniluebeck.itm.netty.handlerstack.isenseotap;
 
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
+
+import com.coalesenses.tools.iSenseAes128BitKey;
 
 import de.uniluebeck.itm.netty.handlerstack.isenseotap.program.ISenseOtapProgramRequest;
 import de.uniluebeck.itm.netty.handlerstack.util.DurationPlusUnit;
 
 public class ISenseOtapAutomatedProgrammingRequest extends ISenseOtapProgramRequest {
 
-    private final DurationPlusUnit presenceDetectTimeout;
-    private final DurationPlusUnit initTimeout;
-    private final DurationPlusUnit programmingTimeout;
+    private DurationPlusUnit presenceDetectTimeout = new DurationPlusUnit(30, TimeUnit.SECONDS);
+    private DurationPlusUnit otapInitTimeout = new DurationPlusUnit(30, TimeUnit.SECONDS);
+    private DurationPlusUnit programmingTimeout = new DurationPlusUnit(15, TimeUnit.MINUTES);
 
-    private final short maxRerequests;
-    private short timeoutMultiplier;
+    private short maxRerequests = 50;
+    private short timeoutMultiplier = 15;
+    private iSenseAes128BitKey aesKey = null;
 
-    public ISenseOtapAutomatedProgrammingRequest(Set<Integer> otapDevices, byte[] otapProgram,
-            DurationPlusUnit presenceDetectTimeout, DurationPlusUnit initTimeout, DurationPlusUnit programmingTimeout,
-            final short maxRerequests, final short timeoutMultiplier) {
-
+    public ISenseOtapAutomatedProgrammingRequest(Set<Integer> otapDevices, byte[] otapProgram) {
         super(otapDevices, otapProgram);
-
-        this.presenceDetectTimeout = presenceDetectTimeout;
-        this.initTimeout = initTimeout;
-        this.programmingTimeout = programmingTimeout;
-        this.maxRerequests = maxRerequests;
-        this.timeoutMultiplier = timeoutMultiplier;
     }
 
     /**
@@ -57,10 +52,26 @@ public class ISenseOtapAutomatedProgrammingRequest extends ISenseOtapProgramRequ
     }
 
     /**
-     * @return the initTimeout
+     * @param presenceDetectTimeout
+     *            the presenceDetectTimeout to set
+     */
+    public void setPresenceDetectTimeout(DurationPlusUnit presenceDetectTimeout) {
+        this.presenceDetectTimeout = presenceDetectTimeout;
+    }
+
+    /**
+     * @return the otapInitTimeout
      */
     public DurationPlusUnit getOtapInitTimeout() {
-        return initTimeout;
+        return otapInitTimeout;
+    }
+
+    /**
+     * @param otapInitTimeout
+     *            the otapInitTimeout to set
+     */
+    public void setOtapInitTimeout(DurationPlusUnit otapInitTimeout) {
+        this.otapInitTimeout = otapInitTimeout;
     }
 
     /**
@@ -71,6 +82,14 @@ public class ISenseOtapAutomatedProgrammingRequest extends ISenseOtapProgramRequ
     }
 
     /**
+     * @param programmingTimeout
+     *            the programmingTimeout to set
+     */
+    public void setProgrammingTimeout(DurationPlusUnit programmingTimeout) {
+        this.programmingTimeout = programmingTimeout;
+    }
+
+    /**
      * @return the maxRerequests
      */
     public short getMaxRerequests() {
@@ -78,10 +97,41 @@ public class ISenseOtapAutomatedProgrammingRequest extends ISenseOtapProgramRequ
     }
 
     /**
+     * @param maxRerequests
+     *            the maxRerequests to set
+     */
+    public void setMaxRerequests(short maxRerequests) {
+        this.maxRerequests = maxRerequests;
+    }
+
+    /**
      * @return the timeoutMultiplier
      */
     public short getTimeoutMultiplier() {
         return timeoutMultiplier;
+    }
+
+    /**
+     * @param timeoutMultiplier
+     *            the timeoutMultiplier to set
+     */
+    public void setTimeoutMultiplier(short timeoutMultiplier) {
+        this.timeoutMultiplier = timeoutMultiplier;
+    }
+
+    /**
+     * @return the aesKey
+     */
+    public iSenseAes128BitKey getAesKey() {
+        return aesKey;
+    }
+
+    /**
+     * @param aesKey
+     *            the aesKey to set
+     */
+    public void setAesKey(iSenseAes128BitKey aesKey) {
+        this.aesKey = aesKey;
     }
 
     /*
@@ -94,8 +144,8 @@ public class ISenseOtapAutomatedProgrammingRequest extends ISenseOtapProgramRequ
         StringBuilder builder = new StringBuilder();
         builder.append("ISenseOtapAutomatedProgrammingRequest [presenceDetectTimeout=");
         builder.append(presenceDetectTimeout);
-        builder.append(", initTimeout=");
-        builder.append(initTimeout);
+        builder.append(", otapInitTimeout=");
+        builder.append(otapInitTimeout);
         builder.append(", programmingTimeout=");
         builder.append(programmingTimeout);
         builder.append(", maxRerequests=");
@@ -104,6 +154,8 @@ public class ISenseOtapAutomatedProgrammingRequest extends ISenseOtapProgramRequ
         builder.append(timeoutMultiplier);
         builder.append(", getDevicesToProgram()=");
         builder.append(getDevicesToProgram());
+        builder.append(", AES payload encryption used: ");
+        builder.append(aesKey != null ? "yes" : "no");
         builder.append(", getOtapProgram()=");
         builder.append(getOtapProgram().length);
         builder.append("bytes]");
