@@ -77,7 +77,7 @@ public class DurationPlusUnit {
     }
 
     public String toString() {
-        return duration + unit.toString();
+        return duration + " " + unit.toString();
     }
 
 }

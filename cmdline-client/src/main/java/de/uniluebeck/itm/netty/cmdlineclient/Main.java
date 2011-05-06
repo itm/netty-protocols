@@ -45,7 +45,6 @@ import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelFuture;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.ChannelStateEvent;
-import org.jboss.netty.channel.MessageEvent;
 import org.jboss.netty.channel.SimpleChannelHandler;
 import org.jboss.netty.channel.group.ChannelGroup;
 import org.jboss.netty.channel.group.DefaultChannelGroup;
@@ -139,7 +138,20 @@ public class Main {
         final ExecutorService executorService = Executors.newCachedThreadPool();
         ClientBootstrap bootstrap = new ClientBootstrap(new RXTXChannelFactory(executorService));
 
-        final Set<Integer> otapDevices = Sets.newHashSet(0x1b87);
+        final Set<Integer> otapDevices = Sets.newHashSet();
+        
+        final int[] wisebedISenseDevices =
+                new int[] { 0x1bb3, 0x99a8, 0x997e, 0x14e2, 0x1cca, 0xf85d, 0x5a34, 0xcf04, 0xcc33, 0x151f, 0x1c6c,
+                        0x1c73, 0x61e1, 0xf7b7, 0x61e5, 0x1c2c, 0x1bd8, 0x1bb0, 0xcc3a, 0x85a4, 0x80f5, 0x599d, 0xcbe4,
+                        0xf859, 0x99af, 0x753d, 0x1b57, 0x5a35, 0x1b74, 0xcc3d, 0x970b, 0x1b5a, 0x1b6b, 0x1c72, 0xf851,
+                        0xcff1, 0x1cd2, 0x7e6c, 0xcc43, 0x85ba, 0x9960, 0x9961, 0x14f7, 0x96f9, 0xc179, 0x96df, 0x9995,
+                        0x971e, 0xcbe5, 0x1234, 0x14e0, 0x96f0, 0x1721, 0x5980 };
+
+        
+        for( Integer id : wisebedISenseDevices)
+            otapDevices.add(id);
+        otapDevices.add(0x1b87);
+        
         final byte[] otapProgram = Files.toByteArray(new File("src/main/resources/iSenseDemoApp.bin"));
 
         SimpleChannelHandler leftStackHandler = new SimpleChannelHandler() {
@@ -166,8 +178,8 @@ public class Main {
                         DurationPlusUnit presenceDetectTimeout = new DurationPlusUnit(30, TimeUnit.SECONDS);
                         DurationPlusUnit initTimeout = new DurationPlusUnit(1, TimeUnit.MINUTES);
                         DurationPlusUnit programmingTimeout = new DurationPlusUnit(10, TimeUnit.MINUTES);
-                        short maxRerequests = 30;
-                        short timeoutMultiplier = 1000;
+                        short maxRerequests = 50;
+                        short timeoutMultiplier = 10;
 
                         ISenseOtapAutomatedProgrammingRequest req =
                                 new ISenseOtapAutomatedProgrammingRequest(otapDevices, otapProgram,
@@ -190,19 +202,6 @@ public class Main {
             public void channelDisconnected(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
                 e.getChannel().write(new PresenceDetectControlStop());
                 super.channelDisconnected(ctx, e);
-            }
-
-            @Override
-            public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) throws Exception {
-                /*
-                 * Object messageObject = e.getMessage(); if (messageObject instanceof ChannelBuffer) { ChannelBuffer
-                 * message = (ChannelBuffer) messageObject; log.info("Byte[] message received: {}",
-                 * StringUtils.toHexString(((ChannelBuffer) message).array())); } else if (messageObject instanceof
-                 * ISensePacket) { ISensePacket iSensePacket = (ISensePacket) messageObject;
-                 * log.info("iSense packet received: " + iSensePacket); } else {
-                 * log.info("Unknown packet type received"); }
-                 */
-                super.messageReceived(ctx, e);
             }
 
         };

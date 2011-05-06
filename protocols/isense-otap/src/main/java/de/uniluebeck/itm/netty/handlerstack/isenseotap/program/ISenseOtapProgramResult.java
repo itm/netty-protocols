@@ -31,7 +31,7 @@ public class ISenseOtapProgramResult {
     private Set<Integer> doneDevices = new HashSet<Integer>();;
 
     public ISenseOtapProgramResult(Set<Integer> devicesToBeProgrammed) {
-        this.devicesToBeProgrammed = devicesToBeProgrammed;
+        this.devicesToBeProgrammed = new HashSet<Integer>(devicesToBeProgrammed);
     }
 
     public boolean isDone() {

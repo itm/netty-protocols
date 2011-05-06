@@ -48,4 +48,20 @@ public class ISenseOtapProgramRequest {
         return otapProgram;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("ISenseOtapProgramRequest [devicesToProgram=");
+        builder.append(devicesToProgram);
+        builder.append(", otapProgram=");
+        builder.append(otapProgram.length);
+        builder.append(" bytes]");
+        return builder.toString();
+    }
+
 }

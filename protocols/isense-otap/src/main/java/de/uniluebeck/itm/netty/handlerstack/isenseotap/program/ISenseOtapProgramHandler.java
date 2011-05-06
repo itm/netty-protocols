@@ -134,8 +134,49 @@ public class ISenseOtapProgramHandler extends SimpleChannelHandler implements Li
 
     }
 
+    @Override
+    public void writeRequested(ChannelHandlerContext ctx, MessageEvent e) throws Exception {
+        Object message = e.getMessage();
+
+        if (message instanceof ISenseOtapProgramRequest) {
+            startProgramming((ISenseOtapProgramRequest) message);
+        } else {
+            super.writeRequested(ctx, e);
+        }
+
+    }
+
+    @Override
+    public void messageReceived(final ChannelHandlerContext ctx, final MessageEvent e) throws Exception {
+        Object message = e.getMessage();
+
+        if (message instanceof OtapProgramReply) {
+            OtapProgramReply reply = (OtapProgramReply) message;
+
+            if (programImage != null) {
+
+                ISenseOtapDevice device = devicesToProgram.get(reply.device_id);
+                if (device != null) {
+                    handleOtapProgramReply(device, reply);
+                } else {
+                    log.debug("Ignoring otap program reply from unknown device {}", reply.device_id);
+                }
+
+            } else {
+                log.warn("Ignoring otap program reply in wrong state");
+            }
+
+        } else {
+            super.messageReceived(ctx, e);
+        }
+
+    }
+
     public void startProgramming(ISenseOtapProgramRequest programRequest) {
         stopProgramming();
+
+        log.info("Received programming request {}. Starting to program...", programRequest);
+
         this.programStatus = new ISenseOtapProgramResult(programRequest.getDevicesToProgram());
 
         for (Integer deviceId : programRequest.getDevicesToProgram())
@@ -170,46 +211,6 @@ public class ISenseOtapProgramHandler extends SimpleChannelHandler implements Li
         sendOtapProgramRequestsSchedule = null;
         programImage = null;
         devicesToProgram.clear();
-    }
-
-    @Override
-    public void writeRequested(ChannelHandlerContext ctx, MessageEvent e) throws Exception {
-        Object message = e.getMessage();
-
-        if (message instanceof ISenseOtapProgramRequest) {
-            log.debug("Received programming request. Starting to program...");
-            ISenseOtapProgramRequest request = (ISenseOtapProgramRequest) message;
-            startProgramming(request);
-        } else {
-            super.writeRequested(ctx, e);
-        }
-
-    }
-
-    @Override
-    public void messageReceived(final ChannelHandlerContext ctx, final MessageEvent e) throws Exception {
-        Object message = e.getMessage();
-
-        if (message instanceof OtapProgramReply) {
-            OtapProgramReply reply = (OtapProgramReply) message;
-
-            if (programImage != null) {
-
-                ISenseOtapDevice device = devicesToProgram.get(reply.device_id);
-                if (device != null) {
-                    handleOtapProgramReply(device, reply);
-                } else {
-                    log.debug("Ignoring otap program reply from unknown device {}: {}", reply.device_id, reply);
-                }
-
-            } else {
-                log.warn("Ignoring otap program reply in wrong state");
-            }
-
-        } else {
-            super.messageReceived(ctx, e);
-        }
-
     }
 
     private void handleOtapProgramReply(ISenseOtapDevice device, OtapProgramReply reply) {
@@ -247,28 +248,25 @@ public class ISenseOtapProgramHandler extends SimpleChannelHandler implements Li
             if (log.isDebugEnabled())
                 log.debug("Device {} misses packets {}", reply.device_id, Arrays.toString(missingIndices.toArray()));
 
-            if (device.isChunkComplete() && device.getChunkNo() == programImage.getChunkCount() - 1)
-                programStatus.addDoneDevice(device.getId());
-
         } else {
-            log.debug("No missing indices at {}, chunk ", Integer.toHexString(reply.device_id), reply.chunk_no);
+            log.debug("No missing indices at {}, chunk {}", Integer.toHexString(reply.device_id), reply.chunk_no);
             device.setChunkComplete(true);
-            
-            if( isDeviceFullyProgrammed(device))
-            {
+
+            if (isDeviceFullyProgrammed(device)) {
                 programStatus.addDoneDevice(device.getId());
-                log.info("Device {} is fully programmed. Now got {} done devices.", device.getId(), programStatus.getDoneDevices().size());
+                log.info("Device {} is fully programmed. Now got {} done devices.", device.getId(), programStatus
+                        .getDoneDevices().size());
             }
         }
 
     }
 
     private boolean isDeviceFullyProgrammed(ISenseOtapDevice device) {
-        if ( device.getChunkNo() + 1 == programImage.getChunkCount()  && device.isChunkComplete() )
+        if (device.getChunkNo() + 1 == programImage.getChunkCount() && device.isChunkComplete())
             return true;
         return false;
     }
-    
+
     /**
     *
     */
@@ -307,19 +305,19 @@ public class ISenseOtapProgramHandler extends SimpleChannelHandler implements Li
         for (ISenseOtapDevice device : devicesToProgram.values()) {
             if (device.getChunkNo() + 1 < chunk.getChunkNumber()) {
                 failedDevicesToRemove.add(device);
-                log.warn(
-                        "Device {} failed (still in chunk {}, current is {}. Removing it.",
-                        new Object[] { Integer.toHexString(device.getId()), device.getChunkNo(), chunk.getChunkNumber() });
             }
         }
 
-        for (ISenseOtapDevice d : failedDevicesToRemove) {
-            programStatus.addFailedDevice(d.getId());
-            devicesToProgram.remove(d.getId());
+        for (ISenseOtapDevice device : failedDevicesToRemove) {
+            log.warn("Device {} failed (still in chunk {}, current is {}. Removing it.",
+                    new Object[] { Integer.toHexString(device.getId()), device.getChunkNo(), chunk.getChunkNumber() });
+
+            programStatus.addFailedDevice(device.getId());
+            devicesToProgram.remove(device.getId());
         }
 
-        if (chunkTimeout.isTimeout() || getAllDevicesReceivedAllPacketsInChunk()) {
-            log.info("OTAP::Leaping to next chunk. Still remaining packets [" + remainingPacketsInChunk.size() + "]");
+        if (chunkTimeout.isTimeout() || isAllDevicesReceivedAllPacketsInChunk()) {
+            log.info("Leaping to next chunk. Still remaining packets [" + remainingPacketsInChunk.size() + "]");
             prepareChunk(chunk.getChunkNumber() + 1);
         }
     }
@@ -327,7 +325,7 @@ public class ISenseOtapProgramHandler extends SimpleChannelHandler implements Li
     /**
     *
     */
-    private boolean getAllDevicesReceivedAllPacketsInChunk() {
+    private boolean isAllDevicesReceivedAllPacketsInChunk() {
         boolean allPacketsAtAllDevicesRX = true;
 
         for (ISenseOtapDevice d : devicesToProgram.values()) {
@@ -337,7 +335,7 @@ public class ISenseOtapProgramHandler extends SimpleChannelHandler implements Li
         }
 
         if (allPacketsAtAllDevicesRX)
-            log.debug("All devices received all packets in chunk");
+            log.debug("All {} devices received all packets in chunk", devicesToProgram.size());
 
         return allPacketsAtAllDevicesRX;
     }

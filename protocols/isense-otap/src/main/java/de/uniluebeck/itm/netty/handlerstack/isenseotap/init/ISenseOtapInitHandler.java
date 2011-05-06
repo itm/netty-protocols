@@ -36,14 +36,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Sets;
 
 import de.uniluebeck.itm.netty.handlerstack.isenseotap.generatedmessages.OtapInitReply;
 import de.uniluebeck.itm.netty.handlerstack.isenseotap.generatedmessages.OtapInitRequest;
-import de.uniluebeck.itm.netty.handlerstack.util.DurationPlusUnit;
 import de.uniluebeck.itm.netty.handlerstack.util.HandlerTools;
 import de.uniluebeck.itm.tr.util.StringUtils;
 import de.uniluebeck.itm.tr.util.TimeDiff;
-import de.uniluebeck.itm.tr.util.TimedCache;
 
 public class ISenseOtapInitHandler extends SimpleChannelHandler implements LifeCycleAwareChannelHandler {
     private final Logger log;
@@ -55,7 +54,7 @@ public class ISenseOtapInitHandler extends SimpleChannelHandler implements LifeC
     private TimeDiff otapInitStart;
 
     /** A set of devices selected to program, they must all ack before they are programmed */
-    private TimedCache<Integer, Void> initializedDevices;
+    private Set<Integer> initializedDevices;
 
     private ScheduledFuture<?> sendOtapInitRequestsSchedule;
     private final Runnable sendOtapInitRequestsRunnable = new Runnable() {
@@ -86,7 +85,7 @@ public class ISenseOtapInitHandler extends SimpleChannelHandler implements LifeC
                 currentDeviceCount++;
 
                 if (currentDeviceCount == maxDevicesPerPacket) {
-                    log.debug("Sending otap init request: {}", req);
+                    log.trace("Sending otap init request");
                     HandlerTools.sendDownstream(req, context);
                     currentDeviceCount = 0;
                     req = createRequest();
@@ -95,7 +94,7 @@ public class ISenseOtapInitHandler extends SimpleChannelHandler implements LifeC
 
             // Send the last packet (if there is one)
             if (currentDeviceCount > 0 && currentDeviceCount < maxDevicesPerPacket) {
-                log.debug("Sending otap init request: {}", req);
+                log.trace("Sending otap init request: {}", req);
                 HandlerTools.sendDownstream(req, context);
 
             }
@@ -115,21 +114,18 @@ public class ISenseOtapInitHandler extends SimpleChannelHandler implements LifeC
 
     public void startOtapInit(ISenseOtapInitStartCommand req) {
         stopOtapInit();
-        
+
         this.request = req;
-        
-        long transmitFrequencyMillis = Math.min(request.getOtapTimeout().toMillis() / 10, 100);
 
-        DurationPlusUnit deviceTimeout =
-                new DurationPlusUnit(transmitFrequencyMillis / 2, TimeUnit.MILLISECONDS);
+        long transmitFrequencyMillis = Math.max(request.getOtapInitTimeout().toMillis() / 500, 100);
 
-        initializedDevices = new TimedCache<Integer, Void>((int) deviceTimeout.getDuration(), deviceTimeout.getUnit());
+        initializedDevices = Sets.newHashSet();
 
         sendOtapInitRequestsSchedule =
-                executorService.scheduleWithFixedDelay(sendOtapInitRequestsRunnable, 0,
-                        transmitFrequencyMillis, TimeUnit.MILLISECONDS);
+                executorService.scheduleWithFixedDelay(sendOtapInitRequestsRunnable, 0, transmitFrequencyMillis,
+                        TimeUnit.MILLISECONDS);
 
-        otapInitStart = new TimeDiff(request.getOtapTimeout().toMillis());
+        otapInitStart = new TimeDiff(request.getOtapInitTimeout().toMillis());
     }
 
     public void stopOtapInit() {
@@ -175,18 +171,17 @@ public class ISenseOtapInitHandler extends SimpleChannelHandler implements LifeC
     }
 
     private void handleOtapInitReply(OtapInitReply reply) {
-        log.debug("Init Reply Received: {}", reply);
-
         Set<Integer> devicesToInitialize = request.getDevicesToInitialize();
 
         if (devicesToInitialize.contains(reply.device_id)) {
-            initializedDevices.put(reply.device_id, null);
-            log.debug("Init reply from device {}, now got {} devices", StringUtils.toHexString(reply.device_id),
-                    initializedDevices.size());
+            initializedDevices.add(reply.device_id);
+            log.trace("Init reply from device {}, now got {} devices: {}", new Object[] { reply.device_id,
+                    initializedDevices.size(), StringUtils.toString(initializedDevices, ", ") });
         } else {
-            log.debug("Ignored unsolicited reply from device {} that does not participate.",
+            log.trace("Ignored unsolicited reply from device {} that does not participate.",
                     StringUtils.toHexString(reply.device_id));
         }
+
         checkIfDoneAndNotifyUpstream();
     }
 
@@ -196,17 +191,17 @@ public class ISenseOtapInitHandler extends SimpleChannelHandler implements LifeC
     private void checkIfDoneAndNotifyUpstream() {
         Set<Integer> devicesToInitialize = request.getDevicesToInitialize();
         boolean timeout = otapInitStart.isTimeout();
-        boolean allDevicesInitialized = devicesToInitialize.size() == initializedDevices.keySet().size();
+        boolean allDevicesInitialized = devicesToInitialize.size() == initializedDevices.size();
 
         if (timeout || allDevicesInitialized) {
 
             log.info("All {} devices have either acknowledged {}, or a timeout occured {}. Done", new Object[] {
                     devicesToInitialize.size(), allDevicesInitialized, timeout });
 
-            ISenseOtapInitResult result = new ISenseOtapInitResult(request, initializedDevices.keySet());
-            
+            ISenseOtapInitResult result = new ISenseOtapInitResult(request, initializedDevices);
+
             stopOtapInit();
-            
+
             HandlerTools.sendUpstream(result, context);
         }
     }

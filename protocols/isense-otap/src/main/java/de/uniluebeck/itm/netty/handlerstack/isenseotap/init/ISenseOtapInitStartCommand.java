@@ -54,7 +54,7 @@ public class ISenseOtapInitStartCommand {
     /**
      * @return the otapInitTimeout
      */
-    public DurationPlusUnit getOtapTimeout() {
+    public DurationPlusUnit getOtapInitTimeout() {
         return otapInitTimeout;
     }
 

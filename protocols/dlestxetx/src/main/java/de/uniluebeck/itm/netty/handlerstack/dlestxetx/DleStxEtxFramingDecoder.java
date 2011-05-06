@@ -71,14 +71,13 @@ public class DleStxEtxFramingDecoder extends FrameDecoder {
 
                 if (c == DleStxEtxConstants.STX && !foundPacket) {
 
-                    // log.trace("STX received in DLE mode");
                     foundPacket = true;
 
                 } else if (c == DleStxEtxConstants.ETX && foundPacket) {
 
                     // packet was completely received
-                    if (log.isDebugEnabled()) {
-                        log.debug(
+                    if (log.isTraceEnabled()) {
+                        log.trace(
                                 "Packet decoding completed: {}",
                                 new Object[] { StringUtils.toHexString(packet.array(), packet.readerIndex(),
                                         packet.readableBytes()) });
@@ -90,7 +89,6 @@ public class DleStxEtxFramingDecoder extends FrameDecoder {
                 } else if (c == DleStxEtxConstants.DLE && foundPacket) {
 
                     // Stuffed DLE found
-                    // log.trace("Stuffed DLE received in DLE mode");
                     packet.writeByte(DleStxEtxConstants.DLE);
 
                 } else {

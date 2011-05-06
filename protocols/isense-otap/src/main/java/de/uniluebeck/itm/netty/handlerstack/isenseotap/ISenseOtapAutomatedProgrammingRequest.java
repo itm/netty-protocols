@@ -32,7 +32,7 @@ public class ISenseOtapAutomatedProgrammingRequest extends ISenseOtapProgramRequ
     private final DurationPlusUnit presenceDetectTimeout;
     private final DurationPlusUnit initTimeout;
     private final DurationPlusUnit programmingTimeout;
-    
+
     private final short maxRerequests;
     private short timeoutMultiplier;
 
@@ -82,6 +82,32 @@ public class ISenseOtapAutomatedProgrammingRequest extends ISenseOtapProgramRequ
      */
     public short getTimeoutMultiplier() {
         return timeoutMultiplier;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("ISenseOtapAutomatedProgrammingRequest [presenceDetectTimeout=");
+        builder.append(presenceDetectTimeout);
+        builder.append(", initTimeout=");
+        builder.append(initTimeout);
+        builder.append(", programmingTimeout=");
+        builder.append(programmingTimeout);
+        builder.append(", maxRerequests=");
+        builder.append(maxRerequests);
+        builder.append(", timeoutMultiplier=");
+        builder.append(timeoutMultiplier);
+        builder.append(", getDevicesToProgram()=");
+        builder.append(getDevicesToProgram());
+        builder.append(", getOtapProgram()=");
+        builder.append(getOtapProgram().length);
+        builder.append("bytes]");
+        return builder.toString();
     }
 
 }

@@ -112,8 +112,10 @@ public class ISenseOtapAutomatedProgrammingHandler extends SimpleChannelHandler 
         if (message instanceof ISenseOtapAutomatedProgrammingRequest) {
 
             if (state == State.IDLE) {
-                log.info("Received programming request {}, switching to presence detect mode.");
-                switchToPresenceDetectMode((ISenseOtapAutomatedProgrammingRequest) message);
+                ISenseOtapAutomatedProgrammingRequest request = (ISenseOtapAutomatedProgrammingRequest) message;
+                log.info("Received automated programming request switching to presence detect mode.");
+                log.info("Automated programming request: {}", request);
+                switchToPresenceDetectMode(request);
             } else {
                 // TODO Inform upstream handlers
                 log.error("Already in non-IDLE state {}. Ignoring request.", state);

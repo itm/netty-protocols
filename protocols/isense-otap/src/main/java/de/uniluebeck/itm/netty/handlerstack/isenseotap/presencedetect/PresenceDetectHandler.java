@@ -125,7 +125,7 @@ public class PresenceDetectHandler extends SimpleChannelHandler implements LifeC
         }
 
         PresenceDetectReply reply = (PresenceDetectReply) message;
-        log.debug("Received presence detect reply: {}", reply);
+        log.trace("Received presence detect reply from: {}", reply.device_id);
 
         ISenseOtapDevice d = getOrAddDevice(reply.device_id);
 
