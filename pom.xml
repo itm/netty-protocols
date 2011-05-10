@@ -31,6 +31,8 @@
 		<module>protocols/remote-uart-protocol</module>
 		<module>protocols/swap</module>
 
+		<module>protocols/tls-peer-verification</module>
+
 	</modules>
 
 	<dependencyManagement>
@@ -89,6 +91,11 @@
 			<dependency>
 				<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
 				<artifactId>isense-ishell-interpreter</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
+				<artifactId>tls-peer-verification</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 

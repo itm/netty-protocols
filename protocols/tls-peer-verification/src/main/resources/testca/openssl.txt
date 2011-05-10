@@ -1,0 +1,116 @@
+
+--------------------------------------------------------------------------------------------------------------
+
+ubuntuusers.de
+	openssl req -new -x509 -days 365 -nodes -out /etc/apache2/ssl/apache.pem -keyout /etc/apache2/ssl/apache.pem
+	ln -sf /etc/apache2/ssl/apache.pem /etc/apache2/ssl/`/usr/bin/openssl x509 -noout -hash < /etc/apache2/ssl/apache.pem`.0
+
+
+--------------------------------------------------------------------------------------------------------------
+
+Make sure you enter the FQDN ("Fully Qualified Domain Name") of the server when OpenSSL prompts you for the "CommonName", i.e. when you generate a CSR for a website which will be later accessed via https://www.foo.dom/, enter "www.foo.dom" here. You can see the details of this CSR by using
+	
+Apache
+	openssl req -new -x509 -nodes -out server.crt -keyout server.key
+
+
+
+It is important that you are aware that this server.key does not have any passphrase. To add a passphrase to the key, you should run the following command, and enter & verify the passphrase as requested.
+
+$ openssl rsa -des3 -in server.key -out server.key.new
+$ mv server.key.new server.key
+Please backup the server.key file, and the passphrase you entered, in a secure location. 
+
+
+
+Having to manually enter the passphrase when starting the server can be problematic - for example, when starting the server from the system boot scripts. In this case, you can follow the steps below to remove the passphrase from your private key. Bear in mind that doing so brings additional security risks - proceed with caution!
+
+http://httpd.apache.org/docs/2.0/ssl/ssl_faq.html
+
+
+
+--------------------------------------------------------------------------------------------------------------
+
+http://www.openssl.org/docs/HOWTO/certificates.txt
+
+
+o To generate a RSA key
+	openssl genrsa -des3 -out privkey.pem 4096
+
+o Creating a certificate request
+	openssl req -new -key privkey.pem -out cert.csr
+
+
+o Creating a self-signed test certificate
+	openssl req -new -x509 -days 1095 -key privkey.pem -out cacert.pem
+
+
+--------------------------------------------------------------------------------------------------------------
+
+http://devsec.org/info/ssl-cert.html
+
+	
+o To Make a new ssl private key:
+
+    * Generate a new unencrypted rsa private key in PEM format:
+
+	openssl genrsa -out privkey.pem 1024
+
+      You can create an encrypted key by adding the -des3 option.
+
+o To make a self-signed certificate:
+
+    * Create a certificate signing request (CSR) using your rsa private key:
+
+	openssl req -new -key privkey.pem -out certreq.csr
+
+      ( This is also the type of CSR you would create to send to a root CA for them to sign for you. )
+
+    * Self-sign your CSR with your own private key:
+
+	openssl x509 -req -days 3650 -in certreq.csr -signkey privkey.pem -out newcert.pem
+
+
+
+o To make a certificate signed by your own certificate authority (CA):
+
+    * Configure /etc/ssl/openssl.cnf and use CA.pl to create the CA private key and certificate:
+
+          vi /etc/ssl/openssl.cnf
+          /usr/lib/ssl/misc/CA.pl -newca
+
+      Your copy of openssl.cnf and CA.pl may be located elsewhere.
+
+    * Create an unsigned certificate using your rsa private key:
+
+          openssl req -new -x509 -key privkey.pem -out cert.pem
+
+    * Use your private key and your certificate to make a CSR:
+
+          cat cert.pem privkey.pem | openssl x509 -x509toreq -signkey privkey.pem -out certreq.csr
+
+    * Sign the certificate with the CA private key using the CSR you just made:
+
+          openssl ca -in certreq.csr -out newcert.pem
+          rm -f certreq.csr
+
+o To install the signed certificate and private key for use by an ssl server:
+
+    * The newcert.pem is the certificate signed by your local CA that you can then use in an ssl server:
+
+          ( openssl x509 -in newcert.pem; cat privkey.pem ) > server.pem
+          ln -s server.pem `openssl x509 -hash -noout -in server.pem`.0   # dot-zero
+
+      ( The server.pem is a PEM file that can be used by apache along with the hash file. ) 
+
+
+--------------------------------------------------------------------------------------------------------------
+
+
+Meins:
+	openssl req -new -x509 -days 1095 -nodes -out server.pem -newkey rsa:4096 -keyout server.key
+
+
+
+
+

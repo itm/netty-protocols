@@ -74,6 +74,22 @@ public class ISenseOtapPacketEncoder extends SimpleChannelDownstreamHandler {
     @Override
     public void writeRequested(ChannelHandlerContext ctx, MessageEvent e) throws Exception {
         Object msg = e.getMessage();
+
+        if (msg instanceof ISenseOtapPacketEncoderSetAESKeyRequest) {
+
+            iSenseAes128BitKey key = ((ISenseOtapPacketEncoderSetAESKeyRequest) msg).getKey();
+
+            if (key != null) {
+                log.info("Encrypting payload of otap packets");
+                this.aes = new iSenseAes(key);
+            } else {
+                log.info("Disabled otap payload encryption");
+                this.aes = null;
+            }
+
+            return;
+        }
+
         byte[] bytes = null;
 
         if (msg instanceof OtapInitReply)
@@ -88,20 +104,6 @@ public class ISenseOtapPacketEncoder extends SimpleChannelDownstreamHandler {
             bytes = MacroFabricSerializer.serialize((PresenceDetectRequest) msg);
         else if (msg instanceof PresenceDetectReply)
             bytes = MacroFabricSerializer.serialize((PresenceDetectReply) msg);
-        else if (msg instanceof ISenseOtapPacketEncoderSetAESKeyRequest) {
-
-            iSenseAes128BitKey key = ((ISenseOtapPacketEncoderSetAESKeyRequest) msg).getKey();
-
-            if (key != null) {
-                log.info("Encrypting payload of otap packets");
-                this.aes = new iSenseAes(key);
-            } else {
-                log.info("Disabled otap payload encryption");
-                this.aes = null;
-            }
-            
-            return;
-        }
 
         if (bytes != null) {
 
