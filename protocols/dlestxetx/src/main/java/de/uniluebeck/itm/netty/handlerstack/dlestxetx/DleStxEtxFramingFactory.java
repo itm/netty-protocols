@@ -20,33 +20,42 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package de.uniluebeck.itm.netty.handlerstack.isenseotap.init;
+package de.uniluebeck.itm.netty.handlerstack.dlestxetx;
+
+import java.util.LinkedList;
+import java.util.List;
 
 import org.jboss.netty.channel.ChannelHandler;
 
 import com.google.common.collect.Multimap;
 
 import de.uniluebeck.itm.netty.handlerstack.HandlerFactory;
+import de.uniluebeck.itm.tr.util.Tuple;
 
-public class ISenseOtapInitHandlerFactory implements HandlerFactory {
+public class DleStxEtxFramingFactory implements HandlerFactory {
 
     @Override
     public String getName() {
-        return "isense-otap-init-handler";
+        return "dlestxetx-framing";
     }
 
     @Override
     public String getDescription() {
-        return "";
+        return "TODO"; // TODO Add description
     }
 
     @Override
-    public ChannelHandler create(Multimap<String, String> properties) throws Exception {
+    public List<Tuple<String, ChannelHandler>> create(String instanceName, Multimap<String, String> properties)
+            throws Exception {
+
+        List<Tuple<String, ChannelHandler>> handlers = new LinkedList<Tuple<String, ChannelHandler>>();
+        handlers.addAll(new DleStxEtxFramingDecoderFactory().create(instanceName + "-decoder", properties));
+        handlers.addAll(new DleStxEtxFramingEncoderFactory().create(instanceName + "-encoder", properties));
+        return handlers;
+    }
+
+    @Override
+    public List<Tuple<String, ChannelHandler>> create(Multimap<String, String> properties) throws Exception {
         return create(null, properties);
-    }
-
-    @Override
-    public ChannelHandler create(String instanceName, Multimap<String, String> properties) throws Exception {
-        return new ISenseOtapInitHandler(instanceName);
     }
 }

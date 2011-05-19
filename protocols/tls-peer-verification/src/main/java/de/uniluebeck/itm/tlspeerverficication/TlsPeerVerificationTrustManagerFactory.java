@@ -8,7 +8,10 @@ import javax.net.ssl.ManagerFactoryParameters;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactorySpi;
 
+import org.slf4j.LoggerFactory;
+
 public class TlsPeerVerificationTrustManagerFactory extends TrustManagerFactorySpi {
+    private static final org.slf4j.Logger log = LoggerFactory.getLogger(TlsPeerVerificationTrustManagerFactory.class);
 
     private final TlsPeerVerificationTrustManager trustManager;
 
@@ -19,6 +22,7 @@ public class TlsPeerVerificationTrustManagerFactory extends TrustManagerFactoryS
 
     @Override
     protected TrustManager[] engineGetTrustManagers() {
+        log.debug("Returning custom trust manager");
         return new TrustManager[] { trustManager };
     }
 

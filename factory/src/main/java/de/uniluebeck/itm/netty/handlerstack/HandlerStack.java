@@ -27,6 +27,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
@@ -197,8 +198,15 @@ public class HandlerStack {
                 }
             }
 
-            ChannelHandler channelHandler = registry.create(handlerName, factoryName, options);
-            handlerStack.add(new Tuple<String, ChannelHandler>(handlerName, channelHandler));
+            List<Tuple<String, ChannelHandler>> channelHandlers = registry.create(handlerName, factoryName, options);
+            handlerStack.addAll(channelHandlers);
+        }
+
+        // Debug output
+        if (log.isDebugEnabled()) {
+            log.debug("Instantiated new handler chain:");
+            for (Tuple<String, ChannelHandler> entry : handlerStack)
+                log.debug("Handler: {} [{}]", entry.getFirst(), entry.getSecond());
         }
 
         return handlerStack;

@@ -23,11 +23,14 @@
 package de.uniluebeck.itm.netty.handlerstack;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.jboss.netty.channel.ChannelHandler;
 
 import com.google.common.collect.Multimap;
+
+import de.uniluebeck.itm.tr.util.Tuple;
 
 public class HandlerFactoryRegistry {
     private Map<String, HandlerFactory> moduleFactories = new HashMap<String, HandlerFactory>();
@@ -41,7 +44,7 @@ public class HandlerFactoryRegistry {
 
     }
 
-    public ChannelHandler create(String instanceName, String factoryName, Multimap<String, String> properties) throws Exception {
+    public List<Tuple<String,ChannelHandler>> create(String instanceName, String factoryName, Multimap<String, String> properties) throws Exception {
 
         if (!moduleFactories.containsKey(factoryName))
             throw new Exception("Factory of name " + factoryName + " unknown. " + this.toString());

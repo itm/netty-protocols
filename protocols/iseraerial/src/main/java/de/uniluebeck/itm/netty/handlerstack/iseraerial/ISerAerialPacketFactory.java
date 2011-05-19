@@ -20,19 +20,23 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package de.uniluebeck.itm.netty.handlerstack.isenseotap;
+package de.uniluebeck.itm.netty.handlerstack.iseraerial;
+
+import java.util.LinkedList;
+import java.util.List;
 
 import org.jboss.netty.channel.ChannelHandler;
 
 import com.google.common.collect.Multimap;
 
 import de.uniluebeck.itm.netty.handlerstack.HandlerFactory;
+import de.uniluebeck.itm.tr.util.Tuple;
 
-public class ISenseOtapPacketDecoderFactory implements HandlerFactory {
+public class ISerAerialPacketFactory implements HandlerFactory {
 
     @Override
     public String getName() {
-        return "isense-otap-packet-decoder";
+        return "iseraerial-packet";
     }
 
     @Override
@@ -41,13 +45,17 @@ public class ISenseOtapPacketDecoderFactory implements HandlerFactory {
     }
 
     @Override
-    public ChannelHandler create(Multimap<String, String> properties) throws Exception {
-        return new ISenseOtapPacketDecoder(); 
+    public List<Tuple<String, ChannelHandler>> create(Multimap<String, String> properties) throws Exception {
+        return create(null, properties);
     }
 
     @Override
-    public ChannelHandler create(String instanceName, Multimap<String, String> properties) throws Exception {
-        return new ISenseOtapPacketDecoder(instanceName); 
+    public List<Tuple<String, ChannelHandler>> create(String instanceName, Multimap<String, String> properties)
+            throws Exception {
+        List<Tuple<String, ChannelHandler>> handlers = new LinkedList<Tuple<String, ChannelHandler>>();
+        handlers.addAll(new ISerAerialPacketDecoderFactory().create(instanceName + "-decoder", properties));
+        handlers.addAll(new ISerAerialPacketEncoderFactory().create(instanceName + "-encoder", properties));
+        return handlers;
     }
 
 }

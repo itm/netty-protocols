@@ -8,9 +8,14 @@ import java.security.GeneralSecurityException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
+import java.security.Security;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+
+import javax.net.ssl.KeyManagerFactory;
+
+import org.jboss.netty.example.securechat.SecureChatKeyStore;
 
 import com.google.common.io.Files;
 
@@ -64,11 +69,28 @@ public class TlsPeerVerificationKeyStore {
 
     public KeyStore getAsKeyStore() throws KeyStoreException, GeneralSecurityException, CertificateException,
             IOException {
+
         KeyStore ks = KeyStore.getInstance("JKS");
-        ks.load(null, keyStorePassword);
-        ks.setCertificateEntry("root-ca", getRootCertificateAuthority());
-        ks.setCertificateEntry("local-cert", getLocalCertificate());
+        ks.load(SecureChatKeyStore.asInputStream(), SecureChatKeyStore.getKeyStorePassword());
+
+        // Set up key manager factory to use our key store
+        String algorithm = Security.getProperty("ssl.KeyManagerFactory.algorithm");
+        if (algorithm == null) {
+            algorithm = "SunX509";
+        }
+
+
+        
+        
+        KeyManagerFactory kmf = KeyManagerFactory.getInstance(algorithm);
+        kmf.init(ks, SecureChatKeyStore.getCertificatePassword());
         return ks;
+
+        /*
+         * KeyStore ks = KeyStore.getInstance(KeyStore.getDefaultType()); ks.load(null, keyStorePassword);
+         * ks.setCertificateEntry("root-ca", getRootCertificateAuthority()); ks.setCertificateEntry("local-cert",
+         * getLocalCertificate()); return ks;
+         */
     }
 
     /*

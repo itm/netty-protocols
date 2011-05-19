@@ -22,12 +22,15 @@
  */
 package de.uniluebeck.itm.netty.handlerstack.dlestxetx;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import org.jboss.netty.channel.ChannelHandler;
 
 import com.google.common.collect.Multimap;
 
 import de.uniluebeck.itm.netty.handlerstack.HandlerFactory;
-
+import de.uniluebeck.itm.tr.util.Tuple;
 
 public class DleStxEtxFramingDecoderFactory implements HandlerFactory {
 
@@ -38,16 +41,20 @@ public class DleStxEtxFramingDecoderFactory implements HandlerFactory {
 
     @Override
     public String getDescription() {
-        return "TODO"; //TODO Add description
+        return "TODO"; // TODO Add description
     }
 
     @Override
-    public ChannelHandler create(String instanceName, Multimap<String, String> properties) throws Exception {
-        return new DleStxEtxFramingDecoder(instanceName);
+    public List<Tuple<String, ChannelHandler>> create(String instanceName, Multimap<String, String> properties)
+            throws Exception {
+
+        List<Tuple<String, ChannelHandler>> handlers = new LinkedList<Tuple<String, ChannelHandler>>();
+        handlers.add(new Tuple<String, ChannelHandler>(instanceName, new DleStxEtxFramingDecoder(instanceName)));
+        return handlers;
     }
 
     @Override
-    public ChannelHandler create(Multimap<String, String> properties) throws Exception {
-        return new DleStxEtxFramingDecoder();
+    public List<Tuple<String, ChannelHandler>> create(Multimap<String, String> properties) throws Exception {
+        return create(null, properties);
     }
 }

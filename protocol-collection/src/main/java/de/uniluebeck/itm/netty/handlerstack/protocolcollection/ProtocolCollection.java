@@ -27,16 +27,14 @@ import com.coalesenses.isense.ishell.interpreter.IShellInterpreterHandlerFactory
 import de.uniluebeck.itm.netty.handlerstack.HandlerFactoryRegistry;
 import de.uniluebeck.itm.netty.handlerstack.dlestxetx.DleStxEtxFramingDecoderFactory;
 import de.uniluebeck.itm.netty.handlerstack.dlestxetx.DleStxEtxFramingEncoderFactory;
+import de.uniluebeck.itm.netty.handlerstack.dlestxetx.DleStxEtxFramingFactory;
 import de.uniluebeck.itm.netty.handlerstack.isense.ISensePacketDecoderFactory;
 import de.uniluebeck.itm.netty.handlerstack.isense.ISensePacketEncoderFactory;
-import de.uniluebeck.itm.netty.handlerstack.isenseotap.ISenseOtapAutomatedProgrammingHandlerFactory;
-import de.uniluebeck.itm.netty.handlerstack.isenseotap.ISenseOtapPacketDecoderFactory;
-import de.uniluebeck.itm.netty.handlerstack.isenseotap.ISenseOtapPacketEncoderFactory;
-import de.uniluebeck.itm.netty.handlerstack.isenseotap.init.ISenseOtapInitHandlerFactory;
-import de.uniluebeck.itm.netty.handlerstack.isenseotap.presencedetect.PresenceDetectHandlerFactory;
-import de.uniluebeck.itm.netty.handlerstack.isenseotap.program.ISenseOtapProgramHandlerFactory;
+import de.uniluebeck.itm.netty.handlerstack.isense.ISensePacketFactory;
+import de.uniluebeck.itm.netty.handlerstack.isenseotap.ISenseOtapFactory;
 import de.uniluebeck.itm.netty.handlerstack.iseraerial.ISerAerialPacketDecoderFactory;
 import de.uniluebeck.itm.netty.handlerstack.iseraerial.ISerAerialPacketEncoderFactory;
+import de.uniluebeck.itm.netty.handlerstack.iseraerial.ISerAerialPacketFactory;
 import de.uniluebeck.netty.handlerstack.logginghandler.LoggingHandlerFactory;
 
 public class ProtocolCollection {
@@ -46,19 +44,17 @@ public class ProtocolCollection {
 
         registry.register(new ISerAerialPacketDecoderFactory());
         registry.register(new ISerAerialPacketEncoderFactory());
+        registry.register(new ISerAerialPacketFactory());
 
         registry.register(new ISensePacketDecoderFactory());
         registry.register(new ISensePacketEncoderFactory());
+        registry.register(new ISensePacketFactory());
 
         registry.register(new DleStxEtxFramingDecoderFactory());
         registry.register(new DleStxEtxFramingEncoderFactory());
+        registry.register(new DleStxEtxFramingFactory());
 
-        registry.register(new ISenseOtapPacketDecoderFactory());
-        registry.register(new ISenseOtapPacketEncoderFactory());
-        registry.register(new PresenceDetectHandlerFactory());
-        registry.register(new ISenseOtapInitHandlerFactory());
-        registry.register(new ISenseOtapProgramHandlerFactory());
-        registry.register(new ISenseOtapAutomatedProgrammingHandlerFactory());
+        registry.register(new ISenseOtapFactory());
         
         registry.register(new IShellInterpreterHandlerFactory());
         

@@ -22,9 +22,13 @@
  */
 package de.uniluebeck.itm.netty.handlerstack;
 
+import java.util.List;
+
 import org.jboss.netty.channel.ChannelHandler;
 
 import com.google.common.collect.Multimap;
+
+import de.uniluebeck.itm.tr.util.Tuple;
 
 public interface HandlerFactory {
 	
@@ -32,7 +36,7 @@ public interface HandlerFactory {
 	
 	String getDescription();
 	
-	ChannelHandler create(Multimap<String, String> properties) throws Exception;
+	List<Tuple<String, ChannelHandler>> create(Multimap<String, String> properties) throws Exception;
 	
-        ChannelHandler create(String instanceName, Multimap<String, String> properties) throws Exception;
+	List<Tuple<String, ChannelHandler>> create(String instanceName, Multimap<String, String> properties) throws Exception;
 }

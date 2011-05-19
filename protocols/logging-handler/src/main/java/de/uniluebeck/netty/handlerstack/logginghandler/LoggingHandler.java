@@ -37,17 +37,11 @@ public class LoggingHandler extends SimpleChannelHandler {
 
     private final Logger log;
 
-    /**
-     * Package-private constructor for creation via factory only
-     */
-    LoggingHandler() {
+    public LoggingHandler() {
         this(null);
     }
     
-    /**
-     * Package-private constructor for creation via factory only
-     */
-    LoggingHandler(String instanceName) {
+    public LoggingHandler(String instanceName) {
         log = LoggerFactory.getLogger(instanceName != null ? instanceName : LoggingHandler.class.getName());
     }
 

@@ -22,11 +22,15 @@
  */
 package com.coalesenses.isense.ishell.interpreter;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import org.jboss.netty.channel.ChannelHandler;
 
 import com.google.common.collect.Multimap;
 
 import de.uniluebeck.itm.netty.handlerstack.HandlerFactory;
+import de.uniluebeck.itm.tr.util.Tuple;
 
 public class IShellInterpreterHandlerFactory implements HandlerFactory{
     @Override
@@ -40,12 +44,14 @@ public class IShellInterpreterHandlerFactory implements HandlerFactory{
     }
 
     @Override
-    public ChannelHandler create(Multimap<String, String> properties) throws Exception {
-        return new IShellInterpreterHandler(); 
+    public List<Tuple<String, ChannelHandler>> create(Multimap<String, String> properties) throws Exception {
+        return create(null, properties);
     }
 
     @Override
-    public ChannelHandler create(String instanceName, Multimap<String, String> properties) throws Exception {
-        return new IShellInterpreterHandler(instanceName); 
+    public List<Tuple<String, ChannelHandler>> create(String instanceName, Multimap<String, String> properties) throws Exception {
+        List<Tuple<String, ChannelHandler>> handlers = new LinkedList<Tuple<String, ChannelHandler>>();
+        handlers.add(new Tuple<String, ChannelHandler>(instanceName, new IShellInterpreterHandler(instanceName)));
+        return handlers;
     }
 }

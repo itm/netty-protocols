@@ -20,28 +20,23 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package de.uniluebeck.itm.netty.handlerstack.isenseotap.program;
+package de.uniluebeck.itm.netty.handlerstack.isense;
 
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
+import java.util.LinkedList;
+import java.util.List;
 
 import org.jboss.netty.channel.ChannelHandler;
-import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Multimap;
 
 import de.uniluebeck.itm.netty.handlerstack.HandlerFactory;
+import de.uniluebeck.itm.tr.util.Tuple;
 
-public class ISenseOtapProgramHandlerFactory implements HandlerFactory {
-    private static final org.slf4j.Logger log = LoggerFactory.getLogger(ISenseOtapProgramHandlerFactory.class);
-
-    private static final String MAX_REREQUESTS = "maxRerequests";
-
-    private static final String TIMEOUT_MULTIPLIER = "timeoutMultiplier";
+public class ISensePacketFactory implements HandlerFactory {
 
     @Override
     public String getName() {
-        return "isense-otap-program-handler";
+        return "isense-packet";
     }
 
     @Override
@@ -50,26 +45,16 @@ public class ISenseOtapProgramHandlerFactory implements HandlerFactory {
     }
 
     @Override
-    public ChannelHandler create(Multimap<String, String> properties) throws Exception {
+    public List<Tuple<String, ChannelHandler>> create(Multimap<String, String> properties) throws Exception {
         return create(null, properties);
     }
 
     @Override
-    public ChannelHandler create(String instanceName, Multimap<String, String> properties) throws Exception {
-        ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
-        short settingMaxRerequests = 30; // TODO
-        short settingTimeoutMultiplier = 1000; // TODO
-
-        if (properties.containsKey(MAX_REREQUESTS))
-            settingMaxRerequests = Short.parseShort(properties.get(MAX_REREQUESTS).iterator().next());
-
-        if (properties.containsKey(TIMEOUT_MULTIPLIER))
-            settingTimeoutMultiplier = Short.parseShort(properties.get(TIMEOUT_MULTIPLIER).iterator().next());
-
-        log.debug("Creating new Otap Program Handler, settingMaxRerequests: {}, settingTimeoutMultiplier: {}",
-                settingMaxRerequests, settingTimeoutMultiplier);
-
-        return new ISenseOtapProgramHandler(instanceName, executorService, settingMaxRerequests,
-                settingTimeoutMultiplier);
+    public List<Tuple<String, ChannelHandler>> create(String instanceName, Multimap<String, String> properties) throws Exception {
+        List<Tuple<String, ChannelHandler>> handlers = new LinkedList<Tuple<String, ChannelHandler>>();
+        handlers.addAll(new ISensePacketDecoderFactory().create(instanceName + "-decoder", properties));
+        handlers.addAll(new ISensePacketEncoderFactory().create(instanceName + "-encoder", properties));
+        return handlers;
     }
+
 }

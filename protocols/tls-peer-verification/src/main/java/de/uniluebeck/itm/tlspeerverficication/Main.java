@@ -1,12 +1,22 @@
 package de.uniluebeck.itm.tlspeerverficication;
 
-import java.io.File;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.net.InetSocketAddress;
 import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.util.concurrent.Executors;
 
+import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 
+import org.apache.log4j.Appender;
+import org.apache.log4j.ConsoleAppender;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
+import org.apache.log4j.PatternLayout;
 import org.jboss.netty.bootstrap.ClientBootstrap;
 import org.jboss.netty.bootstrap.ServerBootstrap;
 import org.jboss.netty.channel.Channel;
@@ -22,8 +32,9 @@ import org.jboss.netty.handler.codec.frame.DelimiterBasedFrameDecoder;
 import org.jboss.netty.handler.codec.frame.Delimiters;
 import org.jboss.netty.handler.codec.string.StringDecoder;
 import org.jboss.netty.handler.codec.string.StringEncoder;
-import org.jboss.netty.handler.logging.LoggingHandler;
 import org.jboss.netty.handler.ssl.SslHandler;
+
+import de.uniluebeck.netty.handlerstack.logginghandler.LoggingHandler;
 
 public class Main {
 
@@ -45,19 +56,44 @@ public class Main {
 
             // Add SSL handler first to encrypt and decrypt everything.
             SSLEngine engine =
-                    TlsPeerVerificationSslContextFactory.getContext(keyStore, certificatePassword).createSSLEngine();
+                    TlsPeerVerificationSslContextFactory.getContext(keyStore, certificatePassword, clientMode)
+                            .createSSLEngine();
+
+            SSLContext sslContext = SSLContext.getInstance("TLS");
+            sslContext.init(null, new TrustManager[] { new X509TrustManager() {
+                @Override
+                public X509Certificate[] getAcceptedIssuers() {
+                    return new X509Certificate[0];
+                }
+
+                @Override
+                public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+                    // Always trust - it is an example.
+                    // You should do something in the real world.
+                    // You will reach here only if you enabled client certificate auth,
+                    // as described in SecureChatSslContextFactory.
+                    System.err.println("UNKNOWN CLIENT CERTIFICATE: " + chain[0].getSubjectDN());
+                }
+
+                @Override
+                public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+                    // Always trust - it is an example.
+                    // You should do something in the real world.
+                    System.err.println("UNKNOWN SERVER CERTIFICATE: " + chain[0].getSubjectDN());
+                }
+            } }, null);
 
             engine.setUseClientMode(clientMode);
 
             pipeline.addLast("ssl", new SslHandler(engine));
+            pipeline.addLast("tls-peer-verification", new TlsPeerVerificationHandler());
 
             // On top of the SSL handler, add the text line codec.
             pipeline.addLast("framer", new DelimiterBasedFrameDecoder(8192, Delimiters.lineDelimiter()));
             pipeline.addLast("decoder", new StringDecoder());
             pipeline.addLast("encoder", new StringEncoder());
 
-            // and then business logic.
-            pipeline.addLast("handler", new LoggingHandler());
+            pipeline.addLast("handler", new LoggingHandler("logger"));
 
             return pipeline;
         }
@@ -73,43 +109,55 @@ public class Main {
         return future.awaitUninterruptibly().getChannel();
     }
 
+    private static void configureLoggingDefaults() {
+        PatternLayout patternLayout = new PatternLayout("%-13d{HH:mm:ss,SSS} | %-25.25c{2} | %-5p | %m%n");
+
+        final Appender appender = new ConsoleAppender(patternLayout);
+        Logger.getRootLogger().removeAllAppenders();
+        Logger.getRootLogger().addAppender(appender);
+        Logger.getRootLogger().setLevel(Level.DEBUG);
+    }
+
     /**
      * @param args
      * @throws Exception
      * @throws CertificateException
      */
     public static void main(String[] args) throws CertificateException, Exception {
+        configureLoggingDefaults();
         ChannelGroup allChannels = new DefaultChannelGroup();
-
-        char[] certificatePassword = null;
-        TlsPeerVerificationKeyStore keys =
-                new TlsPeerVerificationKeyStore(new File("src/main/resources/testca/ca.pem"), new File(
-                        "src/main/resources/testca/server.pem"), null);
 
         ClientBootstrap clientBootstrap =
                 new ClientBootstrap(new NioClientSocketChannelFactory(Executors.newCachedThreadPool(),
                         Executors.newCachedThreadPool()));
 
-        clientBootstrap.setPipelineFactory(new PipelineFactory(true, certificatePassword, keys));
+        clientBootstrap.setPipelineFactory(new PipelineFactory(true, "secret".toCharArray(), null));
 
         ServerBootstrap serverBootstrap =
                 new ServerBootstrap(new NioServerSocketChannelFactory(Executors.newCachedThreadPool(),
                         Executors.newCachedThreadPool()));
 
-        serverBootstrap.setPipelineFactory(new PipelineFactory(false, certificatePassword, keys));
+        serverBootstrap.setPipelineFactory(new PipelineFactory(false, "secret".toCharArray(), null));
 
         int serverPorts[] = new int[] { 9999 };
 
+        // if ("server".equals(args[0]))
         for (int port : serverPorts)
             startServer(serverBootstrap, port);
 
+        // if ("client".equals(args[0]))
         for (int port : serverPorts)
             allChannels.add(startClient(clientBootstrap, "localhost", port));
 
-        // Shut down all thread pools to exit.
-        allChannels.close().awaitUninterruptibly();
-        clientBootstrap.releaseExternalResources();
-        serverBootstrap.releaseExternalResources();
-    }
+        // Read commands from the stdin.
+        for (BufferedReader in = new BufferedReader(new InputStreamReader(System.in)); !"exit".equals(in.readLine());)
+            System.out.println("Please enter exit to quit.");
 
+        // Shut down all thread pools to exit.
+        System.out.println("Shuting down.");
+        allChannels.close().awaitUninterruptibly();
+        serverBootstrap.releaseExternalResources();
+        clientBootstrap.releaseExternalResources();
+        System.exit(1);
+    }
 }

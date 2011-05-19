@@ -1,0 +1,23 @@
+cd demoCA
+
+#Create CA
+openssl req -new -x509 -days 3650 -extensions v3_ca -keyout private/cakey.pem -out cacert.pem -config ../openssl.cnf
+
+touch demoCA/index.txt
+echo 1000 > demoCA/serial
+
+# Create a private key
+openssl req -new -x509 -days 3650 -extensions v3_ca -keyout private/cakey.pem -out cacert.pem -config ../openssl.cnf
+
+#Create unsigned certificate 
+openssl req -new -x509 -key priv-client-key.pem -out client-unsigned-cert.pem
+
+#Create CSR
+cat client-unsigned-cert.pem priv-client-key.pem | openssl x509 -x509toreq -signkey priv-client-key.pem -out client-certreq.csr
+
+cd ..
+
+#Sign the CSR using the CA private key and its certificate
+openssl ca -config openssl.cnf -cert demoCA/cacert.pem -keyfile demoCA/private/cakey.pem -in demoCA/client-certreq.csr -out demoCA/client-signed-cert.pem
+
+#Result is in /demoCA/newcerts/
