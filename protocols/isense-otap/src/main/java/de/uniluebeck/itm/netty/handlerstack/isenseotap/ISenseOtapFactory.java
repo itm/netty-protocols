@@ -34,6 +34,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.Multimap;
 
 import de.uniluebeck.itm.netty.handlerstack.HandlerFactory;
+import de.uniluebeck.itm.netty.handlerstack.HandlerFactoryPropertiesHelper;
 import de.uniluebeck.itm.netty.handlerstack.isenseotap.init.ISenseOtapInitHandler;
 import de.uniluebeck.itm.netty.handlerstack.isenseotap.presencedetect.PresenceDetectHandler;
 import de.uniluebeck.itm.netty.handlerstack.isenseotap.program.ISenseOtapProgramHandler;
@@ -83,23 +84,28 @@ public class ISenseOtapFactory implements HandlerFactory {
         }
         {
             String tempInstanceName = instanceName + "-presence-detect";
-            handlers.add(new Tuple<String, ChannelHandler>(tempInstanceName, createPresenceDetect(tempInstanceName, properties)));
+            handlers.add(new Tuple<String, ChannelHandler>(tempInstanceName, createPresenceDetect(tempInstanceName,
+                    properties)));
         }
         {
             String tempInstanceName = instanceName + "-init";
-            handlers.add(new Tuple<String, ChannelHandler>(tempInstanceName, new ISenseOtapInitHandler(tempInstanceName)));
+            handlers.add(new Tuple<String, ChannelHandler>(tempInstanceName,
+                    new ISenseOtapInitHandler(tempInstanceName)));
         }
         {
             String tempInstanceName = instanceName + "-program";
-            handlers.add(new Tuple<String, ChannelHandler>(tempInstanceName, createOtapProgramHandler(tempInstanceName, properties)));
+            handlers.add(new Tuple<String, ChannelHandler>(tempInstanceName, createOtapProgramHandler(tempInstanceName,
+                    properties)));
         }
         {
             String tempInstanceName = instanceName + "-decoder";
-            handlers.add(new Tuple<String, ChannelHandler>(tempInstanceName, new ISenseOtapPacketDecoder(tempInstanceName)));
+            handlers.add(new Tuple<String, ChannelHandler>(tempInstanceName, new ISenseOtapPacketDecoder(
+                    tempInstanceName)));
         }
         {
             String tempInstanceName = instanceName + "-encoder";
-            handlers.add(new Tuple<String, ChannelHandler>(tempInstanceName, new ISenseOtapPacketEncoder(tempInstanceName)));
+            handlers.add(new Tuple<String, ChannelHandler>(tempInstanceName, new ISenseOtapPacketEncoder(
+                    tempInstanceName)));
         }
 
         return handlers;
@@ -107,22 +113,11 @@ public class ISenseOtapFactory implements HandlerFactory {
 
     private ChannelHandler createPresenceDetect(String instanceName, Multimap<String, String> properties)
             throws Exception {
-        int presenceDetectInterval = 2000;
-        int deviceTimeout = 160 * presenceDetectInterval;
-        TimeUnit timeunit = TimeUnit.MILLISECONDS;
-        int threadCount = 10;
-
-        if (properties.containsKey(PRESENCE_DETECT_INTERVAL))
-            presenceDetectInterval = Integer.parseInt(properties.get(PRESENCE_DETECT_INTERVAL).iterator().next());
-
-        if (properties.containsKey(DEVICE_TIMEOUT))
-            deviceTimeout = Integer.parseInt(properties.get(DEVICE_TIMEOUT).iterator().next());
-
-        if (properties.containsKey(TIMEUNIT))
-            timeunit = TimeUnit.valueOf(properties.get(TIMEUNIT).iterator().next());
-
-        if (properties.containsKey(THREAD_COUNT))
-            threadCount = Integer.parseInt(properties.get(THREAD_COUNT).iterator().next());
+        
+        int presenceDetectInterval = HandlerFactoryPropertiesHelper.getFirstValueOf(properties, PRESENCE_DETECT_INTERVAL, 2000);
+        int deviceTimeout = HandlerFactoryPropertiesHelper.getFirstValueOf(properties, DEVICE_TIMEOUT, (short) 160 * presenceDetectInterval);
+        TimeUnit timeunit = HandlerFactoryPropertiesHelper.getFirstValueOf(properties, TIMEUNIT, TimeUnit.MILLISECONDS );
+        int threadCount = HandlerFactoryPropertiesHelper.getFirstValueOf(properties, THREAD_COUNT, 10);
 
         ScheduledExecutorService executorService = Executors.newScheduledThreadPool(threadCount);
 
@@ -136,14 +131,12 @@ public class ISenseOtapFactory implements HandlerFactory {
     private ChannelHandler createOtapProgramHandler(String instanceName, Multimap<String, String> properties)
             throws Exception {
         ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
-        short settingMaxRerequests = 30; // TODO
-        short settingTimeoutMultiplier = 1000; // TODO
 
-        if (properties.containsKey(MAX_REREQUESTS))
-            settingMaxRerequests = Short.parseShort(properties.get(MAX_REREQUESTS).iterator().next());
+        short settingMaxRerequests =
+                HandlerFactoryPropertiesHelper.getFirstValueOf(properties, MAX_REREQUESTS, (short) 30);
 
-        if (properties.containsKey(TIMEOUT_MULTIPLIER))
-            settingTimeoutMultiplier = Short.parseShort(properties.get(TIMEOUT_MULTIPLIER).iterator().next());
+        short settingTimeoutMultiplier =
+                HandlerFactoryPropertiesHelper.getFirstValueOf(properties, TIMEOUT_MULTIPLIER, (short) 1000);
 
         log.debug("Creating new Otap Program Handler, settingMaxRerequests: {}, settingTimeoutMultiplier: {}",
                 settingMaxRerequests, settingTimeoutMultiplier);
