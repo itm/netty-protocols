@@ -22,16 +22,20 @@
  */
 package de.uniluebeck.itm.nettyrxtx.rup;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 import de.uniluebeck.itm.netty.handlerstack.HandlerFactory;
+import de.uniluebeck.itm.tr.util.Tuple;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.channel.*;
 import org.jboss.netty.handler.codec.embedder.DecoderEmbedder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 
 import static com.google.common.base.Throwables.propagate;
@@ -167,21 +171,26 @@ public class RUPPacketDecoder extends SimpleChannelUpstreamHandler {
 
 	private ChannelUpstreamHandler[] createChannelUpstreamHandlers() {
 
-		Set<HandlerFactory> keys = channelUpstreamHandlerFactories.keySet();
-
-		ChannelUpstreamHandler[] channelUpstreamHandlers =
-				new ChannelUpstreamHandler[keys.size()];
+		Set<HandlerFactory> handlerFactories = channelUpstreamHandlerFactories.keySet();
+		List<ChannelUpstreamHandler> channelUpstreamHandlers = Lists.newArrayList();
 
 		int i = 0;
-		for (HandlerFactory key : keys) {
+		for (HandlerFactory handlerFactory : handlerFactories) {
 			try {
-				channelUpstreamHandlers[i] = (ChannelUpstreamHandler) key.create(null, channelUpstreamHandlerFactories.get(key));
+				final String randomHandlerName = Integer.toString(new Random().nextInt());
+				final List<Tuple<String,ChannelHandler>> handlerOfCurrentFactory = handlerFactory.create(
+						randomHandlerName,
+						channelUpstreamHandlerFactories.get(handlerFactory)
+				);
+				for (Tuple<String, ChannelHandler> tuple : handlerOfCurrentFactory) {
+					channelUpstreamHandlers.add((ChannelUpstreamHandler) tuple.getSecond());
+				}
 			} catch (Exception e) {
 				propagate(e);
 			}
 			i++;
 		}
 
-		return channelUpstreamHandlers;
+		return channelUpstreamHandlers.toArray(new ChannelUpstreamHandler[channelUpstreamHandlers.size()]);
 	}
 }

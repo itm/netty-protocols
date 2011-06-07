@@ -41,7 +41,7 @@ public class DleStxEtxFramingDecoderFactory implements HandlerFactory {
 
     @Override
     public String getDescription() {
-        return "TODO"; // TODO Add description
+        return "dlestxetx-framing-decoder";
     }
 
     @Override
