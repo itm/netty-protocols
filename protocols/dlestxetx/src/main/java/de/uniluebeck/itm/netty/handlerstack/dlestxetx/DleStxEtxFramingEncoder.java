@@ -36,17 +36,11 @@ public class DleStxEtxFramingEncoder extends OneToOneEncoder {
 
     private final Logger log;
 
-    /**
-     * Package-private constructor for creation via factory only
-     */
-    DleStxEtxFramingEncoder() {
+    public DleStxEtxFramingEncoder() {
         this(null);
     }
     
-    /**
-     * Package-private constructor for creation via factory only
-     */
-    DleStxEtxFramingEncoder(String instanceName) {
+    public DleStxEtxFramingEncoder(String instanceName) {
         log = LoggerFactory.getLogger(instanceName != null ? instanceName : DleStxEtxFramingEncoder.class.getName());
     }
 

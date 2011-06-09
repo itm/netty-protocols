@@ -40,17 +40,11 @@ public class ISerAerialPacketEncoder extends SimpleChannelHandler {
 
     private final StopAndWaitPacketSender<ISensePacket> queue;
 
-    /**
-     * Package-private constructor for creation via factory only
-     */
-    ISerAerialPacketEncoder() {
+    public ISerAerialPacketEncoder() {
         this(null);
     }
 
-    /**
-     * Package-private constructor for creation via factory only
-     */
-    ISerAerialPacketEncoder(String instanceName) {
+    public ISerAerialPacketEncoder(String instanceName) {
         log = LoggerFactory.getLogger(instanceName != null ? instanceName : ISerAerialPacketEncoder.class.getName());
 
         queue =

@@ -56,6 +56,9 @@ public class SwapResponseDecoder extends OneToOneDecoder {
 
 	private static final byte SENSOR_VALUE_ENCODING_DOUBLE = 0x0b;
 
+	public SwapResponseDecoder() {
+	}
+
 	@Override
 	protected Object decode(ChannelHandlerContext ctx, Channel channel, Object msg) throws Exception {
 

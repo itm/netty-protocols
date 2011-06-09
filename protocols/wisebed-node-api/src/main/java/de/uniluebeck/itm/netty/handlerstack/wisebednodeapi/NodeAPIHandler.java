@@ -12,7 +12,7 @@ public class NodeAPIHandler extends SimpleChannelHandler implements ChannelUpstr
 	@Named("requestCache")
 	private Map<Long, Request> requestCache;
 
-	NodeAPIHandler() {
+	public NodeAPIHandler() {
 	}
 
 	@Override

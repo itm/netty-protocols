@@ -48,17 +48,11 @@ public class ISenseOtapPacketEncoder extends SimpleChannelDownstreamHandler {
 
     private iSenseAes aes = null;
 
-    /**
-     * Package-private constructor for creation via factory only
-     */
-    ISenseOtapPacketEncoder() {
+    public ISenseOtapPacketEncoder() {
         this(null);
     }
 
-    /**
-     * Package-private constructor for creation via factory only
-     */
-    ISenseOtapPacketEncoder(String instanceName) {
+    public ISenseOtapPacketEncoder(String instanceName) {
         log = LoggerFactory.getLogger(instanceName != null ? instanceName : ISenseOtapPacketEncoder.class.getName());
     }
 

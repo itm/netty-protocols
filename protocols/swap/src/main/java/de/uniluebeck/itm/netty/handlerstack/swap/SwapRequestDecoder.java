@@ -29,6 +29,10 @@ import org.jboss.netty.handler.codec.oneone.OneToOneDecoder;
 
 
 public class SwapRequestDecoder extends OneToOneDecoder {
+
+	public SwapRequestDecoder() {
+	}
+
 	@Override
 	protected Object decode(ChannelHandlerContext ctx, Channel channel, Object msg) throws Exception {
 

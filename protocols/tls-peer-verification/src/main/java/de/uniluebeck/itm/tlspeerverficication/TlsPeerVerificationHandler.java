@@ -11,9 +11,13 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.Preconditions;
 
 public class TlsPeerVerificationHandler extends SimpleChannelUpstreamHandler {
-    private static final org.slf4j.Logger log = LoggerFactory.getLogger(TlsPeerVerificationHandler.class);
 
-    @Override
+	private static final org.slf4j.Logger log = LoggerFactory.getLogger(TlsPeerVerificationHandler.class);
+
+	public TlsPeerVerificationHandler() {
+	}
+
+	@Override
     public void channelConnected(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
         log.debug("Connected with {}, starting handshake", e.getChannel().getRemoteAddress());
 

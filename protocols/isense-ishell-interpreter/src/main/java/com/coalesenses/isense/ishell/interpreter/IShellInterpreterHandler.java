@@ -39,17 +39,11 @@ public class IShellInterpreterHandler extends SimpleChannelHandler {
 
     private ChannelHandlerContext context;
 
-    /**
-     * Package-private constructor for creation via factory only
-     */
-    IShellInterpreterHandler() {
+    public IShellInterpreterHandler() {
         this(null);
     }
 
-    /**
-     * Package-private constructor for creation via factory only
-     */
-    IShellInterpreterHandler(String instanceName) {
+    public IShellInterpreterHandler(String instanceName) {
         log = LoggerFactory.getLogger(instanceName != null ? instanceName : IShellInterpreterHandler.class.getName());
     }
 
