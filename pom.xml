@@ -9,7 +9,7 @@
 	<name>Netty Handlerstack</name>
 	<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
 	<artifactId>netty-handlerstack</artifactId>
-	<version>1.0-SNAPSHOT</version>
+	<version>0.9-SNAPSHOT</version>
 
 	<packaging>pom</packaging>
 
