@@ -104,7 +104,7 @@
 			<dependency>
 				<groupId>de.uniluebeck.itm.netty-rxtx</groupId>
 				<artifactId>netty-rxtx</artifactId>
-				<version>0.2-SNAPSHOT</version>
+				<version>0.1</version>
 			</dependency>
 			<dependency>
 				<groupId>de.uniluebeck.itm</groupId>
@@ -119,12 +119,12 @@
 			<dependency>
 				<groupId>com.coalesenses</groupId>
 				<artifactId>ieee-802.15.4-aes</artifactId>
-				<version>0.0.1-SNAPSHOT</version>
+				<version>0.0.1</version>
 			</dependency>
 			<dependency>
 				<groupId>com.coalesenses</groupId>
 				<artifactId>isense-binary-image</artifactId>
-				<version>0.0.1-SNAPSHOT</version>
+				<version>0.0.1</version>
 			</dependency>
 
 			<dependency>
