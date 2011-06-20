@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
 		<artifactId>netty-handlerstack</artifactId>
-		<version>1.0-SNAPSHOT</version>
+		<version>1.1-SNAPSHOT</version>
 		<relativePath>../../</relativePath>
 	</parent>
 
@@ -15,19 +15,20 @@
 	<packaging>jar</packaging>
 
 	<dependencies>
+
 		<dependency>
 			<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
 			<artifactId>factory</artifactId>
 		</dependency>
-		
+
+		<dependency>
+			<groupId>de.uniluebeck.itm.itmutils</groupId>
+			<artifactId>itmutils</artifactId>
+		</dependency>
+
 		<dependency>
 			<groupId>org.jboss.netty</groupId>
 			<artifactId>netty</artifactId>
-		</dependency>
-		
-		<dependency>
-			<groupId>de.uniluebeck.itm</groupId>
-			<artifactId>tr.util</artifactId>
 		</dependency>
 
 		<dependency>
@@ -35,6 +36,7 @@
 			<artifactId>junit</artifactId>
 			<scope>test</scope>
 		</dependency>
+
 	</dependencies>
 
 </project>

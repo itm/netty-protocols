@@ -44,8 +44,6 @@ import com.google.common.collect.Multimap;
 import de.uniluebeck.itm.netty.handlerstack.HandlerFactory;
 import de.uniluebeck.itm.netty.handlerstack.dlestxetx.DleStxEtxFramingDecoderFactory;
 
-
-
 public class RUPPacketDecoderTest extends RUPPacketDecoderTestBase {
 
 	private DecoderEmbedder<RUPPacket> decoder;
