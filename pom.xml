@@ -9,7 +9,7 @@
 	<name>Netty Handlerstack</name>
 	<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
 	<artifactId>netty-handlerstack</artifactId>
-	<version>0.9-SNAPSHOT</version>
+	<version>1.1-SNAPSHOT</version>
 
 	<packaging>pom</packaging>
 
@@ -114,17 +114,17 @@
 			<dependency>
 				<groupId>de.uniluebeck.itm</groupId>
 				<artifactId>tr.wsn-device-drivers</artifactId>
-				<version>0.7.0.2</version>
+				<version>0.7.2-SNAPSHOT</version>
 			</dependency>
 			<dependency>
 				<groupId>com.coalesenses</groupId>
 				<artifactId>ieee-802.15.4-aes</artifactId>
-				<version>0.1</version>
+				<version>0.2</version>
 			</dependency>
 			<dependency>
 				<groupId>com.coalesenses</groupId>
 				<artifactId>isense-binary-image</artifactId>
-				<version>0.1</version>
+				<version>0.2</version>
 			</dependency>
 
 			<dependency>
