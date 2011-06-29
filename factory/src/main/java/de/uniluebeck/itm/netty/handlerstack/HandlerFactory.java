@@ -22,21 +22,57 @@
  */
 package de.uniluebeck.itm.netty.handlerstack;
 
-import java.util.List;
-
+import com.google.common.collect.Multimap;
+import de.uniluebeck.itm.tr.util.Tuple;
 import org.jboss.netty.channel.ChannelHandler;
 
-import com.google.common.collect.Multimap;
-
-import de.uniluebeck.itm.tr.util.Tuple;
+import java.util.List;
 
 public interface HandlerFactory {
-	
-	String getName();
-	
-	String getDescription();
-	
+
+	/**
+	 * Creates a(n) instance(s) of {@link ChannelHandler}s using the given configuration options in {@code properties}.
+	 *
+	 * @param properties   the configuration options for the individual {@link ChannelHandler} instances
+	 * @param instanceName the name of the instance to be constructed
+	 *
+	 * @return a {@link List} of {@link Tuple} types containing instance names and the associated {@link ChannelHandler}
+	 *         instances.
+	 *
+	 * @throws Exception if one or more of the {@link ChannelHandler}s could not be constructed due to e.g., configuration
+	 *                   options are missing or contain invalid values
+	 */
+	List<Tuple<String, ChannelHandler>> create(String instanceName, Multimap<String, String> properties)
+	throws Exception;
+
+	/**
+	 * Same as calling {@link HandlerFactory#create(String, com.google.common.collect.Multimap)} with {@code
+	 * instanceName=null}.
+	 */
 	List<Tuple<String, ChannelHandler>> create(Multimap<String, String> properties) throws Exception;
-	
-	List<Tuple<String, ChannelHandler>> create(String instanceName, Multimap<String, String> properties) throws Exception;
+
+	/**
+	 * Returns a {@link Multimap} containing configuration option names as keys and a human readable description of the
+	 * keys as values.
+	 *
+	 * @return a {@link Multimap} containing configuration option names as keys and a human readable description of the
+	 *         keys as values
+	 */
+	Multimap<String, String> getConfigurationOptions();
+
+	/**
+	 * Returns a human readable description of the handler.
+	 *
+	 * @return a human readable description of the handler
+	 */
+	String getDescription();
+
+	/**
+	 * Returns the name of the HandlerFactory. This name usually corresponds to the type of handler produced by the factory
+	 * e.g., a {@link HandlerFactory} by the name of "base64-encoder" would typically produce {@link ChannelHandler}s of
+	 * type {@link org.jboss.netty.handler.codec.base64.Base64Encoder}.
+	 *
+	 * @return the name of the HandlerFactory
+	 */
+	String getName();
 }

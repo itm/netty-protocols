@@ -22,56 +22,105 @@
  */
 package de.uniluebeck.itm.netty.handlerstack;
 
-import java.util.HashMap;
+import com.google.common.collect.Multimap;
+import de.uniluebeck.itm.tr.util.Tuple;
+import org.jboss.netty.channel.ChannelHandler;
+
 import java.util.List;
 import java.util.Map;
 
-import org.jboss.netty.channel.ChannelHandler;
-
-import com.google.common.collect.Multimap;
-
-import de.uniluebeck.itm.tr.util.Tuple;
+import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Maps.newHashMap;
 
 public class HandlerFactoryRegistry {
-    private Map<String, HandlerFactory> moduleFactories = new HashMap<String, HandlerFactory>();
 
-    public void register(HandlerFactory factory) throws Exception {
+	@SuppressWarnings("unused")
+	public static class ChannelHandlerDescription {
 
-        if (moduleFactories.containsKey(factory.getName()))
-            throw new Exception("Factory of name " + factory.getName() + " already exists.");
+		private final Multimap<String, String> configurationOptions;
 
-        moduleFactories.put(factory.getName(), factory);
+		private final String description;
 
-    }
+		private final String name;
 
-    public List<Tuple<String,ChannelHandler>> create(String instanceName, String factoryName, Multimap<String, String> properties) throws Exception {
+		private ChannelHandlerDescription(final String name, final String description,
+										  final Multimap<String, String> configurationOptions) {
+			this.configurationOptions = configurationOptions;
+			this.description = description;
+			this.name = name;
+		}
 
-        if (!moduleFactories.containsKey(factoryName))
-            throw new Exception("Factory of name " + factoryName + " unknown. " + this.toString());
+		public Multimap<String, String> getConfigurationOptions() {
+			return configurationOptions;
+		}
 
-        return moduleFactories.get(factoryName).create(instanceName, properties);
-    }
+		public String getDescription() {
+			return description;
+		}
 
-    public Map<String, String> getNameAndDescriptions() {
-        Map<String, String> nameAndDescription = new HashMap<String, String>();
+		public String getName() {
+			return name;
+		}
 
-        for (HandlerFactory factory : moduleFactories.values())
-            nameAndDescription.put(factory.getName(), factory.getDescription());
+		@Override
+		public String toString() {
+			return "ChannelHandlerDescription{" +
+					"name='" + name + '\'' +
+					", description='" + description + '\'' +
+					", configurationOptions=" + configurationOptions +
+					'}';
+		}
+	}
 
-        return nameAndDescription;
-    }
+	private Map<String, HandlerFactory> moduleFactories = newHashMap();
 
-    @Override
-    public String toString() {
-        StringBuilder b = new StringBuilder();
-        b.append("Known factories: ");
-        
-        for (Map.Entry<String, String> entry : getNameAndDescriptions().entrySet()) {
-            b.append(entry.getKey());
-            b.append(" ");
-        }
+	public void register(final HandlerFactory factory) throws Exception {
 
-        return b.toString();
-    }
+		if (moduleFactories.containsKey(factory.getName())) {
+			throw new Exception("Factory of name " + factory.getName() + " already exists.");
+		}
+
+		moduleFactories.put(factory.getName(), factory);
+
+	}
+
+	public List<Tuple<String, ChannelHandler>> create(final String instanceName, final String factoryName,
+													  final Multimap<String, String> properties) throws Exception {
+
+		if (!moduleFactories.containsKey(factoryName)) {
+			throw new Exception("Factory of name " + factoryName + " unknown. " + this.toString());
+		}
+
+		return moduleFactories.get(factoryName).create(instanceName, properties);
+	}
+
+	public List<ChannelHandlerDescription> getChannelHandlerDescriptions() {
+
+		List<ChannelHandlerDescription> handlers = newArrayList();
+
+		for (HandlerFactory handlerFactory : moduleFactories.values()) {
+			handlers.add(new ChannelHandlerDescription(
+					handlerFactory.getName(),
+					handlerFactory.getDescription(),
+					handlerFactory.getConfigurationOptions()
+			)
+			);
+		}
+
+		return handlers;
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder b = new StringBuilder();
+		b.append("Known factories: ");
+
+		for (ChannelHandlerDescription chd : getChannelHandlerDescriptions()) {
+			b.append(chd);
+			b.append(" ");
+		}
+
+		return b.toString();
+	}
 
 }

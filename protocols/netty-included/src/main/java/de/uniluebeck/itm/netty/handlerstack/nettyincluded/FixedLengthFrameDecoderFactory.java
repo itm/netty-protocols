@@ -1,5 +1,6 @@
 package de.uniluebeck.itm.netty.handlerstack.nettyincluded;
 
+import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import de.uniluebeck.itm.netty.handlerstack.HandlerFactory;
 import de.uniluebeck.itm.tr.util.Tuple;
@@ -13,22 +14,6 @@ import static com.google.common.collect.Lists.newArrayList;
 public class FixedLengthFrameDecoderFactory implements HandlerFactory {
 
 	@Override
-	public String getName() {
-		return "fixed-length-frame-decoder";
-	}
-
-	@Override
-	public String getDescription() {
-		return "A decoder that splits the received ChannelBuffers into a fixed number of bytes. See "
-				+ "http://docs.jboss.org/netty/3.2/api/org/jboss/netty/handler/codec/frame/FixedLengthFrameDecoder.html.";
-	}
-
-	@Override
-	public List<Tuple<String, ChannelHandler>> create(final Multimap<String, String> properties) throws Exception {
-		return create(null, properties);
-	}
-
-	@Override
 	public List<Tuple<String, ChannelHandler>> create(final String instanceName,
 													  final Multimap<String, String> properties) throws Exception {
 
@@ -39,5 +24,28 @@ public class FixedLengthFrameDecoderFactory implements HandlerFactory {
 						new FixedLengthFrameDecoder(frameLength)
 				)
 		);
+	}
+
+	@Override
+	public List<Tuple<String, ChannelHandler>> create(final Multimap<String, String> properties) throws Exception {
+		return create(null, properties);
+	}
+
+	@Override
+	public Multimap<String, String> getConfigurationOptions() {
+		final HashMultimap<String, String> map = HashMultimap.create();
+		map.put("frameLength", "(int) the number of bytes of an individual frame");
+		return map;
+	}
+
+	@Override
+	public String getDescription() {
+		return "A decoder that splits the received ChannelBuffers into a fixed number of bytes. See "
+				+ "http://docs.jboss.org/netty/3.2/api/org/jboss/netty/handler/codec/frame/FixedLengthFrameDecoder.html.";
+	}
+
+	@Override
+	public String getName() {
+		return "fixed-length-frame-decoder";
 	}
 }

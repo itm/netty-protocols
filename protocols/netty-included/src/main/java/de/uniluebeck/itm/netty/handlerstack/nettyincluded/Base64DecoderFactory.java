@@ -1,5 +1,6 @@
 package de.uniluebeck.itm.netty.handlerstack.nettyincluded;
 
+import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import de.uniluebeck.itm.netty.handlerstack.HandlerFactory;
 import de.uniluebeck.itm.tr.util.Tuple;
@@ -14,8 +15,20 @@ import static com.google.common.collect.Lists.newArrayList;
 public class Base64DecoderFactory implements HandlerFactory {
 
 	@Override
-	public String getName() {
-		return "base64-decoder";
+	public List<Tuple<String, ChannelHandler>> create(final String instanceName,
+													  final Multimap<String, String> properties) throws Exception {
+
+		return newArrayList(new Tuple<String, ChannelHandler>(instanceName, new Base64Decoder()));
+	}
+
+	@Override
+	public List<Tuple<String, ChannelHandler>> create(final Multimap<String, String> properties) throws Exception {
+		return create(null, properties);
+	}
+
+	@Override
+	public Multimap<String, String> getConfigurationOptions() {
+		return HashMultimap.create();
 	}
 
 	@Override
@@ -25,14 +38,7 @@ public class Base64DecoderFactory implements HandlerFactory {
 	}
 
 	@Override
-	public List<Tuple<String, ChannelHandler>> create(final Multimap<String, String> properties) throws Exception {
-		return create(null, properties);
-	}
-
-	@Override
-	public List<Tuple<String, ChannelHandler>> create(final String instanceName,
-													  final Multimap<String, String> properties) throws Exception {
-
-		return newArrayList(new Tuple<String, ChannelHandler>(instanceName, new Base64Decoder()));
+	public String getName() {
+		return "base64-decoder";
 	}
 }
