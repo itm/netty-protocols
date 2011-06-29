@@ -42,6 +42,10 @@
 			<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
 			<artifactId>logging-handler</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
+			<artifactId>netty-included</artifactId>
+		</dependency>
 
 	</dependencies>
 

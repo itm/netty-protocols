@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 
+		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
   		http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
 	<modelVersion>4.0.0</modelVersion>
@@ -26,6 +26,8 @@
 		<module>protocols/isense-otap</module>
 		<module>protocols/iseraerial</module>
 		<module>protocols/isense-ishell-interpreter</module>
+
+		<module>protocols/netty-included</module>
 
 		<module>protocols/logging-handler</module>
 		<module>protocols/remote-uart-protocol</module>
@@ -98,6 +100,11 @@
 			<dependency>
 				<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
 				<artifactId>tls-peer-verification</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
+				<artifactId>netty-included</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 

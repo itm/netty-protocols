@@ -35,30 +35,38 @@ import de.uniluebeck.itm.netty.handlerstack.isenseotap.ISenseOtapFactory;
 import de.uniluebeck.itm.netty.handlerstack.iseraerial.ISerAerialPacketDecoderFactory;
 import de.uniluebeck.itm.netty.handlerstack.iseraerial.ISerAerialPacketEncoderFactory;
 import de.uniluebeck.itm.netty.handlerstack.iseraerial.ISerAerialPacketFactory;
+import de.uniluebeck.itm.netty.handlerstack.nettyincluded.*;
 import de.uniluebeck.netty.handlerstack.logginghandler.LoggingHandlerFactory;
+import org.jboss.netty.handler.codec.frame.FixedLengthFrameDecoder;
 
 public class ProtocolCollection {
 
     /** Registers all Plug-ins from ITM's netty handlerstack project with the factory */
     public static void registerProtocols(HandlerFactoryRegistry registry) throws Exception {
 
-        registry.register(new ISerAerialPacketDecoderFactory());
-        registry.register(new ISerAerialPacketEncoderFactory());
-        registry.register(new ISerAerialPacketFactory());
+		registry.register(new Base64DecoderFactory());
+		registry.register(new Base64EncoderFactory());
+		registry.register(new FixedLengthFrameDecoderFactory());
+		registry.register(new LengthFieldBasedFrameDecoderFactory());
+		registry.register(new LengthFieldPrependerFactory());
 
-        registry.register(new ISensePacketDecoderFactory());
-        registry.register(new ISensePacketEncoderFactory());
-        registry.register(new ISensePacketFactory());
+		registry.register(new ISerAerialPacketDecoderFactory());
+		registry.register(new ISerAerialPacketEncoderFactory());
+		registry.register(new ISerAerialPacketFactory());
 
-        registry.register(new DleStxEtxFramingDecoderFactory());
-        registry.register(new DleStxEtxFramingEncoderFactory());
-        registry.register(new DleStxEtxFramingFactory());
+		registry.register(new ISensePacketDecoderFactory());
+		registry.register(new ISensePacketEncoderFactory());
+		registry.register(new ISensePacketFactory());
 
-        registry.register(new ISenseOtapFactory());
-        
-        registry.register(new IShellInterpreterHandlerFactory());
-        
-        registry.register(new LoggingHandlerFactory());
-    }
+		registry.register(new DleStxEtxFramingDecoderFactory());
+		registry.register(new DleStxEtxFramingEncoderFactory());
+		registry.register(new DleStxEtxFramingFactory());
+
+		registry.register(new ISenseOtapFactory());
+
+		registry.register(new IShellInterpreterHandlerFactory());
+
+		registry.register(new LoggingHandlerFactory());
+	}
 
 }
