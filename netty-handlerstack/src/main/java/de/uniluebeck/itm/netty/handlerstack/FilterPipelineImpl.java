@@ -112,7 +112,9 @@ public class FilterPipelineImpl implements FilterPipeline {
 	public FilterPipelineImpl() {
 		handlerStack.setLeftHandler(topHandler);
 		handlerStack.setRightHandler(bottomHandler);
-		handlerStack.setHandlerStack(Lists.<Tuple<String,ChannelHandler>>newArrayList());
+		handlerStack.setHandlerStack(Lists.<Tuple<String,ChannelHandler>>newArrayList(
+				new Tuple<String, ChannelHandler>("defaultHandler", new SimpleChannelHandler())
+		));
 		handlerStack.performSetup();
 	}
 
