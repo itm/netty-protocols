@@ -59,7 +59,7 @@
 					<execution>
 						<phase>package</phase>
 						<configuration>
-							<mainClass>de.bsi.movedetect.trp.main.Main</mainClass>
+							<mainClass>de.uniluebeck.itm.netty.cmdlineclient.Main</mainClass>
 							<onejarVersion>0.98-RC2</onejarVersion>
 							<attachToBuild>true</attachToBuild>
 						</configuration>
