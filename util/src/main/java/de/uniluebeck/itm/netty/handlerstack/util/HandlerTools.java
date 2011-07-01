@@ -28,21 +28,31 @@ import org.jboss.netty.channel.Channels;
 import org.jboss.netty.channel.DownstreamMessageEvent;
 import org.jboss.netty.channel.UpstreamMessageEvent;
 
+import java.net.SocketAddress;
+
 public class HandlerTools {
 
-    public static void sendDownstream(Object msg, ChannelHandlerContext context) {
+	public static void sendDownstream(Object msg, ChannelHandlerContext context) {
+		sendDownstream(msg, context, context.getChannel().getRemoteAddress());
+	}
+
+    public static void sendDownstream(Object msg, ChannelHandlerContext context, SocketAddress remoteAddress) {
         Channel channel = context.getChannel();
 
         DownstreamMessageEvent event =
-                new DownstreamMessageEvent(channel, Channels.succeededFuture(channel), msg, channel.getRemoteAddress());
+                new DownstreamMessageEvent(channel, Channels.succeededFuture(channel), msg, remoteAddress);
 
         context.sendDownstream(event);
     }
 
-    public static void sendUpstream(Object msg, ChannelHandlerContext context) {
+	public static void sendUpstream(Object msg, ChannelHandlerContext context) {
+		sendUpstream(msg, context, context.getChannel().getRemoteAddress());
+	}
+
+    public static void sendUpstream(Object msg, ChannelHandlerContext context, SocketAddress remoteAddress) {
         Channel channel = context.getChannel();
 
-        UpstreamMessageEvent event = new UpstreamMessageEvent(channel, msg, channel.getRemoteAddress());
+        UpstreamMessageEvent event = new UpstreamMessageEvent(channel, msg, remoteAddress);
 
         context.sendUpstream(event);
     }
