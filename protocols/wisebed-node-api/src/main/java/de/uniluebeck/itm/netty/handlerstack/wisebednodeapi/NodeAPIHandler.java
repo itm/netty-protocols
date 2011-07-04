@@ -135,6 +135,7 @@ public class NodeAPIHandler extends SimpleChannelHandler implements ChannelUpstr
 			return new GetPropertyValueCommand(requestID, payload, ((GetPropertyValueRequest) request).getProperty());
 		} else if (request instanceof GetNeighborhoodRequest) {
 			return new GetNeighborhoodCommand(requestID, payload);
+			// interaction
 		} else if (request instanceof TextDataRequest) {
 			return new TextDataCommand(requestID, ((TextDataRequest) request).getMessageLevel(), payload);
 		} else if (request instanceof VirtualLinkDataRequest) {
