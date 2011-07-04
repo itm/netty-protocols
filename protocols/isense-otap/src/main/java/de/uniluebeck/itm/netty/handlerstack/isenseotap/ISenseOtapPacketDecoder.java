@@ -41,17 +41,11 @@ public class ISenseOtapPacketDecoder extends SimpleChannelHandler {
 
     private iSenseAes aes = null;
 
-    /**
-     * Package-private constructor for creation via factory only
-     */
-    ISenseOtapPacketDecoder() {
+    public ISenseOtapPacketDecoder() {
         this(null);
     }
 
-    /**
-     * Package-private constructor for creation via factory only
-     */
-    ISenseOtapPacketDecoder(String instanceName) {
+    public ISenseOtapPacketDecoder(String instanceName) {
         log = LoggerFactory.getLogger(instanceName != null ? instanceName : ISenseOtapPacketDecoder.class.getName());
         log.debug("New instance");
     }

@@ -22,56 +22,213 @@
  */
 package de.uniluebeck.itm.netty.handlerstack;
 
-import java.util.HashMap;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
+import de.uniluebeck.itm.tr.util.Tuple;
+import org.apache.commons.configuration.HierarchicalConfiguration;
+import org.apache.commons.configuration.XMLConfiguration;
+import org.jboss.netty.channel.ChannelHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.jboss.netty.channel.ChannelHandler;
-
-import com.google.common.collect.Multimap;
-
-import de.uniluebeck.itm.tr.util.Tuple;
+import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Maps.newHashMap;
 
 public class HandlerFactoryRegistry {
-    private Map<String, HandlerFactory> moduleFactories = new HashMap<String, HandlerFactory>();
 
-    public void register(HandlerFactory factory) throws Exception {
+	private static final Logger log = LoggerFactory.getLogger(HandlerFactoryRegistry.class);
 
-        if (moduleFactories.containsKey(factory.getName()))
-            throw new Exception("Factory of name " + factory.getName() + " already exists.");
+	@SuppressWarnings("unused")
+	public static class ChannelHandlerDescription {
 
-        moduleFactories.put(factory.getName(), factory);
+		private final Multimap<String, String> configurationOptions;
 
-    }
+		private final String description;
 
-    public List<Tuple<String,ChannelHandler>> create(String instanceName, String factoryName, Multimap<String, String> properties) throws Exception {
+		private final String name;
 
-        if (!moduleFactories.containsKey(factoryName))
-            throw new Exception("Factory of name " + factoryName + " unknown. " + this.toString());
+		private ChannelHandlerDescription(final String name, final String description,
+										  final Multimap<String, String> configurationOptions) {
+			this.configurationOptions = configurationOptions;
+			this.description = description;
+			this.name = name;
+		}
 
-        return moduleFactories.get(factoryName).create(instanceName, properties);
-    }
+		public Multimap<String, String> getConfigurationOptions() {
+			return configurationOptions;
+		}
 
-    public Map<String, String> getNameAndDescriptions() {
-        Map<String, String> nameAndDescription = new HashMap<String, String>();
+		public String getDescription() {
+			return description;
+		}
 
-        for (HandlerFactory factory : moduleFactories.values())
-            nameAndDescription.put(factory.getName(), factory.getDescription());
+		public String getName() {
+			return name;
+		}
 
-        return nameAndDescription;
-    }
+		@Override
+		public String toString() {
+			return "ChannelHandlerDescription{" +
+					"name='" + name + '\'' +
+					", description='" + description + '\'' +
+					", configurationOptions=" + configurationOptions +
+					'}';
+		}
+	}
 
-    @Override
-    public String toString() {
-        StringBuilder b = new StringBuilder();
-        b.append("Known factories: ");
-        
-        for (Map.Entry<String, String> entry : getNameAndDescriptions().entrySet()) {
-            b.append(entry.getKey());
-            b.append(" ");
-        }
+	private Map<String, HandlerFactory> moduleFactories = newHashMap();
 
-        return b.toString();
-    }
+	public void register(final HandlerFactory factory) throws Exception {
+
+		if (moduleFactories.containsKey(factory.getName())) {
+			throw new Exception("Factory of name " + factory.getName() + " already exists.");
+		}
+
+		moduleFactories.put(factory.getName(), factory);
+
+	}
+
+	/**
+	 * Loads the XML configuration file and returns a list of (handler-name, factory-name, (key,value)-pairs). The format
+	 * is as follows:
+	 * <p/>
+	 * <pre>
+	 * {@code
+	 *
+	 * <?xml version="1.0" encoding="UTF-8" ?>
+	 * <itm-netty-handlerstack>
+	 *   <handler name="time-handler" factory="movedetect-time-protocol-handler"/>
+	 *   <handler name="time-decoder" factory="movedetect-time-protocol-decoder">
+	 *     <option key="1" value="1"/>
+	 *     <option key="2" value="2"/>
+	 *   </handler>
+	 *   <handler name="time-encoder" factory="movedetect-time-protocol-encoder">
+	 *     <option key="11" value="11"/>
+	 *     <option key="22" value="22"/>
+	 *   </handler>
+	 * </itm-netty-handlerstack>
+	 * }
+	 * </pre>
+	 *
+	 * @param configFile The configuration file to read.
+	 *
+	 * @return
+	 *
+	 * @throws Exception
+	 */
+	public List<Tuple<String, ChannelHandler>> create(final File configFile) throws Exception {
+
+		List<Tuple<String, ChannelHandler>> handlerStack = new LinkedList<Tuple<String, ChannelHandler>>();
+
+		if (!configFile.exists()) {
+			throw new FileNotFoundException("Configuration file " + configFile + " not found.");
+		}
+
+		XMLConfiguration config = new XMLConfiguration(configFile);
+
+		@SuppressWarnings("unchecked")
+		List<HierarchicalConfiguration> handlers = config.configurationsAt("handler");
+		for (HierarchicalConfiguration sub : handlers) {
+			String factoryName = sub.getString("[@factory]");
+			String handlerName = sub.getString("[@name]");
+			log.debug("Handler {} of factory type {}", handlerName, factoryName);
+
+			@SuppressWarnings("unchecked")
+			List<HierarchicalConfiguration> xmlOptions = sub.configurationsAt("option");
+			Multimap<String, String> options = ArrayListMultimap.create();
+
+			for (HierarchicalConfiguration xmlOption : xmlOptions) {
+
+				String optionKey = xmlOption.getString("[@key]");
+				String optionValue = xmlOption.getString("[@value]");
+
+				if (optionKey != null && optionValue != null && !"".equals(optionKey) && !"".equals(optionValue)) {
+					log.debug("Option for handler {}: {} = {}", new Object[]{handlerName, optionKey, optionValue});
+					options.put(optionKey, optionValue);
+				}
+			}
+
+			List<Tuple<String, ChannelHandler>> channelHandlers = create(handlerName, factoryName, options);
+			handlerStack.addAll(channelHandlers);
+		}
+
+		// Debug output
+		if (log.isDebugEnabled()) {
+			log.debug("Instantiated new handler chain:");
+			for (Tuple<String, ChannelHandler> entry : handlerStack) {
+				log.debug("Handler: {} [{}]", entry.getFirst(), entry.getSecond());
+			}
+		}
+
+		return handlerStack;
+	}
+
+	public List<Tuple<String, ChannelHandler>> create(
+			final List<Tuple<String, Multimap<String, String>>> channelHandlerConfigurations) throws Exception {
+
+		List<Tuple<String, ChannelHandler>> channelHandlers = newArrayList();
+
+		int layer = 0;
+		for (Tuple<String, Multimap<String, String>> channelHandlerConfiguration : channelHandlerConfigurations) {
+
+			final String factoryName = channelHandlerConfiguration.getFirst();
+			final List<Tuple<String, ChannelHandler>> list = create(
+					layer + "-" + factoryName,
+					factoryName,
+					channelHandlerConfiguration.getSecond()
+			);
+
+			channelHandlers.addAll(list);
+			layer++;
+		}
+
+		return channelHandlers;
+	}
+
+	public List<Tuple<String, ChannelHandler>> create(final String instanceName, final String factoryName,
+													  final Multimap<String, String> properties) throws Exception {
+
+		if (!moduleFactories.containsKey(factoryName)) {
+			throw new Exception("Factory of name " + factoryName + " unknown. " + this.toString());
+		}
+
+		return moduleFactories.get(factoryName).create(instanceName, properties);
+	}
+
+	public List<ChannelHandlerDescription> getChannelHandlerDescriptions() {
+
+		List<ChannelHandlerDescription> handlers = newArrayList();
+
+		for (HandlerFactory handlerFactory : moduleFactories.values()) {
+			handlers.add(new ChannelHandlerDescription(
+					handlerFactory.getName(),
+					handlerFactory.getDescription(),
+					handlerFactory.getConfigurationOptions()
+			)
+			);
+		}
+
+		return handlers;
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder b = new StringBuilder();
+		b.append("Known factories: ");
+
+		for (ChannelHandlerDescription chd : getChannelHandlerDescriptions()) {
+			b.append(chd);
+			b.append(" ");
+		}
+
+		return b.toString();
+	}
 
 }

@@ -97,7 +97,7 @@ public class RUPFragmentDecoder extends SimpleChannelUpstreamHandler {
 
     private Map<Long, PacketBuffer> packetBuffers = Maps.newHashMap();
 
-    RUPFragmentDecoder(final ScheduledExecutorService scheduler) {
+    public RUPFragmentDecoder(final ScheduledExecutorService scheduler) {
         Preconditions.checkNotNull(scheduler);
         this.scheduler = scheduler;
     }

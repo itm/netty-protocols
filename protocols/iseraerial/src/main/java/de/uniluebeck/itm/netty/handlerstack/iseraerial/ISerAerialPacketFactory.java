@@ -25,6 +25,7 @@ package de.uniluebeck.itm.netty.handlerstack.iseraerial;
 import java.util.LinkedList;
 import java.util.List;
 
+import com.google.common.collect.HashMultimap;
 import org.jboss.netty.channel.ChannelHandler;
 
 import com.google.common.collect.Multimap;
@@ -34,28 +35,33 @@ import de.uniluebeck.itm.tr.util.Tuple;
 
 public class ISerAerialPacketFactory implements HandlerFactory {
 
-    @Override
-    public String getName() {
-        return "iseraerial-packet";
-    }
+	@Override
+	public List<Tuple<String, ChannelHandler>> create(String instanceName, Multimap<String, String> properties)
+			throws Exception {
+		List<Tuple<String, ChannelHandler>> handlers = new LinkedList<Tuple<String, ChannelHandler>>();
+		handlers.addAll(new ISerAerialPacketDecoderFactory().create(instanceName + "-decoder", properties));
+		handlers.addAll(new ISerAerialPacketEncoderFactory().create(instanceName + "-encoder", properties));
+		return handlers;
+	}
 
-    @Override
+	@Override
+	public List<Tuple<String, ChannelHandler>> create(Multimap<String, String> properties) throws Exception {
+		return create(null, properties);
+	}
+
+	@Override
+	public Multimap<String, String> getConfigurationOptions() {
+		return HashMultimap.create();
+	}
+
+	@Override
     public String getDescription() {
         return "";
     }
 
-    @Override
-    public List<Tuple<String, ChannelHandler>> create(Multimap<String, String> properties) throws Exception {
-        return create(null, properties);
-    }
-
-    @Override
-    public List<Tuple<String, ChannelHandler>> create(String instanceName, Multimap<String, String> properties)
-            throws Exception {
-        List<Tuple<String, ChannelHandler>> handlers = new LinkedList<Tuple<String, ChannelHandler>>();
-        handlers.addAll(new ISerAerialPacketDecoderFactory().create(instanceName + "-decoder", properties));
-        handlers.addAll(new ISerAerialPacketEncoderFactory().create(instanceName + "-encoder", properties));
-        return handlers;
-    }
+	@Override
+	public String getName() {
+		return "iseraerial-packet";
+	}
 
 }

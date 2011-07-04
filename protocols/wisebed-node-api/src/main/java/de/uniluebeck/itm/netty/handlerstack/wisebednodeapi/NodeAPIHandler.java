@@ -82,7 +82,7 @@ public class NodeAPIHandler extends SimpleChannelHandler implements ChannelUpstr
 	NodeAPIHandler() {
 		requestCache.setListener(requestCacheListener);
 	}
-
+	
 	@Override
 	public void handleDownstream(final ChannelHandlerContext ctx, final ChannelEvent e) throws Exception {
 		final DownstreamMessageEvent event = (DownstreamMessageEvent) e;

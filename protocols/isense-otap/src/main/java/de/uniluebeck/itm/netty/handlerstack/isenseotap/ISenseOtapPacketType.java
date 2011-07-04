@@ -24,9 +24,9 @@ package de.uniluebeck.itm.netty.handlerstack.isenseotap;
 
 public class ISenseOtapPacketType {
 
-    /**
-     * @see https://github.com/itm/testbed-runtime/blob/master/iwsn/wsn-device-drivers/src/main/java/de/uniluebeck/itm/wsn/devicedrivers/generic/ISenseOtapPacketType.java
-     */
-    public static final byte OTAP = 0x6;
-    
+	/**
+	 * @see <a href="https://github.com/itm/testbed-runtime/blob/master/iwsn/wsn-device-drivers/src/main/java/de/uniluebeck/itm/wsn/devicedrivers/generic/ISenseOtapPacketType.java">https://github.com/itm/testbed-runtime/blob/master/iwsn/wsn-device-drivers/src/main/java/de/uniluebeck/itm/wsn/devicedrivers/generic/ISenseOtapPacketType.java</a>
+	 */
+	public static final byte OTAP = 0x6;
+
 }

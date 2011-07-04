@@ -36,16 +36,11 @@ public class ISerAerialPacketDecoder extends OneToOneDecoder {
 
     private final Logger log;
 
-    /**
-     * Package-private constructor for creation via factory only
-     */
-    ISerAerialPacketDecoder() {
+    public ISerAerialPacketDecoder() {
         this(null);
     }
-    /**
-     * Package-private constructor for creation via factory only
-     */
-    ISerAerialPacketDecoder(String instanceName) {
+
+    public ISerAerialPacketDecoder(String instanceName) {
         log = LoggerFactory.getLogger(instanceName != null ? instanceName : ISerAerialPacketDecoder.class.getName());
     }
 

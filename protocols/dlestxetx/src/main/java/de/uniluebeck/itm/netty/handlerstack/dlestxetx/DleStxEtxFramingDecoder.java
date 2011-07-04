@@ -42,17 +42,11 @@ public class DleStxEtxFramingDecoder extends FrameDecoder {
 
     private ChannelBuffer packet;
 
-    /**
-     * Package-private constructor for creation via factory only
-     */
-    DleStxEtxFramingDecoder() {
+    public DleStxEtxFramingDecoder() {
         this(null);
     }
 
-    /**
-     * Package-private constructor for creation via factory only
-     */
-    DleStxEtxFramingDecoder(String instanceName) {
+    public DleStxEtxFramingDecoder(String instanceName) {
         log = LoggerFactory.getLogger(instanceName != null ? instanceName : DleStxEtxFramingDecoder.class.getName());
         resetDecodingState();
     }

@@ -31,6 +31,9 @@ import org.jboss.netty.handler.codec.oneone.OneToOneEncoder;
 
 public class SwapResponseEncoder extends OneToOneEncoder {
 
+	public SwapResponseEncoder() {
+	}
+
 	@Override
 	protected Object encode(ChannelHandlerContext ctx, Channel channel, Object msg) throws Exception {
 

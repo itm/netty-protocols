@@ -31,6 +31,9 @@ import org.jboss.netty.handler.codec.oneone.OneToOneEncoder;
 
 public class RUPFragmentEncoder extends OneToOneEncoder {
 
+	public RUPFragmentEncoder() {
+	}
+
 	@Override
 	protected Object encode(ChannelHandlerContext ctx, Channel channel, Object msg) throws Exception {
 

@@ -33,17 +33,11 @@ public class ISensePacketDecoder extends OneToOneDecoder {
 
     private final Logger log;
 
-    /**
-     * Package-private constructor for creation via factory only
-     */
-    ISensePacketDecoder() {
+    public ISensePacketDecoder() {
         this(null);
     }
 
-    /**
-     * Package-private constructor for creation via factory only
-     */
-    ISensePacketDecoder(String instanceName) {
+    public ISensePacketDecoder(String instanceName) {
         log = LoggerFactory.getLogger(instanceName != null ? instanceName : ISensePacketDecoder.class.getName());
     }
 
