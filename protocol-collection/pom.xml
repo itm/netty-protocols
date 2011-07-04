@@ -32,6 +32,10 @@
 		</dependency>
 		<dependency>
 			<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
+			<artifactId>discard</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
 			<artifactId>isense-otap</artifactId>
 		</dependency>
 		<dependency>

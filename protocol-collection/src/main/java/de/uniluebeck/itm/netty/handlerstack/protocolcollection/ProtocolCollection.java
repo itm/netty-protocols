@@ -25,6 +25,7 @@ package de.uniluebeck.itm.netty.handlerstack.protocolcollection;
 import com.coalesenses.isense.ishell.interpreter.IShellInterpreterHandlerFactory;
 
 import de.uniluebeck.itm.netty.handlerstack.HandlerFactoryRegistry;
+import de.uniluebeck.itm.netty.handlerstack.discard.DiscardMessagesHandlerFactory;
 import de.uniluebeck.itm.netty.handlerstack.dlestxetx.DleStxEtxFramingDecoderFactory;
 import de.uniluebeck.itm.netty.handlerstack.dlestxetx.DleStxEtxFramingEncoderFactory;
 import de.uniluebeck.itm.netty.handlerstack.dlestxetx.DleStxEtxFramingFactory;
@@ -42,31 +43,37 @@ import org.jboss.netty.handler.codec.frame.FixedLengthFrameDecoder;
 public class ProtocolCollection {
 
     /** Registers all Plug-ins from ITM's netty handlerstack project with the factory */
-    public static void registerProtocols(HandlerFactoryRegistry registry) throws Exception {
+    public static void registerProtocols(HandlerFactoryRegistry registry) {
 
-		registry.register(new Base64DecoderFactory());
-		registry.register(new Base64EncoderFactory());
-		registry.register(new FixedLengthFrameDecoderFactory());
-		registry.register(new LengthFieldBasedFrameDecoderFactory());
-		registry.register(new LengthFieldPrependerFactory());
+		try {
+			registry.register(new DiscardMessagesHandlerFactory());
 
-		registry.register(new ISerAerialPacketDecoderFactory());
-		registry.register(new ISerAerialPacketEncoderFactory());
-		registry.register(new ISerAerialPacketFactory());
+			registry.register(new Base64DecoderFactory());
+			registry.register(new Base64EncoderFactory());
+			registry.register(new FixedLengthFrameDecoderFactory());
+			registry.register(new LengthFieldBasedFrameDecoderFactory());
+			registry.register(new LengthFieldPrependerFactory());
 
-		registry.register(new ISensePacketDecoderFactory());
-		registry.register(new ISensePacketEncoderFactory());
-		registry.register(new ISensePacketFactory());
+			registry.register(new ISerAerialPacketDecoderFactory());
+			registry.register(new ISerAerialPacketEncoderFactory());
+			registry.register(new ISerAerialPacketFactory());
 
-		registry.register(new DleStxEtxFramingDecoderFactory());
-		registry.register(new DleStxEtxFramingEncoderFactory());
-		registry.register(new DleStxEtxFramingFactory());
+			registry.register(new ISensePacketDecoderFactory());
+			registry.register(new ISensePacketEncoderFactory());
+			registry.register(new ISensePacketFactory());
 
-		registry.register(new ISenseOtapFactory());
+			registry.register(new DleStxEtxFramingDecoderFactory());
+			registry.register(new DleStxEtxFramingEncoderFactory());
+			registry.register(new DleStxEtxFramingFactory());
 
-		registry.register(new IShellInterpreterHandlerFactory());
+			registry.register(new ISenseOtapFactory());
 
-		registry.register(new LoggingHandlerFactory());
+			registry.register(new IShellInterpreterHandlerFactory());
+
+			registry.register(new LoggingHandlerFactory());
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 }
