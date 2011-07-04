@@ -16,7 +16,6 @@
 	<modules>
 
 		<module>factory</module>
-		<module>channel-flange</module>
 		<module>protocol-collection</module>
 		<module>cmdline-client</module>
 		<module>netty-handlerstack</module>
@@ -83,11 +82,6 @@
 			</dependency>
 			<dependency>
 				<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
-				<artifactId>channel-flange</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
 				<artifactId>isense-otap</artifactId>
 				<version>${project.version}</version>
 			</dependency>
@@ -109,6 +103,11 @@
 			<dependency>
 				<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
 				<artifactId>discard</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
+				<artifactId>netty-handlerstack</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 

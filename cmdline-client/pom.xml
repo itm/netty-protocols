@@ -28,7 +28,7 @@
 		</dependency>
 		<dependency>
 			<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
-			<artifactId>channel-flange</artifactId>
+			<artifactId>netty-handlerstack</artifactId>
 		</dependency>
 
 		<dependency>

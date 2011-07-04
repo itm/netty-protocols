@@ -1,6 +1,5 @@
 package de.uniluebeck.itm.netty.handlerstack;
 
-import com.google.common.collect.Lists;
 import de.uniluebeck.itm.netty.handlerstack.util.HandlerTools;
 import de.uniluebeck.itm.tr.util.AbstractListenable;
 import de.uniluebeck.itm.tr.util.Tuple;
@@ -10,16 +9,69 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.SocketAddress;
-import java.util.ArrayList;
 import java.util.List;
 
-import static com.google.common.collect.Lists.newArrayList;
+import static org.jboss.netty.channel.Channels.pipeline;
 
 public class FilterPipelineImpl implements FilterPipeline {
 
 	private static final Logger log = LoggerFactory.getLogger(FilterPipelineImpl.class);
 
+	private static class DummyChannel extends AbstractChannel {
+
+		private static final Integer DUMMY_ID = 0;
+
+		private final ChannelConfig config;
+
+		private final SocketAddress localAddress = new SocketAddress() {};
+
+		private final SocketAddress remoteAddress = new SocketAddress() {};
+
+		public DummyChannel(ChannelPipeline pipeline, ChannelSink sink) {
+			super(DUMMY_ID, null, null, pipeline, sink);
+			config = new DefaultChannelConfig();
+		}
+
+		public ChannelConfig getConfig() {
+			return config;
+		}
+
+		public SocketAddress getLocalAddress() {
+			return localAddress;
+		}
+
+		public SocketAddress getRemoteAddress() {
+			return remoteAddress;
+		}
+
+		public boolean isBound() {
+			return true;
+		}
+
+		public boolean isConnected() {
+			return true;
+		}
+	}
+
+	private final class DummyChannelSink implements ChannelSink {
+
+		public DummyChannelSink() {
+            super();
+        }
+
+        public void eventSunk(ChannelPipeline pipeline, ChannelEvent e) {
+            // do nothing
+        }
+
+        public void exceptionCaught(
+                ChannelPipeline pipeline, ChannelEvent e,
+                ChannelPipelineException cause) throws Exception {
+            throw new RuntimeException(cause);
+        }
+    }
+
 	private static class UpstreamListenerManager extends AbstractListenable<FilterPipeline.UpstreamOutputListener> {
+
 		public void notifyListeners(final ChannelBuffer message, final SocketAddress sourceAddress) {
 			for (FilterPipeline.UpstreamOutputListener listener : listeners) {
 				listener.receiveUpstreamOutput(message, sourceAddress);
@@ -28,6 +80,7 @@ public class FilterPipelineImpl implements FilterPipeline {
 	}
 
 	private static class DownstreamListenerManager extends AbstractListenable<FilterPipeline.DownstreamOutputListener> {
+
 		public void notifyListeners(final ChannelBuffer message, final SocketAddress targetAddress) {
 			for (FilterPipeline.DownstreamOutputListener listener : listeners) {
 				listener.receiveDownstreamOutput(message, targetAddress);
@@ -99,8 +152,6 @@ public class FilterPipelineImpl implements FilterPipeline {
 		}
 	}
 
-	private HandlerStack handlerStack = new HandlerStack();
-
 	private UpstreamListenerManager upstreamListenerManager = new UpstreamListenerManager();
 
 	private DownstreamListenerManager downstreamListenerManager = new DownstreamListenerManager();
@@ -109,13 +160,11 @@ public class FilterPipelineImpl implements FilterPipeline {
 
 	private BottomHandler bottomHandler = new BottomHandler();
 
+	@SuppressWarnings("unused")
+	private ChannelPipeline pipeline;
+
 	public FilterPipelineImpl() {
-		handlerStack.setLeftHandler(topHandler);
-		handlerStack.setRightHandler(bottomHandler);
-		handlerStack.setHandlerStack(Lists.<Tuple<String,ChannelHandler>>newArrayList(
-				new Tuple<String, ChannelHandler>("defaultHandler", new SimpleChannelHandler())
-		));
-		handlerStack.performSetup();
+		setChannelPipeline(null);
 	}
 
 	@Override
@@ -130,13 +179,22 @@ public class FilterPipelineImpl implements FilterPipeline {
 
 	@Override
 	public void setChannelPipeline(final List<Tuple<String, ChannelHandler>> handlerStack) {
-		try {
-			this.handlerStack.setHandlerStack(handlerStack);
-			this.handlerStack.performSetup();
-		} catch (Exception e) {
-			log.error("Exception while setting handler stack: " + e, e);
-			throw new RuntimeException(e);
+
+		final ChannelPipeline newPipeline = pipeline();
+
+		if (handlerStack != null) {
+			for (Tuple<String, ChannelHandler> tuple : handlerStack) {
+				newPipeline.addFirst(tuple.getFirst(), tuple.getSecond());
+			}
 		}
+
+		newPipeline.addLast("topHandler", topHandler);
+		newPipeline.addFirst("bottomHandler", bottomHandler);
+
+		final DummyChannelSink channelSink = new DummyChannelSink();
+		new DummyChannel(newPipeline, channelSink);
+
+		pipeline = newPipeline;
 	}
 
 	@Override

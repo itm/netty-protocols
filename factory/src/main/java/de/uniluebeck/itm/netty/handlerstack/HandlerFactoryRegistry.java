@@ -22,10 +22,19 @@
  */
 package de.uniluebeck.itm.netty.handlerstack;
 
+import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import de.uniluebeck.itm.tr.util.Tuple;
+import org.apache.commons.configuration.HierarchicalConfiguration;
+import org.apache.commons.configuration.XMLConfiguration;
 import org.jboss.netty.channel.ChannelHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -33,6 +42,8 @@ import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 
 public class HandlerFactoryRegistry {
+
+	private static final Logger log = LoggerFactory.getLogger(HandlerFactoryRegistry.class);
 
 	@SuppressWarnings("unused")
 	public static class ChannelHandlerDescription {
@@ -82,6 +93,103 @@ public class HandlerFactoryRegistry {
 
 		moduleFactories.put(factory.getName(), factory);
 
+	}
+
+	/**
+	 * Loads the XML configuration file and returns a list of (handler-name, factory-name, (key,value)-pairs). The format
+	 * is as follows:
+	 * <p/>
+	 * <pre>
+	 * {@code
+	 *
+	 * <?xml version="1.0" encoding="UTF-8" ?>
+	 * <itm-netty-handlerstack>
+	 *   <handler name="time-handler" factory="movedetect-time-protocol-handler"/>
+	 *   <handler name="time-decoder" factory="movedetect-time-protocol-decoder">
+	 *     <option key="1" value="1"/>
+	 *     <option key="2" value="2"/>
+	 *   </handler>
+	 *   <handler name="time-encoder" factory="movedetect-time-protocol-encoder">
+	 *     <option key="11" value="11"/>
+	 *     <option key="22" value="22"/>
+	 *   </handler>
+	 * </itm-netty-handlerstack>
+	 * }
+	 * </pre>
+	 *
+	 * @param configFile The configuration file to read.
+	 *
+	 * @return
+	 *
+	 * @throws Exception
+	 */
+	public List<Tuple<String, ChannelHandler>> create(final File configFile) throws Exception {
+
+		List<Tuple<String, ChannelHandler>> handlerStack = new LinkedList<Tuple<String, ChannelHandler>>();
+
+		if (!configFile.exists()) {
+			throw new FileNotFoundException("Configuration file " + configFile + " not found.");
+		}
+
+		XMLConfiguration config = new XMLConfiguration(configFile);
+
+		@SuppressWarnings("unchecked")
+		List<HierarchicalConfiguration> handlers = config.configurationsAt("handler");
+		for (HierarchicalConfiguration sub : handlers) {
+			String factoryName = sub.getString("[@factory]");
+			String handlerName = sub.getString("[@name]");
+			log.debug("Handler {} of factory type {}", handlerName, factoryName);
+
+			@SuppressWarnings("unchecked")
+			List<HierarchicalConfiguration> xmlOptions = sub.configurationsAt("option");
+			Multimap<String, String> options = ArrayListMultimap.create();
+
+			for (HierarchicalConfiguration xmlOption : xmlOptions) {
+
+				String optionKey = xmlOption.getString("[@key]");
+				String optionValue = xmlOption.getString("[@value]");
+
+				if (optionKey != null && optionValue != null && !"".equals(optionKey) && !"".equals(optionValue)) {
+					log.debug("Option for handler {}: {} = {}", new Object[]{handlerName, optionKey, optionValue});
+					options.put(optionKey, optionValue);
+				}
+			}
+
+			List<Tuple<String, ChannelHandler>> channelHandlers = create(handlerName, factoryName, options);
+			handlerStack.addAll(channelHandlers);
+		}
+
+		// Debug output
+		if (log.isDebugEnabled()) {
+			log.debug("Instantiated new handler chain:");
+			for (Tuple<String, ChannelHandler> entry : handlerStack) {
+				log.debug("Handler: {} [{}]", entry.getFirst(), entry.getSecond());
+			}
+		}
+
+		return handlerStack;
+	}
+
+	public List<Tuple<String, ChannelHandler>> create(
+			final List<Tuple<String, Multimap<String, String>>> channelHandlerConfigurations) throws Exception {
+
+		List<Tuple<String, ChannelHandler>> channelHandlers = newArrayList();
+
+		int layer = 0;
+		for (Tuple<String, Multimap<String, String>> channelHandlerConfiguration : channelHandlerConfigurations) {
+
+			final String factoryName = channelHandlerConfiguration.getFirst();
+			final List<Tuple<String, ChannelHandler>> list = create(
+					layer + "-" + factoryName,
+					factoryName,
+					channelHandlerConfiguration.getSecond()
+			);
+
+			channelHandlers.addAll(list);
+			layer++;
+		}
+
+		return channelHandlers;
 	}
 
 	public List<Tuple<String, ChannelHandler>> create(final String instanceName, final String factoryName,
