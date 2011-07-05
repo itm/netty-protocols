@@ -139,8 +139,8 @@ public class Main {
                         0xcff1, 0x1cd2, 0x7e6c, 0xcc43, 0x85ba, 0x9960, 0x9961, 0x14f7, 0x96f9, 0xc179, 0x96df, 0x9995,
                         0x971e, 0xcbe5, 0x1234, 0x14e0, 0x96f0, 0x1721, 0x5980 };
 
-//        for (Integer id : wisebedISenseDevices)
-//            otapDevices.add(id);
+        // for (Integer id : wisebedISenseDevices)
+        // otapDevices.add(id);
         otapDevices.add(0x1b87);
 
         final byte[] otapProgram = Files.toByteArray(new File("src/main/resources/iSenseDemoApp.bin"));
@@ -172,7 +172,7 @@ public class Main {
                         e.getChannel().write(req);
                     }
                 });
-                
+
                 super.channelConnected(ctx, e);
             }
 
@@ -190,20 +190,20 @@ public class Main {
 
         };
 
-		FilterPipeline filterPipeline = new FilterPipelineImpl();
-		filterPipeline.setChannelPipeline(factoryRegistry.create(xmlConfigFile));
+        FilterPipeline filterPipeline = new FilterPipelineImpl();
+        filterPipeline.setChannelPipeline(factoryRegistry.create(xmlConfigFile));
 
-		final FilterHandler filterHandler = new FilterHandler(filterPipeline);
+        final FilterHandler filterHandler = new FilterHandler(filterPipeline);
 
-		bootstrap.setPipelineFactory(new ChannelPipelineFactory() {
-			@Override
-			public ChannelPipeline getPipeline() throws Exception {
-				final ChannelPipeline pipeline = pipeline();
-				pipeline.addLast("filterHandler", filterHandler);
-				pipeline.addLast("otapProgrammingHandler", otapProgrammingHandler);
-				return pipeline;
-			}
-		});
+        bootstrap.setPipelineFactory(new ChannelPipelineFactory() {
+            @Override
+            public ChannelPipeline getPipeline() throws Exception {
+                final ChannelPipeline pipeline = pipeline();
+                pipeline.addLast("filterHandler", filterHandler);
+                pipeline.addLast("otapProgrammingHandler", otapProgrammingHandler);
+                return pipeline;
+            }
+        });
 
         // Create a new connection and wait until the connection is made successfully.
         ChannelFuture connectFuture = bootstrap.connect(new RXTXDeviceAddress(deviceAddress));

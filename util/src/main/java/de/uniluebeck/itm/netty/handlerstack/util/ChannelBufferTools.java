@@ -10,7 +10,7 @@ public abstract class ChannelBufferTools {
 	 * @param buffer the buffer to copy from
 	 * @return a new byte array instance
 	 */
-	public byte[] readToByteArray(final ChannelBuffer buffer) {
+	public static byte[] readToByteArray(final ChannelBuffer buffer) {
 		byte[] bytes = new byte[buffer.readableBytes()];
 		buffer.readBytes(bytes);
 		return bytes;

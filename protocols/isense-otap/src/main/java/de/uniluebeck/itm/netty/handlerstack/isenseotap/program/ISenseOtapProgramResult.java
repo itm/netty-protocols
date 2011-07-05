@@ -26,9 +26,11 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class ISenseOtapProgramResult {
+    public static final String SERIALIZATION_HEADER = "ISenseOtapProgramResult-version1";;
+
     private final Set<Integer> devicesToBeProgrammed;
     private Set<Integer> failedDevices = new HashSet<Integer>();
-    private Set<Integer> doneDevices = new HashSet<Integer>();;
+    private Set<Integer> doneDevices = new HashSet<Integer>();
 
     public ISenseOtapProgramResult(Set<Integer> devicesToBeProgrammed) {
         this.devicesToBeProgrammed = new HashSet<Integer>(devicesToBeProgrammed);

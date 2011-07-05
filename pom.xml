@@ -134,7 +134,7 @@
 			<dependency>
 				<groupId>com.coalesenses</groupId>
 				<artifactId>isense-binary-image</artifactId>
-				<version>0.2</version>
+				<version>0.3-SNAPSHOT</version>
 			</dependency>
 
 			<dependency>

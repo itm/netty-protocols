@@ -31,6 +31,7 @@ import de.uniluebeck.itm.netty.handlerstack.isenseotap.program.ISenseOtapProgram
 import de.uniluebeck.itm.netty.handlerstack.util.DurationPlusUnit;
 
 public class ISenseOtapAutomatedProgrammingRequest extends ISenseOtapProgramRequest {
+    public static final String SERIALIZATION_HEADER = "ISenseOtapAutomatedProgrammingRequest-version1";
 
     private DurationPlusUnit presenceDetectTimeout = new DurationPlusUnit(30, TimeUnit.SECONDS);
     private DurationPlusUnit otapInitTimeout = new DurationPlusUnit(30, TimeUnit.SECONDS);

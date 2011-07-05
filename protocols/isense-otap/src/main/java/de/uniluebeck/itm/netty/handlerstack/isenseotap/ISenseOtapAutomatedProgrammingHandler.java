@@ -24,7 +24,6 @@ package de.uniluebeck.itm.netty.handlerstack.isenseotap;
 
 import java.util.Set;
 
-import org.jboss.netty.channel.ChannelEvent;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.LifeCycleAwareChannelHandler;
 import org.jboss.netty.channel.MessageEvent;
@@ -61,18 +60,6 @@ public class ISenseOtapAutomatedProgrammingHandler extends SimpleChannelHandler 
         log =
                 LoggerFactory.getLogger((instanceName != null) ? instanceName
                         : ISenseOtapAutomatedProgrammingHandler.class.getName());
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.jboss.netty.channel.SimpleChannelHandler#handleDownstream(org.jboss.netty.channel.ChannelHandlerContext,
-     * org.jboss.netty.channel.ChannelEvent)
-     */
-    @Override
-    public void handleDownstream(ChannelHandlerContext ctx, ChannelEvent e) throws Exception {
-        // TODO Auto-generated method stub
-        super.handleDownstream(ctx, e);
     }
 
     @Override
