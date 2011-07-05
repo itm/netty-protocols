@@ -10,7 +10,7 @@ public abstract class OneToOneDownstreamDecoder extends OneToOneEncoder {
 
     @Override
     protected final Object encode(ChannelHandlerContext ctx, Channel channel, Object msg) throws Exception {
-        return encode(ctx, channel, msg);
+        return decode(ctx, channel, msg);
     }
     
 }
