@@ -22,14 +22,19 @@
  */
 package de.uniluebeck.itm.netty.handlerstack.isenseotap.program;
 
+import java.util.Arrays;
 import java.util.Set;
 
 public class ISenseOtapProgramRequest {
 
-    private final Set<Integer> devicesToProgram;
-    private final byte[] otapProgram;
+    private Set<Integer> devicesToProgram;
 
-    public ISenseOtapProgramRequest(Set<Integer> otapDevices, byte[] otapProgram) {
+    private byte[] otapProgram;
+
+	protected ISenseOtapProgramRequest() {
+	}
+
+	public ISenseOtapProgramRequest(Set<Integer> otapDevices, byte[] otapProgram) {
         this.devicesToProgram = otapDevices;
         this.otapProgram = otapProgram;
     }
@@ -64,4 +69,31 @@ public class ISenseOtapProgramRequest {
         return builder.toString();
     }
 
+	@Override
+	public boolean equals(final Object o) {
+		if (this == o) {
+			return true;
+		}
+		if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
+
+		final ISenseOtapProgramRequest that = (ISenseOtapProgramRequest) o;
+
+		if (!devicesToProgram.equals(that.devicesToProgram)) {
+			return false;
+		}
+		if (!Arrays.equals(otapProgram, that.otapProgram)) {
+			return false;
+		}
+
+		return true;
+	}
+
+	@Override
+	public int hashCode() {
+		int result = devicesToProgram.hashCode();
+		result = 31 * result + Arrays.hashCode(otapProgram);
+		return result;
+	}
 }

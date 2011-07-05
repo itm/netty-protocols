@@ -131,7 +131,7 @@ public class ISenseOtapAutomatedProgrammingHandler extends SimpleChannelHandler 
         state = State.PRESENCE_DETECT;
 
         this.programRequest = request;
-        this.presenceDetectStart = new TimeDiff(request.getPresenceDetectTimeout().toMillis());
+        this.presenceDetectStart = new TimeDiff(request.getPresenceDetectTimeoutAsDurationPlusUnit().toMillis());
 
         HandlerTools.sendDownstream(new PresenceDetectControlStart(), context);
     }
@@ -151,7 +151,7 @@ public class ISenseOtapAutomatedProgrammingHandler extends SimpleChannelHandler 
         BinaryImage program = new BinaryImage(programRequest.getOtapProgram());
 
         ISenseOtapInitStartCommand command =
-                new ISenseOtapInitStartCommand(detectedDevicesToProgram, programRequest.getOtapInitTimeout(),
+                new ISenseOtapInitStartCommand(detectedDevicesToProgram, programRequest.getOtapInitTimeoutAsDurationPlusUnit(),
                         program.getChunkCount(), programRequest.getMaxRerequests(),
                         programRequest.getTimeoutMultiplier());
 
@@ -176,8 +176,8 @@ public class ISenseOtapAutomatedProgrammingHandler extends SimpleChannelHandler 
                 new ISenseOtapProgramRequest(otapInitResult.getInitializedDevices(), programRequest.getOtapProgram());
 
         // Select the desired AES encryption/decryption
-        HandlerTools.sendDownstream(new ISenseOtapPacketEncoderSetAESKeyRequest(programRequest.getAesKey()), context);
-        HandlerTools.sendDownstream(new ISenseOtapPacketDecoderSetAESKeyRequest(programRequest.getAesKey()), context);
+        HandlerTools.sendDownstream(new ISenseOtapPacketEncoderSetAESKeyRequest(programRequest.getAesKeyAsISenseAes128BitKey()), context);
+        HandlerTools.sendDownstream(new ISenseOtapPacketDecoderSetAESKeyRequest(programRequest.getAesKeyAsISenseAes128BitKey()), context);
 
         // Send the programming request downstream
         HandlerTools.sendDownstream(request, context);
