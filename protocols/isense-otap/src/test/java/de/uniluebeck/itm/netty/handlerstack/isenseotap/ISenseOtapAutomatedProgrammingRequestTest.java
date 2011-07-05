@@ -3,9 +3,21 @@ package de.uniluebeck.itm.netty.handlerstack.isenseotap;
 
 import com.coalesenses.tools.iSenseAes128BitKey;
 import com.google.common.collect.Sets;
+import de.uniluebeck.itm.netty.handlerstack.util.HexStringIntegerMatcher;
+import de.uniluebeck.itm.netty.handlerstack.util.HexStringIntegerTransform;
+import de.uniluebeck.itm.tr.util.StringUtils;
 import org.junit.Test;
 import org.simpleframework.xml.Serializer;
 import org.simpleframework.xml.core.Persister;
+import org.simpleframework.xml.strategy.TreeStrategy;
+import org.simpleframework.xml.strategy.Type;
+import org.simpleframework.xml.strategy.Visitor;
+import org.simpleframework.xml.strategy.VisitorStrategy;
+import org.simpleframework.xml.stream.InputNode;
+import org.simpleframework.xml.stream.NodeMap;
+import org.simpleframework.xml.stream.OutputNode;
+import org.simpleframework.xml.transform.Matcher;
+import org.simpleframework.xml.transform.Transform;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -16,6 +28,7 @@ public class ISenseOtapAutomatedProgrammingRequestTest {
 
 	@Test
 	public void testSerializationDeserialization() throws Exception {
+
 		Serializer serializer = new Persister();
 
 		ISenseOtapAutomatedProgrammingRequest request =
@@ -36,8 +49,6 @@ public class ISenseOtapAutomatedProgrammingRequestTest {
 
 		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 		serializer.write(request, outputStream);
-
-		System.out.println(new String(outputStream.toByteArray()));
 
 		ByteArrayInputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
 		ISenseOtapAutomatedProgrammingRequest requestRead = serializer.read(

@@ -4,6 +4,7 @@ import com.coalesenses.tools.iSenseAes128BitKey;
 import com.google.common.collect.Sets;
 import de.uniluebeck.itm.netty.handlerstack.isenseotap.ISenseOtapAutomatedProgrammingRequest;
 import de.uniluebeck.itm.netty.handlerstack.isenseotap.program.ISenseOtapProgramResult;
+import de.uniluebeck.itm.netty.handlerstack.util.HexStringIntegerMatcher;
 import org.junit.Test;
 import org.simpleframework.xml.Serializer;
 import org.simpleframework.xml.core.Persister;
