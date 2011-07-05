@@ -22,18 +22,17 @@
  */
 package de.uniluebeck.itm.netty.handlerstack.isenseotap;
 
-import java.util.Arrays;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
-
 import com.coalesenses.tools.iSenseAes128BitKey;
-
 import de.uniluebeck.itm.netty.handlerstack.isenseotap.program.ISenseOtapProgramRequest;
 import de.uniluebeck.itm.netty.handlerstack.util.DurationPlusUnit;
 import org.simpleframework.xml.Default;
 import org.simpleframework.xml.DefaultType;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
+
+import java.util.Arrays;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 @Root
 @Default(DefaultType.FIELD)
@@ -51,6 +50,7 @@ public class ISenseOtapAutomatedProgrammingRequest extends ISenseOtapProgramRequ
 
     private short timeoutMultiplier = 15;
 
+	@Element(required = false)
     private byte[] aesKey = null;
 
 	protected ISenseOtapAutomatedProgrammingRequest() {
