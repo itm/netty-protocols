@@ -23,6 +23,8 @@ public interface FilterPipeline {
 
 	void setChannelPipeline(List<Tuple<String, ChannelHandler>> channelPipeline);
 
+	List<Tuple<String, ChannelHandler>> getChannelPipeline();
+
 	void addListener(final DownstreamOutputListener listener);
 
 	void addListener(final UpstreamOutputListener listener);

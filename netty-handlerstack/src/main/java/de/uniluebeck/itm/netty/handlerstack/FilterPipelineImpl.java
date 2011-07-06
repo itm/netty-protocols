@@ -1,5 +1,6 @@
 package de.uniluebeck.itm.netty.handlerstack;
 
+import com.google.common.collect.Lists;
 import de.uniluebeck.itm.netty.handlerstack.util.HandlerTools;
 import de.uniluebeck.itm.tr.util.AbstractListenable;
 import de.uniluebeck.itm.tr.util.Tuple;
@@ -23,9 +24,11 @@ public class FilterPipelineImpl implements FilterPipeline {
 
 		private final ChannelConfig config;
 
-		private final SocketAddress localAddress = new SocketAddress() {};
+		private final SocketAddress localAddress = new SocketAddress() {
+		};
 
-		private final SocketAddress remoteAddress = new SocketAddress() {};
+		private final SocketAddress remoteAddress = new SocketAddress() {
+		};
 
 		public DummyChannel(ChannelPipeline pipeline, ChannelSink sink) {
 			super(DUMMY_ID, null, null, pipeline, sink);
@@ -51,24 +54,26 @@ public class FilterPipelineImpl implements FilterPipeline {
 		public boolean isConnected() {
 			return true;
 		}
+
 	}
 
 	private final class DummyChannelSink implements ChannelSink {
 
 		public DummyChannelSink() {
-            super();
-        }
+			super();
+		}
 
-        public void eventSunk(ChannelPipeline pipeline, ChannelEvent e) {
-            // do nothing
-        }
+		public void eventSunk(ChannelPipeline pipeline, ChannelEvent e) {
+			// do nothing
+		}
 
-        public void exceptionCaught(
-                ChannelPipeline pipeline, ChannelEvent e,
-                ChannelPipelineException cause) throws Exception {
-            throw new RuntimeException(cause);
-        }
-    }
+		public void exceptionCaught(
+				ChannelPipeline pipeline, ChannelEvent e,
+				ChannelPipelineException cause) throws Exception {
+			throw new RuntimeException(cause);
+		}
+
+	}
 
 	private static class UpstreamListenerManager extends AbstractListenable<FilterPipeline.UpstreamOutputListener> {
 
@@ -77,6 +82,7 @@ public class FilterPipelineImpl implements FilterPipeline {
 				listener.receiveUpstreamOutput(message, sourceAddress);
 			}
 		}
+
 	}
 
 	private static class DownstreamListenerManager extends AbstractListenable<FilterPipeline.DownstreamOutputListener> {
@@ -86,6 +92,7 @@ public class FilterPipelineImpl implements FilterPipeline {
 				listener.receiveDownstreamOutput(message, targetAddress);
 			}
 		}
+
 	}
 
 	private class TopHandler extends SimpleChannelUpstreamHandler implements LifeCycleAwareChannelHandler {
@@ -118,6 +125,7 @@ public class FilterPipelineImpl implements FilterPipeline {
 		public void sendDownstream(final ChannelBuffer message, final SocketAddress targetAddress) {
 			HandlerTools.sendDownstream(message, ctx, targetAddress);
 		}
+
 	}
 
 	private class BottomHandler extends SimpleChannelDownstreamHandler implements LifeCycleAwareChannelHandler {
@@ -150,11 +158,14 @@ public class FilterPipelineImpl implements FilterPipeline {
 		public void sendUpstream(final ChannelBuffer message, final SocketAddress sourceAddress) {
 			HandlerTools.sendUpstream(message, ctx, sourceAddress);
 		}
+
 	}
 
 	private UpstreamListenerManager upstreamListenerManager = new UpstreamListenerManager();
 
 	private DownstreamListenerManager downstreamListenerManager = new DownstreamListenerManager();
+
+	private List<Tuple<String, ChannelHandler>> channelPipeline;
 
 	private TopHandler topHandler = new TopHandler();
 
@@ -178,12 +189,15 @@ public class FilterPipelineImpl implements FilterPipeline {
 	}
 
 	@Override
-	public void setChannelPipeline(final List<Tuple<String, ChannelHandler>> handlerStack) {
+	public void setChannelPipeline(final List<Tuple<String, ChannelHandler>> newChannelPipeline) {
 
 		final ChannelPipeline newPipeline = pipeline();
 
-		if (handlerStack != null) {
-			for (Tuple<String, ChannelHandler> tuple : handlerStack) {
+		this.channelPipeline =
+				newChannelPipeline == null ? Lists.<Tuple<String, ChannelHandler>>newArrayList() : newChannelPipeline;
+
+		if (newChannelPipeline != null) {
+			for (Tuple<String, ChannelHandler> tuple : newChannelPipeline) {
 				newPipeline.addFirst(tuple.getFirst(), tuple.getSecond());
 			}
 		}
@@ -195,6 +209,11 @@ public class FilterPipelineImpl implements FilterPipeline {
 		new DummyChannel(newPipeline, channelSink);
 
 		pipeline = newPipeline;
+	}
+
+	@Override
+	public List<Tuple<String, ChannelHandler>> getChannelPipeline() {
+		return channelPipeline;
 	}
 
 	@Override
