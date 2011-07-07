@@ -11,10 +11,12 @@ public interface FilterPipeline {
 
 	public interface DownstreamOutputListener {
 		void receiveDownstreamOutput(ChannelBuffer message, SocketAddress targetAddress);
+		void downstreamExceptionCaught(Throwable e);
 	}
 
 	public interface UpstreamOutputListener {
 		void receiveUpstreamOutput(ChannelBuffer message, SocketAddress sourceAddress);
+		void upstreamExceptionCaught(Throwable e);
 	}
 
 	void sendDownstream(ChannelBuffer message, SocketAddress targetAddress);

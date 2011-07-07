@@ -77,22 +77,32 @@ public class FilterPipelineImpl implements FilterPipeline {
 
 	private static class UpstreamListenerManager extends AbstractListenable<FilterPipeline.UpstreamOutputListener> {
 
-		public void notifyListeners(final ChannelBuffer message, final SocketAddress sourceAddress) {
+		public void receiveUpstreamOutput(final ChannelBuffer message, final SocketAddress sourceAddress) {
 			for (FilterPipeline.UpstreamOutputListener listener : listeners) {
 				listener.receiveUpstreamOutput(message, sourceAddress);
 			}
 		}
 
+		public void upstreamExceptionCaught(final Throwable e) {
+			for (FilterPipeline.UpstreamOutputListener listener : listeners) {
+				listener.upstreamExceptionCaught(e);
+			}
+		}
 	}
 
 	private static class DownstreamListenerManager extends AbstractListenable<FilterPipeline.DownstreamOutputListener> {
 
-		public void notifyListeners(final ChannelBuffer message, final SocketAddress targetAddress) {
+		public void receiveDownstreamOutput(final ChannelBuffer message, final SocketAddress targetAddress) {
 			for (FilterPipeline.DownstreamOutputListener listener : listeners) {
 				listener.receiveDownstreamOutput(message, targetAddress);
 			}
 		}
 
+		public void downstreamExceptionCaught(final Throwable e) {
+			for (FilterPipeline.DownstreamOutputListener listener : listeners) {
+				listener.downstreamExceptionCaught(e);
+			}
+		}
 	}
 
 	private class TopHandler extends SimpleChannelUpstreamHandler implements LifeCycleAwareChannelHandler {
@@ -101,7 +111,11 @@ public class FilterPipelineImpl implements FilterPipeline {
 
 		@Override
 		public void messageReceived(final ChannelHandlerContext ctx, final MessageEvent e) throws Exception {
-			upstreamListenerManager.notifyListeners((ChannelBuffer) e.getMessage(), e.getRemoteAddress());
+			try {
+				upstreamListenerManager.receiveUpstreamOutput((ChannelBuffer) e.getMessage(), e.getRemoteAddress());
+			} catch (Exception e1) {
+				upstreamListenerManager.upstreamExceptionCaught(e1);
+			}
 		}
 
 		@Override
@@ -126,6 +140,10 @@ public class FilterPipelineImpl implements FilterPipeline {
 			HandlerTools.sendDownstream(message, ctx, targetAddress);
 		}
 
+		@Override
+		public void exceptionCaught(final ChannelHandlerContext ctx, final ExceptionEvent e) throws Exception {
+			upstreamListenerManager.upstreamExceptionCaught(e.getCause());
+		}
 	}
 
 	private class BottomHandler extends SimpleChannelDownstreamHandler implements LifeCycleAwareChannelHandler {
@@ -134,7 +152,11 @@ public class FilterPipelineImpl implements FilterPipeline {
 
 		@Override
 		public void writeRequested(final ChannelHandlerContext ctx, final MessageEvent e) throws Exception {
-			downstreamListenerManager.notifyListeners((ChannelBuffer) e.getMessage(), e.getRemoteAddress());
+			try {
+				downstreamListenerManager.receiveDownstreamOutput((ChannelBuffer) e.getMessage(), e.getRemoteAddress());
+			} catch (Exception e1) {
+				downstreamListenerManager.downstreamExceptionCaught(e1);
+			}
 		}
 
 		@Override

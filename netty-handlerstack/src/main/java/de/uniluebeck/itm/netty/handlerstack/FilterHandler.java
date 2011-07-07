@@ -2,19 +2,16 @@ package de.uniluebeck.itm.netty.handlerstack;
 
 import de.uniluebeck.itm.netty.handlerstack.util.HandlerTools;
 import org.jboss.netty.buffer.ChannelBuffer;
-import org.jboss.netty.channel.ChannelHandlerContext;
-import org.jboss.netty.channel.LifeCycleAwareChannelHandler;
-import org.jboss.netty.channel.MessageEvent;
-import org.jboss.netty.channel.SimpleChannelHandler;
-import org.omg.CORBA.CTX_RESTRICT_SCOPE;
+import org.jboss.netty.channel.*;
 
 import java.net.SocketAddress;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
-public class FilterHandler extends SimpleChannelHandler
-		implements FilterPipeline.DownstreamOutputListener, FilterPipeline.UpstreamOutputListener,
+public class FilterHandler extends SimpleChannelHandler implements
+		FilterPipeline.DownstreamOutputListener,
+		FilterPipeline.UpstreamOutputListener,
 		LifeCycleAwareChannelHandler {
 
 	private FilterPipeline filterPipeline;
@@ -45,9 +42,19 @@ public class FilterHandler extends SimpleChannelHandler
 	}
 
 	@Override
+	public void downstreamExceptionCaught(final Throwable e) {
+		ctx.sendUpstream(new DefaultExceptionEvent(ctx.getChannel(), e));
+	}
+
+	@Override
 	public void receiveUpstreamOutput(final ChannelBuffer message, final SocketAddress sourceAddress) {
 		checkState(ctx != null);
 		HandlerTools.sendUpstream(message, ctx, sourceAddress);
+	}
+
+	@Override
+	public void upstreamExceptionCaught(final Throwable e) {
+		ctx.sendUpstream(new DefaultExceptionEvent(ctx.getChannel(), e));
 	}
 
 	@Override
