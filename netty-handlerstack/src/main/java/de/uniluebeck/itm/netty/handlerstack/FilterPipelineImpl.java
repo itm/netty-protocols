@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import java.net.SocketAddress;
 import java.util.List;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static org.jboss.netty.channel.Channels.pipeline;
 
 public class FilterPipelineImpl implements FilterPipeline {
@@ -187,7 +188,7 @@ public class FilterPipelineImpl implements FilterPipeline {
 
 	private DownstreamListenerManager downstreamListenerManager = new DownstreamListenerManager();
 
-	private List<Tuple<String, ChannelHandler>> channelPipeline;
+	private List<Tuple<String, ChannelHandler>> channelPipeline = newArrayList();
 
 	private TopHandler topHandler = new TopHandler();
 
@@ -215,9 +216,6 @@ public class FilterPipelineImpl implements FilterPipeline {
 
 		final ChannelPipeline newPipeline = pipeline();
 
-		this.channelPipeline =
-				newChannelPipeline == null ? Lists.<Tuple<String, ChannelHandler>>newArrayList() : newChannelPipeline;
-
 		if (newChannelPipeline != null) {
 			for (Tuple<String, ChannelHandler> tuple : newChannelPipeline) {
 				newPipeline.addFirst(tuple.getFirst(), tuple.getSecond());
@@ -230,7 +228,39 @@ public class FilterPipelineImpl implements FilterPipeline {
 		final DummyChannelSink channelSink = new DummyChannelSink();
 		new DummyChannel(newPipeline, channelSink);
 
+		for (Tuple<String, ChannelHandler> handlerTuple : channelPipeline) {
+			final ChannelHandler oldHandler = handlerTuple.getSecond();
+			if (oldHandler instanceof LifeCycleAwareChannelHandler) {
+				final ChannelHandlerContext context = pipeline.getContext(oldHandler);
+				try {
+					((LifeCycleAwareChannelHandler) oldHandler).beforeRemove(context);
+				} catch (Exception e) {
+					log.warn("" + e, e);
+				}
+			}
+		}
+
+		final ChannelPipeline oldPipeline = pipeline;
+		final List<Tuple<String, ChannelHandler>> oldChannelPipeline = channelPipeline;
+
 		pipeline = newPipeline;
+		channelPipeline = newChannelPipeline == null ?
+				Lists.<Tuple<String, ChannelHandler>>newArrayList() :
+				newChannelPipeline;
+
+		for (Tuple<String, ChannelHandler> handlerTuple : oldChannelPipeline) {
+			final ChannelHandler oldHandler = handlerTuple.getSecond();
+			if (oldHandler instanceof LifeCycleAwareChannelHandler) {
+				final ChannelHandlerContext context = oldPipeline.getContext(oldHandler);
+				try {
+					((LifeCycleAwareChannelHandler) oldHandler).afterRemove(context);
+				} catch (Exception e) {
+					log.warn("" + e, e);
+				}
+			}
+		}
+
+
 	}
 
 	@Override
