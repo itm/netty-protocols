@@ -139,7 +139,7 @@ public class ISenseOtapAutomatedProgrammingRequest extends ISenseOtapProgramRequ
      * @return the aesKey
      */
     public iSenseAes128BitKey getAesKeyAsISenseAes128BitKey() {
-        return new iSenseAes128BitKey(aesKey);
+        return aesKey == null ? null : new iSenseAes128BitKey(aesKey);
     }
 
     /**

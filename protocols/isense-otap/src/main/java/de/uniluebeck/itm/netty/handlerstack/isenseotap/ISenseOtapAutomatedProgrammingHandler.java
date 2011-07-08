@@ -24,6 +24,7 @@ package de.uniluebeck.itm.netty.handlerstack.isenseotap;
 
 import java.util.Set;
 
+import com.coalesenses.tools.iSenseAes128BitKey;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.LifeCycleAwareChannelHandler;
 import org.jboss.netty.channel.MessageEvent;
@@ -176,10 +177,12 @@ public class ISenseOtapAutomatedProgrammingHandler extends SimpleChannelHandler 
                 new ISenseOtapProgramRequest(otapInitResult.getInitializedDevices(), programRequest.getOtapProgram());
 
         // Select the desired AES encryption/decryption
-        HandlerTools.sendDownstream(new ISenseOtapPacketEncoderSetAESKeyRequest(programRequest.getAesKeyAsISenseAes128BitKey()), context);
-        HandlerTools.sendDownstream(new ISenseOtapPacketDecoderSetAESKeyRequest(programRequest.getAesKeyAsISenseAes128BitKey()), context);
+		iSenseAes128BitKey aesKeyAsISenseAes128BitKey = programRequest.getAesKeyAsISenseAes128BitKey();
+		if (aesKeyAsISenseAes128BitKey != null) {
+			HandlerTools.sendDownstream(new ISenseOtapPacketEncoderSetAESKeyRequest(aesKeyAsISenseAes128BitKey), context);
+		}
 
-        // Send the programming request downstream
+		// Send the programming request downstream
         HandlerTools.sendDownstream(request, context);
     }
 
