@@ -49,7 +49,10 @@ public class IShellInterpreterHandlerFactory implements HandlerFactory{
 
     @Override
     public String getDescription() {
-        return "";
+        return "The purpose of this module is to enable controlling the behavior of iSense sensor nodes from "
+				+ "coalesenses that are attached, e.g. via a serial connection to a PC. Currently it is only possible "
+				+ "to set the channel used by the wireless interface. Also see: "
+				+ "https://github.com/itm/netty-handlerstack/wiki/ISense-iShell-Interpreter.";
     }
 
 	@Override

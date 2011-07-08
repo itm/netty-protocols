@@ -54,7 +54,9 @@ public class DleStxEtxFramingEncoderFactory implements HandlerFactory {
 
 	@Override
 	public String getDescription() {
-		return "";
+		return "Wraps an incoming ChannelBuffer with DLE STX (0x10 0x02) and DLE ETX (0x10 0x03) and does byte "
+				+ "stuffing inside the ChannelBuffer (i.e. escape every DLE with another DLE). Also see "
+				+ "https://github.com/itm/netty-handlerstack/wiki/DLESTXETX-Framing-Decoder-Encoder.";
 	}
 
     @Override

@@ -54,7 +54,7 @@ public class LoggingHandlerFactory implements HandlerFactory {
 
 	@Override
 	public String getDescription() {
-		return "";
+		return "A handler that logs packets passing through using a SLF4J logger.";
 	}
 
     @Override
