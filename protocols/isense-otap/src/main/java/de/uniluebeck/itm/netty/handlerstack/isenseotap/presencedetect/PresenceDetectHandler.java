@@ -28,6 +28,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
+import de.uniluebeck.itm.wsn.drivers.core.ChipType;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.LifeCycleAwareChannelHandler;
 import org.jboss.netty.channel.MessageEvent;
@@ -41,7 +42,6 @@ import de.uniluebeck.itm.netty.handlerstack.isenseotap.generatedmessages.Presenc
 import de.uniluebeck.itm.netty.handlerstack.isenseotap.generatedmessages.PresenceDetectRequest;
 import de.uniluebeck.itm.netty.handlerstack.util.HandlerTools;
 import de.uniluebeck.itm.tr.util.TimedCache;
-import de.uniluebeck.itm.wsn.devicedrivers.generic.ChipType;
 
 public class PresenceDetectHandler extends SimpleChannelHandler implements LifeCycleAwareChannelHandler {
 
@@ -51,7 +51,7 @@ public class PresenceDetectHandler extends SimpleChannelHandler implements LifeC
 
 	private final int presenceDetectInterval;
 
-	private final TimeUnit presenceDetectIntervalTimeunit;
+	private final TimeUnit presenceDetectIntervalTimeUnit;
 
 	private ChannelHandlerContext context = null;
 
@@ -74,7 +74,7 @@ public class PresenceDetectHandler extends SimpleChannelHandler implements LifeC
 		log = LoggerFactory.getLogger((instanceName != null) ? instanceName : PresenceDetectHandler.class.getName());
 
 		this.executorService = executorService;
-		this.presenceDetectIntervalTimeunit = timeunit;
+		this.presenceDetectIntervalTimeUnit = timeunit;
 		this.presenceDetectInterval = presenceDetectInterval;
 
 		detectedDevices = new TimedCache<Integer, ISenseOtapDevice>(deviceTimeout, timeunit);
@@ -85,7 +85,7 @@ public class PresenceDetectHandler extends SimpleChannelHandler implements LifeC
 		stopPresenceDetectInternal();
 		sendPresenceDetectRunnableSchedule =
 				executorService.scheduleWithFixedDelay(sendPresenceDetectRunnable, 0, presenceDetectInterval,
-						presenceDetectIntervalTimeunit
+						presenceDetectIntervalTimeUnit
 				);
 
 	}

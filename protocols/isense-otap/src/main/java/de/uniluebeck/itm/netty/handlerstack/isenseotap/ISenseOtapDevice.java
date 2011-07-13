@@ -23,7 +23,7 @@
 package de.uniluebeck.itm.netty.handlerstack.isenseotap;
 
 import de.uniluebeck.itm.tr.util.TimeDiff;
-import de.uniluebeck.itm.wsn.devicedrivers.generic.ChipType;
+import de.uniluebeck.itm.wsn.drivers.core.ChipType;
 
 /**
  * @author Dennis Pfisterer
@@ -31,7 +31,7 @@ import de.uniluebeck.itm.wsn.devicedrivers.generic.ChipType;
 public class ISenseOtapDevice {
 
     private int id;
-    private ChipType chipType = ChipType.Unknown;
+    private ChipType chipType = ChipType.UNKNOWN;
     private int lqi;
     private TimeDiff lastReception = new TimeDiff();
     private TimeDiff lastMessageTransmitted = new TimeDiff();
