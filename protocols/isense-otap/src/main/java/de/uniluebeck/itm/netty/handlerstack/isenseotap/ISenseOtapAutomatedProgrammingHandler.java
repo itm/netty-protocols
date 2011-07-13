@@ -24,7 +24,7 @@ package de.uniluebeck.itm.netty.handlerstack.isenseotap;
 
 import java.util.Set;
 
-import org.jboss.netty.channel.ChannelEvent;
+import com.coalesenses.tools.iSenseAes128BitKey;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.LifeCycleAwareChannelHandler;
 import org.jboss.netty.channel.MessageEvent;
@@ -61,18 +61,6 @@ public class ISenseOtapAutomatedProgrammingHandler extends SimpleChannelHandler 
         log =
                 LoggerFactory.getLogger((instanceName != null) ? instanceName
                         : ISenseOtapAutomatedProgrammingHandler.class.getName());
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.jboss.netty.channel.SimpleChannelHandler#handleDownstream(org.jboss.netty.channel.ChannelHandlerContext,
-     * org.jboss.netty.channel.ChannelEvent)
-     */
-    @Override
-    public void handleDownstream(ChannelHandlerContext ctx, ChannelEvent e) throws Exception {
-        // TODO Auto-generated method stub
-        super.handleDownstream(ctx, e);
     }
 
     @Override
@@ -144,7 +132,7 @@ public class ISenseOtapAutomatedProgrammingHandler extends SimpleChannelHandler 
         state = State.PRESENCE_DETECT;
 
         this.programRequest = request;
-        this.presenceDetectStart = new TimeDiff(request.getPresenceDetectTimeout().toMillis());
+        this.presenceDetectStart = new TimeDiff(request.getPresenceDetectTimeoutAsDurationPlusUnit().toMillis());
 
         HandlerTools.sendDownstream(new PresenceDetectControlStart(), context);
     }
@@ -164,7 +152,7 @@ public class ISenseOtapAutomatedProgrammingHandler extends SimpleChannelHandler 
         BinaryImage program = new BinaryImage(programRequest.getOtapProgram());
 
         ISenseOtapInitStartCommand command =
-                new ISenseOtapInitStartCommand(detectedDevicesToProgram, programRequest.getOtapInitTimeout(),
+                new ISenseOtapInitStartCommand(detectedDevicesToProgram, programRequest.getOtapInitTimeoutAsDurationPlusUnit(),
                         program.getChunkCount(), programRequest.getMaxRerequests(),
                         programRequest.getTimeoutMultiplier());
 
@@ -189,10 +177,12 @@ public class ISenseOtapAutomatedProgrammingHandler extends SimpleChannelHandler 
                 new ISenseOtapProgramRequest(otapInitResult.getInitializedDevices(), programRequest.getOtapProgram());
 
         // Select the desired AES encryption/decryption
-        HandlerTools.sendDownstream(new ISenseOtapPacketEncoderSetAESKeyRequest(programRequest.getAesKey()), context);
-        HandlerTools.sendDownstream(new ISenseOtapPacketDecoderSetAESKeyRequest(programRequest.getAesKey()), context);
+		iSenseAes128BitKey aesKeyAsISenseAes128BitKey = programRequest.getAesKeyAsISenseAes128BitKey();
+		if (aesKeyAsISenseAes128BitKey != null) {
+			HandlerTools.sendDownstream(new ISenseOtapPacketEncoderSetAESKeyRequest(aesKeyAsISenseAes128BitKey), context);
+		}
 
-        // Send the programming request downstream
+		// Send the programming request downstream
         HandlerTools.sendDownstream(request, context);
     }
 

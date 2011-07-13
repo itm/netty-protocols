@@ -25,6 +25,7 @@ package de.uniluebeck.itm.netty.handlerstack.isense;
 import java.util.LinkedList;
 import java.util.List;
 
+import com.google.common.collect.HashMultimap;
 import org.jboss.netty.channel.ChannelHandler;
 
 import com.google.common.collect.Multimap;
@@ -34,27 +35,32 @@ import de.uniluebeck.itm.tr.util.Tuple;
 
 public class ISensePacketFactory implements HandlerFactory {
 
-    @Override
+	@Override
+	public List<Tuple<String, ChannelHandler>> create(String instanceName, Multimap<String, String> properties) throws Exception {
+		List<Tuple<String, ChannelHandler>> handlers = new LinkedList<Tuple<String, ChannelHandler>>();
+		handlers.addAll(new ISensePacketDecoderFactory().create(instanceName + "-decoder", properties));
+		handlers.addAll(new ISensePacketEncoderFactory().create(instanceName + "-encoder", properties));
+		return handlers;
+	}
+
+	@Override
+	public List<Tuple<String, ChannelHandler>> create(Multimap<String, String> properties) throws Exception {
+		return create(null, properties);
+	}
+
+	@Override
+	public Multimap<String, String> getConfigurationOptions() {
+		return HashMultimap.create();
+	}
+
+	@Override
+	public String getDescription() {
+		return "";
+	}
+
+	@Override
     public String getName() {
         return "isense-packet";
-    }
-
-    @Override
-    public String getDescription() {
-        return "";
-    }
-
-    @Override
-    public List<Tuple<String, ChannelHandler>> create(Multimap<String, String> properties) throws Exception {
-        return create(null, properties);
-    }
-
-    @Override
-    public List<Tuple<String, ChannelHandler>> create(String instanceName, Multimap<String, String> properties) throws Exception {
-        List<Tuple<String, ChannelHandler>> handlers = new LinkedList<Tuple<String, ChannelHandler>>();
-        handlers.addAll(new ISensePacketDecoderFactory().create(instanceName + "-decoder", properties));
-        handlers.addAll(new ISensePacketEncoderFactory().create(instanceName + "-encoder", properties));
-        return handlers;
     }
 
 }

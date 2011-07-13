@@ -5,7 +5,7 @@
 
 	<parent>
 		<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
-		<artifactId>netty-handlerstack</artifactId>
+		<artifactId>netty-handlerstack-parent</artifactId>
 		<version>1.2-SNAPSHOT</version>
 		<relativePath>../</relativePath>
 	</parent>
@@ -31,6 +31,10 @@
 		</dependency>
 		<dependency>
 			<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
+			<artifactId>discard</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
 			<artifactId>isense-otap</artifactId>
 		</dependency>
 		<dependency>
@@ -40,6 +44,10 @@
 		<dependency>
 			<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
 			<artifactId>logging-handler</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
+			<artifactId>netty-included</artifactId>
 		</dependency>
 
 	</dependencies>

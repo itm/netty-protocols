@@ -25,6 +25,7 @@ package de.uniluebeck.itm.netty.handlerstack.isense;
 import java.util.LinkedList;
 import java.util.List;
 
+import com.google.common.collect.HashMultimap;
 import org.jboss.netty.channel.ChannelHandler;
 
 import com.google.common.collect.Multimap;
@@ -34,26 +35,35 @@ import de.uniluebeck.itm.tr.util.Tuple;
 
 public class ISensePacketDecoderFactory implements HandlerFactory {
 
-    @Override
-    public String getName() {
-        return "isense-packet-decoder";
-    }
+	@Override
+	public List<Tuple<String, ChannelHandler>> create(String instanceName, Multimap<String, String> properties) throws Exception {
+		List<Tuple<String, ChannelHandler>> handlers = new LinkedList<Tuple<String, ChannelHandler>>();
+		handlers.add(new Tuple<String, ChannelHandler>(instanceName, new ISensePacketDecoder(instanceName)));
+		return handlers;
+	}
+
+	@Override
+	public List<Tuple<String, ChannelHandler>> create(Multimap<String, String> properties) throws Exception {
+		return create(null, properties);
+	}
+
+	@Override
+	public Multimap<String, String> getConfigurationOptions() {
+		return HashMultimap.create();
+	}
 
     @Override
     public String getDescription() {
-        return "";
+        return "Decodes an upstream ChannelBuffer packet to an " + ISensePacket.class.getName() + "instance. "
+				+ "An " + ISensePacket.class.getSimpleName() + " is a simple wrapper that exposes a packet as a pair "
+				+ "of packet type (first byte of the packet) and packet payload (remaining bytes of the packet) and "
+				+ "is used internally in various handlers. Also see "
+				+ "https://github.com/itm/netty-handlerstack/wiki/ISense-Framing-Decoder-Encoder.";
     }
 
-    @Override
-    public List<Tuple<String, ChannelHandler>> create(Multimap<String, String> properties) throws Exception {
-        return create(null, properties); 
-    }
-
-    @Override
-    public List<Tuple<String, ChannelHandler>> create(String instanceName, Multimap<String, String> properties) throws Exception {
-        List<Tuple<String, ChannelHandler>> handlers = new LinkedList<Tuple<String, ChannelHandler>>();
-        handlers.add(new Tuple<String, ChannelHandler>(instanceName, new ISensePacketDecoder(instanceName)));
-        return handlers;        
-    }
+	@Override
+	public String getName() {
+		return "isense-packet-decoder";
+	}
 
 }

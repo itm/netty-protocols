@@ -25,6 +25,7 @@ package de.uniluebeck.itm.netty.handlerstack.dlestxetx;
 import java.util.LinkedList;
 import java.util.List;
 
+import com.google.common.collect.HashMultimap;
 import org.jboss.netty.channel.ChannelHandler;
 
 import com.google.common.collect.Multimap;
@@ -34,27 +35,35 @@ import de.uniluebeck.itm.tr.util.Tuple;
 
 public class DleStxEtxFramingDecoderFactory implements HandlerFactory {
 
+	@Override
+	public List<Tuple<String, ChannelHandler>> create(String instanceName, Multimap<String, String> properties)
+			throws Exception {
+
+		List<Tuple<String, ChannelHandler>> handlers = new LinkedList<Tuple<String, ChannelHandler>>();
+		handlers.add(new Tuple<String, ChannelHandler>(instanceName, new DleStxEtxFramingDecoder(instanceName)));
+		return handlers;
+	}
+
+	@Override
+	public List<Tuple<String, ChannelHandler>> create(Multimap<String, String> properties) throws Exception {
+		return create(null, properties);
+	}
+
+	@Override
+	public Multimap<String, String> getConfigurationOptions() {
+		return HashMultimap.create();
+	}
+
+	@Override
+	public String getDescription() {
+		return "Unwraps a ChannelBuffer instance that is wrapped with DLE STX (0x10 0x02) and DLE ETX (0x10 0x03) "
+				+ "and does byte unstuffing (i.e. bytes of value DLE that were escaped with another DLE have the "
+				+ "escape character removed. Also See "
+				+ "https://github.com/itm/netty-handlerstack/wiki/DLESTXETX-Framing-Decoder-Encoder.";
+	}
+
     @Override
     public String getName() {
         return "dlestxetx-framing-decoder";
-    }
-
-    @Override
-    public String getDescription() {
-        return "dlestxetx-framing-decoder";
-    }
-
-    @Override
-    public List<Tuple<String, ChannelHandler>> create(String instanceName, Multimap<String, String> properties)
-            throws Exception {
-
-        List<Tuple<String, ChannelHandler>> handlers = new LinkedList<Tuple<String, ChannelHandler>>();
-        handlers.add(new Tuple<String, ChannelHandler>(instanceName, new DleStxEtxFramingDecoder(instanceName)));
-        return handlers;
-    }
-
-    @Override
-    public List<Tuple<String, ChannelHandler>> create(Multimap<String, String> properties) throws Exception {
-        return create(null, properties);
     }
 }

@@ -25,6 +25,7 @@ package com.coalesenses.isense.ishell.interpreter;
 import java.util.LinkedList;
 import java.util.List;
 
+import com.google.common.collect.HashMultimap;
 import org.jboss.netty.channel.ChannelHandler;
 
 import com.google.common.collect.Multimap;
@@ -33,25 +34,34 @@ import de.uniluebeck.itm.netty.handlerstack.HandlerFactory;
 import de.uniluebeck.itm.tr.util.Tuple;
 
 public class IShellInterpreterHandlerFactory implements HandlerFactory{
-    @Override
-    public String getName() {
-        return "isense-ishell-interpreter";
-    }
+
+	@Override
+	public List<Tuple<String, ChannelHandler>> create(String instanceName, Multimap<String, String> properties) throws Exception {
+		List<Tuple<String, ChannelHandler>> handlers = new LinkedList<Tuple<String, ChannelHandler>>();
+		handlers.add(new Tuple<String, ChannelHandler>(instanceName, new IShellInterpreterHandler(instanceName)));
+		return handlers;
+	}
+
+	@Override
+	public List<Tuple<String, ChannelHandler>> create(Multimap<String, String> properties) throws Exception {
+		return create(null, properties);
+	}
 
     @Override
     public String getDescription() {
-        return "";
+        return "The purpose of this module is to enable controlling the behavior of iSense sensor nodes from "
+				+ "coalesenses that are attached, e.g. via a serial connection to a PC. Currently it is only possible "
+				+ "to set the channel used by the wireless interface. Also see: "
+				+ "https://github.com/itm/netty-handlerstack/wiki/ISense-iShell-Interpreter.";
     }
 
-    @Override
-    public List<Tuple<String, ChannelHandler>> create(Multimap<String, String> properties) throws Exception {
-        return create(null, properties);
-    }
+	@Override
+	public String getName() {
+		return "isense-ishell-interpreter";
+	}
 
-    @Override
-    public List<Tuple<String, ChannelHandler>> create(String instanceName, Multimap<String, String> properties) throws Exception {
-        List<Tuple<String, ChannelHandler>> handlers = new LinkedList<Tuple<String, ChannelHandler>>();
-        handlers.add(new Tuple<String, ChannelHandler>(instanceName, new IShellInterpreterHandler(instanceName)));
-        return handlers;
-    }
+	@Override
+	public Multimap<String, String> getConfigurationOptions() {
+		return HashMultimap.create();
+	}
 }

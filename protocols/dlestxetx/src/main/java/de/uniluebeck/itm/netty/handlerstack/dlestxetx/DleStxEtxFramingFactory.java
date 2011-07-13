@@ -25,6 +25,7 @@ package de.uniluebeck.itm.netty.handlerstack.dlestxetx;
 import java.util.LinkedList;
 import java.util.List;
 
+import com.google.common.collect.HashMultimap;
 import org.jboss.netty.channel.ChannelHandler;
 
 import com.google.common.collect.Multimap;
@@ -34,28 +35,34 @@ import de.uniluebeck.itm.tr.util.Tuple;
 
 public class DleStxEtxFramingFactory implements HandlerFactory {
 
-    @Override
-    public String getName() {
-        return "dlestxetx-framing";
-    }
+	@Override
+	public List<Tuple<String, ChannelHandler>> create(String instanceName, Multimap<String, String> properties)
+			throws Exception {
+
+		List<Tuple<String, ChannelHandler>> handlers = new LinkedList<Tuple<String, ChannelHandler>>();
+		handlers.addAll(new DleStxEtxFramingDecoderFactory().create(instanceName + "-decoder", properties));
+		handlers.addAll(new DleStxEtxFramingEncoderFactory().create(instanceName + "-encoder", properties));
+		return handlers;
+	}
+
+	@Override
+	public List<Tuple<String, ChannelHandler>> create(Multimap<String, String> properties) throws Exception {
+		return create(null, properties);
+	}
+
+	@Override
+	public Multimap<String, String> getConfigurationOptions() {
+		return HashMultimap.create();
+	}
 
     @Override
     public String getDescription() {
-        return "TODO"; // TODO Add description
+        return "Both dlestxetx-framing-decoder and dlestxetx-framing-encoder. Also see "
+				+ "https://github.com/itm/netty-handlerstack/wiki/DLESTXETX-Framing-Decoder-Encoder.";
     }
 
-    @Override
-    public List<Tuple<String, ChannelHandler>> create(String instanceName, Multimap<String, String> properties)
-            throws Exception {
-
-        List<Tuple<String, ChannelHandler>> handlers = new LinkedList<Tuple<String, ChannelHandler>>();
-        handlers.addAll(new DleStxEtxFramingDecoderFactory().create(instanceName + "-decoder", properties));
-        handlers.addAll(new DleStxEtxFramingEncoderFactory().create(instanceName + "-encoder", properties));
-        return handlers;
-    }
-
-    @Override
-    public List<Tuple<String, ChannelHandler>> create(Multimap<String, String> properties) throws Exception {
-        return create(null, properties);
-    }
+	@Override
+	public String getName() {
+		return "dlestxetx-framing";
+	}
 }

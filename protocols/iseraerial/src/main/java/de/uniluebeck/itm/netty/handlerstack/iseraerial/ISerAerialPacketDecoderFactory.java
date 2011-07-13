@@ -25,6 +25,7 @@ package de.uniluebeck.itm.netty.handlerstack.iseraerial;
 import java.util.LinkedList;
 import java.util.List;
 
+import com.google.common.collect.HashMultimap;
 import org.jboss.netty.channel.ChannelHandler;
 
 import com.google.common.collect.Multimap;
@@ -34,26 +35,35 @@ import de.uniluebeck.itm.tr.util.Tuple;
 
 public class ISerAerialPacketDecoderFactory implements HandlerFactory {
 
-    @Override
-    public String getName() {
-        return "iseraerial-packet-decoder";
-    }
+	@Override
+	public List<Tuple<String, ChannelHandler>> create(String instanceName, Multimap<String, String> properties) throws Exception {
+		List<Tuple<String, ChannelHandler>> handlers = new LinkedList<Tuple<String, ChannelHandler>>();
+		handlers.add(new Tuple<String, ChannelHandler>(instanceName, new ISerAerialPacketDecoder(instanceName)));
+		return handlers;
+	}
 
-    @Override
+	@Override
+	public List<Tuple<String, ChannelHandler>> create(Multimap<String, String> properties) throws Exception {
+		return create(null, properties);
+	}
+
+	@Override
+	public Multimap<String, String> getConfigurationOptions() {
+		return HashMultimap.create();
+	}
+
+	@Override
     public String getDescription() {
-        return "";
+        return "The protocol decoder implements the iSerAerial protocol used by the iSense sensor nodes from "
+				+ "coalesenses. The protocol is used on the serial interface between a PC and a sensor node. Any "
+				+ "iSerAerial packet sent to the sensor node will be transmitted via the node's radio interface. Any "
+				+ "packet received by the node via the radio interface is sent via the serial interface to the PC. "
+				+ "Also see https://github.com/itm/netty-handlerstack/wiki/ISerAerial-Protocol-Decoder-Encoder.";
     }
 
-    @Override
-    public List<Tuple<String, ChannelHandler>> create(Multimap<String, String> properties) throws Exception {
-        return create(null, properties);
-    }
-
-    @Override
-    public List<Tuple<String, ChannelHandler>> create(String instanceName, Multimap<String, String> properties) throws Exception {
-        List<Tuple<String, ChannelHandler>> handlers = new LinkedList<Tuple<String, ChannelHandler>>();
-        handlers.add(new Tuple<String, ChannelHandler>(instanceName, new ISerAerialPacketDecoder(instanceName)));
-        return handlers;        
-    }
+	@Override
+	public String getName() {
+		return "iseraerial-packet-decoder";
+	}
 
 }

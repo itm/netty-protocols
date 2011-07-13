@@ -22,15 +22,28 @@
  */
 package de.uniluebeck.itm.netty.handlerstack.isenseotap.program;
 
+import org.simpleframework.xml.Default;
+import org.simpleframework.xml.DefaultType;
+import org.simpleframework.xml.Root;
+
 import java.util.HashSet;
 import java.util.Set;
 
+@Root
+@Default(DefaultType.FIELD)
 public class ISenseOtapProgramResult {
-    private final Set<Integer> devicesToBeProgrammed;
-    private Set<Integer> failedDevices = new HashSet<Integer>();
-    private Set<Integer> doneDevices = new HashSet<Integer>();;
 
-    public ISenseOtapProgramResult(Set<Integer> devicesToBeProgrammed) {
+    public static final String SERIALIZATION_HEADER = "ISenseOtapProgramResult-version1";;
+
+    protected Set<Integer> devicesToBeProgrammed;
+
+    protected Set<Integer> failedDevices = new HashSet<Integer>();
+    protected Set<Integer> doneDevices = new HashSet<Integer>();
+
+	protected ISenseOtapProgramResult() {
+	}
+
+	public ISenseOtapProgramResult(Set<Integer> devicesToBeProgrammed) {
         this.devicesToBeProgrammed = new HashSet<Integer>(devicesToBeProgrammed);
     }
 
@@ -70,4 +83,35 @@ public class ISenseOtapProgramResult {
         return doneDevices;
     }
 
+	@Override
+	public boolean equals(final Object o) {
+		if (this == o) {
+			return true;
+		}
+		if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
+
+		final ISenseOtapProgramResult that = (ISenseOtapProgramResult) o;
+
+		if (!devicesToBeProgrammed.equals(that.devicesToBeProgrammed)) {
+			return false;
+		}
+		if (!doneDevices.equals(that.doneDevices)) {
+			return false;
+		}
+		if (!failedDevices.equals(that.failedDevices)) {
+			return false;
+		}
+
+		return true;
+	}
+
+	@Override
+	public int hashCode() {
+		int result = devicesToBeProgrammed.hashCode();
+		result = 31 * result + failedDevices.hashCode();
+		result = 31 * result + doneDevices.hashCode();
+		return result;
+	}
 }

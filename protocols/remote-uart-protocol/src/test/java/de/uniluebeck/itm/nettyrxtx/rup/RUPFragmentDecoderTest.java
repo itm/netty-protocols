@@ -29,22 +29,26 @@ import org.jboss.netty.util.internal.ExecutorUtil;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
 import static org.junit.Assert.*;
 
+@RunWith(MockitoJUnitRunner.class)
 public class RUPFragmentDecoderTest extends RUPPacketDecoderTestBase {
 
 	private DecoderEmbedder<RUPFragment> decoder;
 
+	@Mock
 	private ScheduledExecutorService scheduler;
 
 	@Before
 	public void setUp() {
 		super.setUp();
-		scheduler = Executors.newScheduledThreadPool(1);
 		decoder = new DecoderEmbedder<RUPFragment>(
 				new RUPFragmentDecoder(scheduler)
 		);
@@ -53,7 +57,6 @@ public class RUPFragmentDecoderTest extends RUPPacketDecoderTestBase {
 	@After
 	public void tearDown() {
 		decoder = null;
-		ExecutorUtil.terminate(scheduler);
 		super.tearDown();
 	}
 

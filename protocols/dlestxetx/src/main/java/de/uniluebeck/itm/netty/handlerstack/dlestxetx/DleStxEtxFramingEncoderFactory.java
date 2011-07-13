@@ -25,6 +25,7 @@ package de.uniluebeck.itm.netty.handlerstack.dlestxetx;
 import java.util.LinkedList;
 import java.util.List;
 
+import com.google.common.collect.HashMultimap;
 import org.jboss.netty.channel.ChannelHandler;
 
 import com.google.common.collect.Multimap;
@@ -34,25 +35,32 @@ import de.uniluebeck.itm.tr.util.Tuple;
 
 public class DleStxEtxFramingEncoderFactory implements HandlerFactory {
 
+	@Override
+	public List<Tuple<String, ChannelHandler>> create(String instanceName, Multimap<String, String> properties) throws Exception {
+		List<Tuple<String, ChannelHandler>> handlers = new LinkedList<Tuple<String, ChannelHandler>>();
+		handlers.add(new Tuple<String, ChannelHandler>(instanceName, new DleStxEtxFramingEncoder(instanceName)));
+		return handlers;
+	}
+
+	@Override
+	public List<Tuple<String, ChannelHandler>> create(Multimap<String, String> properties) throws Exception {
+		return create(null, properties);
+	}
+
+	@Override
+	public Multimap<String, String> getConfigurationOptions() {
+		return HashMultimap.create();
+	}
+
+	@Override
+	public String getDescription() {
+		return "Wraps an incoming ChannelBuffer with DLE STX (0x10 0x02) and DLE ETX (0x10 0x03) and does byte "
+				+ "stuffing inside the ChannelBuffer (i.e. escape every DLE with another DLE). Also see "
+				+ "https://github.com/itm/netty-handlerstack/wiki/DLESTXETX-Framing-Decoder-Encoder.";
+	}
+
     @Override
     public String getName() {
         return "dlestxetx-framing-encoder";
-    }
-
-    @Override
-    public String getDescription() {
-        return "";
-    }
-
-    @Override
-    public List<Tuple<String, ChannelHandler>> create(String instanceName, Multimap<String, String> properties) throws Exception {
-        List<Tuple<String, ChannelHandler>> handlers = new LinkedList<Tuple<String, ChannelHandler>>();
-        handlers.add(new Tuple<String, ChannelHandler>(instanceName, new DleStxEtxFramingEncoder(instanceName)));
-        return handlers;
-    }
-
-    @Override
-    public List<Tuple<String, ChannelHandler>> create(Multimap<String, String> properties) throws Exception {
-        return create(null, properties);
     }
 }

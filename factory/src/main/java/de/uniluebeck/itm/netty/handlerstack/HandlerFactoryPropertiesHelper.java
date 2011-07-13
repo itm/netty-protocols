@@ -29,4 +29,8 @@ public class HandlerFactoryPropertiesHelper {
         return TimeUnit.valueOf(getFirstValueOf(properties, name, defaultValue.toString()));
     }
 
+	public static boolean getFirstValueOf(final Multimap<String, String> properties, final String name,
+										  final boolean defaultValue) {
+		return Boolean.parseBoolean(getFirstValueOf(properties, name, "" + defaultValue));
+	}
 }

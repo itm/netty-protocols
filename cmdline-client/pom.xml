@@ -5,7 +5,7 @@
 
 	<parent>
 		<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
-		<artifactId>netty-handlerstack</artifactId>
+		<artifactId>netty-handlerstack-parent</artifactId>
 		<version>1.2-SNAPSHOT</version>
 		<relativePath>../</relativePath>
 	</parent>
@@ -27,7 +27,7 @@
 		</dependency>
 		<dependency>
 			<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
-			<artifactId>channel-flange</artifactId>
+			<artifactId>netty-handlerstack</artifactId>
 		</dependency>
 
 		<dependency>
@@ -58,7 +58,7 @@
 					<execution>
 						<phase>package</phase>
 						<configuration>
-							<mainClass>de.bsi.movedetect.trp.main.Main</mainClass>
+							<mainClass>de.uniluebeck.itm.netty.cmdlineclient.Main</mainClass>
 							<onejarVersion>0.98-RC2</onejarVersion>
 							<attachToBuild>true</attachToBuild>
 						</configuration>

@@ -22,6 +22,29 @@
  */
 package de.uniluebeck.itm.netty.cmdlineclient;
 
+import com.coalesenses.isense.ishell.interpreter.IShellInterpreterSetChannelMessage;
+import com.google.common.collect.Sets;
+import com.google.common.io.Files;
+import de.uniluebeck.itm.netty.handlerstack.FilterHandler;
+import de.uniluebeck.itm.netty.handlerstack.FilterPipeline;
+import de.uniluebeck.itm.netty.handlerstack.FilterPipelineImpl;
+import de.uniluebeck.itm.netty.handlerstack.HandlerFactoryRegistry;
+import de.uniluebeck.itm.netty.handlerstack.isenseotap.ISenseOtapAutomatedProgrammingRequest;
+import de.uniluebeck.itm.netty.handlerstack.isenseotap.presencedetect.PresenceDetectControlStop;
+import de.uniluebeck.itm.netty.handlerstack.protocolcollection.ProtocolCollection;
+import de.uniluebeck.itm.nettyrxtx.RXTXChannelFactory;
+import de.uniluebeck.itm.nettyrxtx.RXTXDeviceAddress;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.PosixParser;
+import org.apache.log4j.*;
+import org.jboss.netty.bootstrap.ClientBootstrap;
+import org.jboss.netty.channel.*;
+import org.jboss.netty.channel.group.ChannelGroup;
+import org.jboss.netty.channel.group.DefaultChannelGroup;
+import org.slf4j.LoggerFactory;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -30,37 +53,7 @@ import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.Options;
-import org.apache.commons.cli.PosixParser;
-import org.apache.log4j.Appender;
-import org.apache.log4j.ConsoleAppender;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
-import org.apache.log4j.PatternLayout;
-import org.jboss.netty.bootstrap.ClientBootstrap;
-import org.jboss.netty.channel.Channel;
-import org.jboss.netty.channel.ChannelFuture;
-import org.jboss.netty.channel.ChannelHandlerContext;
-import org.jboss.netty.channel.ChannelStateEvent;
-import org.jboss.netty.channel.SimpleChannelHandler;
-import org.jboss.netty.channel.group.ChannelGroup;
-import org.jboss.netty.channel.group.DefaultChannelGroup;
-import org.slf4j.LoggerFactory;
-
-import com.coalesenses.isense.ishell.interpreter.IShellInterpreterSetChannelMessage;
-import com.google.common.collect.Sets;
-import com.google.common.io.Files;
-
-import de.uniluebeck.itm.netty.channelflange.ChannelFlange;
-import de.uniluebeck.itm.netty.handlerstack.HandlerFactoryRegistry;
-import de.uniluebeck.itm.netty.handlerstack.HandlerStack;
-import de.uniluebeck.itm.netty.handlerstack.isenseotap.ISenseOtapAutomatedProgrammingRequest;
-import de.uniluebeck.itm.netty.handlerstack.isenseotap.presencedetect.PresenceDetectControlStop;
-import de.uniluebeck.itm.netty.handlerstack.protocolcollection.ProtocolCollection;
-import de.uniluebeck.itm.nettyrxtx.RXTXChannelFactory;
-import de.uniluebeck.itm.nettyrxtx.RXTXDeviceAddress;
+import static org.jboss.netty.channel.Channels.pipeline;
 
 public class Main {
     static final Options options = new Options();
@@ -146,13 +139,13 @@ public class Main {
                         0xcff1, 0x1cd2, 0x7e6c, 0xcc43, 0x85ba, 0x9960, 0x9961, 0x14f7, 0x96f9, 0xc179, 0x96df, 0x9995,
                         0x971e, 0xcbe5, 0x1234, 0x14e0, 0x96f0, 0x1721, 0x5980 };
 
-//        for (Integer id : wisebedISenseDevices)
-//            otapDevices.add(id);
+        // for (Integer id : wisebedISenseDevices)
+        // otapDevices.add(id);
         otapDevices.add(0x1b87);
 
         final byte[] otapProgram = Files.toByteArray(new File("src/main/resources/iSenseDemoApp.bin"));
 
-        SimpleChannelHandler leftStackHandler = new SimpleChannelHandler() {
+        final SimpleChannelHandler otapProgrammingHandler = new SimpleChannelHandler() {
 
             /*
              * (non-Javadoc)
@@ -179,7 +172,7 @@ public class Main {
                         e.getChannel().write(req);
                     }
                 });
-                
+
                 super.channelConnected(ctx, e);
             }
 
@@ -197,30 +190,25 @@ public class Main {
 
         };
 
+        FilterPipeline filterPipeline = new FilterPipelineImpl();
+        filterPipeline.setChannelPipeline(factoryRegistry.create(xmlConfigFile));
+
+        final FilterHandler filterHandler = new FilterHandler(filterPipeline);
+
+        bootstrap.setPipelineFactory(new ChannelPipelineFactory() {
+            @Override
+            public ChannelPipeline getPipeline() throws Exception {
+                final ChannelPipeline pipeline = pipeline();
+                pipeline.addLast("filterHandler", filterHandler);
+                pipeline.addLast("otapProgrammingHandler", otapProgrammingHandler);
+                return pipeline;
+            }
+        });
+
         // Create a new connection and wait until the connection is made successfully.
         ChannelFuture connectFuture = bootstrap.connect(new RXTXDeviceAddress(deviceAddress));
         Channel rxtxChannel = connectFuture.awaitUninterruptibly().getChannel();
         allChannels.add(rxtxChannel);
-
-        // Create a channel flange that mediates between the RXTX channel and offers a handler that can be passed to the
-        // handler stack
-        ChannelFlange flange = new ChannelFlange();
-        flange.setRightChannel(rxtxChannel);
-
-        // The stack of handlers that can be changed at any time
-        HandlerStack stack = new HandlerStack();
-
-        // The "left" handler (a logger)
-        stack.setLeftHandler(leftStackHandler);
-
-        // The "right" handler (connect to RXTX via a flange)
-        stack.setRightHandler(flange.getLeftHandler());
-
-        // Instantiate the handlerstack from the configuration file
-        stack.setHandlerStack(HandlerStack.createFromXMLConfigurationFile(xmlConfigFile, factoryRegistry));
-
-        // "Switch" to the new setup (must be called after using any setters to activate the new configuration)
-        stack.performSetup();
 
         // Run the program until the user enters "exit".
         BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));

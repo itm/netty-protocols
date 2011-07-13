@@ -5,7 +5,7 @@
 
 	<parent>
 		<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
-		<artifactId>netty-handlerstack</artifactId>
+		<artifactId>netty-handlerstack-parent</artifactId>
 		<version>1.2-SNAPSHOT</version>
 		<relativePath>../../</relativePath>
 	</parent>
@@ -46,6 +46,11 @@
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-all</artifactId>
 			<scope>test</scope>
 		</dependency>
 
