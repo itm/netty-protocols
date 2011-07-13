@@ -119,12 +119,7 @@
 			<dependency>
 				<groupId>de.uniluebeck.itm.itmutils</groupId>
 				<artifactId>itmutils</artifactId>
-				<version>0.3-SNAPSHOT</version>
-			</dependency>
-			<dependency>
-				<groupId>de.uniluebeck.itm</groupId>
-				<artifactId>tr.wsn-device-drivers</artifactId>
-				<version>0.7.2-SNAPSHOT</version>
+				<version>0.3</version>
 			</dependency>
 			<dependency>
 				<groupId>com.coalesenses</groupId>
