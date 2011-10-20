@@ -22,18 +22,17 @@
  */
 package de.uniluebeck.itm.netty.handlerstack.iseraerial;
 
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-
+import de.uniluebeck.itm.netty.handlerstack.isense.ISensePacket;
+import de.uniluebeck.itm.netty.handlerstack.isense.ISensePacketType;
+import de.uniluebeck.itm.netty.handlerstack.util.StopAndWaitPacketSender;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.MessageEvent;
 import org.jboss.netty.channel.SimpleChannelHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.uniluebeck.itm.netty.handlerstack.isense.ISensePacket;
-import de.uniluebeck.itm.netty.handlerstack.isense.ISensePacketType;
-import de.uniluebeck.itm.netty.handlerstack.util.StopAndWaitPacketSender;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 public class ISerAerialPacketEncoder extends SimpleChannelHandler {
     private final Logger log;
@@ -49,7 +48,7 @@ public class ISerAerialPacketEncoder extends SimpleChannelHandler {
 
         queue =
                 new StopAndWaitPacketSender<ISensePacket>(instanceName + "-queue",
-                        Executors.newSingleThreadScheduledExecutor(), 500, TimeUnit.MILLISECONDS);
+                        Executors.newSingleThreadScheduledExecutor(), 50, TimeUnit.MILLISECONDS);
     }
 
     @Override
