@@ -40,7 +40,7 @@ public class HandlerTools {
         Channel channel = context.getChannel();
 
         DownstreamMessageEvent event =
-                new DownstreamMessageEvent(channel, Channels.succeededFuture(channel), msg, remoteAddress);
+                new DownstreamMessageEvent(channel, Channels.future(channel), msg, remoteAddress);
 
         context.sendDownstream(event);
     }
