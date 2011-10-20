@@ -22,18 +22,14 @@
  */
 package de.uniluebeck.itm.netty.handlerstack.isenseotap.program;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
-
+import com.coalesenses.binaryimage.BinaryImage;
+import com.coalesenses.binaryimage.OtapChunk;
+import com.coalesenses.binaryimage.OtapPacket;
+import de.uniluebeck.itm.netty.handlerstack.isenseotap.ISenseOtapDevice;
+import de.uniluebeck.itm.netty.handlerstack.isenseotap.generatedmessages.OtapProgramReply;
+import de.uniluebeck.itm.netty.handlerstack.isenseotap.generatedmessages.OtapProgramRequest;
+import de.uniluebeck.itm.netty.handlerstack.util.HandlerTools;
+import de.uniluebeck.itm.tr.util.TimeDiff;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.LifeCycleAwareChannelHandler;
 import org.jboss.netty.channel.MessageEvent;
@@ -41,21 +37,16 @@ import org.jboss.netty.channel.SimpleChannelHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.coalesenses.binaryimage.BinaryImage;
-import com.coalesenses.binaryimage.OtapChunk;
-import com.coalesenses.binaryimage.OtapPacket;
-
-import de.uniluebeck.itm.netty.handlerstack.isenseotap.ISenseOtapDevice;
-import de.uniluebeck.itm.netty.handlerstack.isenseotap.generatedmessages.OtapProgramReply;
-import de.uniluebeck.itm.netty.handlerstack.isenseotap.generatedmessages.OtapProgramRequest;
-import de.uniluebeck.itm.netty.handlerstack.util.HandlerTools;
-import de.uniluebeck.itm.tr.util.TimeDiff;
+import java.util.*;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 public class ISenseOtapProgramHandler extends SimpleChannelHandler implements LifeCycleAwareChannelHandler {
     private final Logger log;
 
     private final ScheduledExecutorService executorService;
-    private final long otapProgramInterval = 100; // TODO correct values
+    private final long otapProgramInterval = 27; // TODO correct values
     private final TimeUnit otapProgramIntervalTimeUnit = TimeUnit.MILLISECONDS; // TODO correct values
 
     private final short settingMaxRerequests;
@@ -67,13 +58,17 @@ public class ISenseOtapProgramHandler extends SimpleChannelHandler implements Li
 
     private TimeDiff chunkTimeout = new TimeDiff();
 
-    /** The actual set of devices that are reprogrammed */
+    /**
+     * The actual set of devices that are reprogrammed
+     */
     private final Map<Integer, ISenseOtapDevice> devicesToProgram = new HashMap<Integer, ISenseOtapDevice>();
 
     private OtapChunk chunk = null;
     private BinaryImage programImage = null;
 
-    /** The remaining packets in the current chunk. These have not been received by all devices yet. */
+    /**
+     * The remaining packets in the current chunk. These have not been received by all devices yet.
+     */
     private Set<OtapPacket> remainingPacketsInChunk = new TreeSet<OtapPacket>();
 
     private ScheduledFuture<?> sendOtapProgramRequestsSchedule;
@@ -125,7 +120,7 @@ public class ISenseOtapProgramHandler extends SimpleChannelHandler implements Li
     };
 
     public ISenseOtapProgramHandler(final String instanceName, final ScheduledExecutorService executorService,
-            short settingMaxRerequests, short settingTimeoutMultiplier) {
+                                    short settingMaxRerequests, short settingTimeoutMultiplier) {
 
         log = LoggerFactory.getLogger((instanceName != null) ? instanceName : ISenseOtapProgramHandler.class.getName());
         this.executorService = executorService;
@@ -163,7 +158,7 @@ public class ISenseOtapProgramHandler extends SimpleChannelHandler implements Li
                 }
 
             } else {
-                log.warn("Ignoring otap program reply in wrong state");
+                log.debug("Ignoring otap program reply in wrong state");
             }
 
         } else {
@@ -254,7 +249,7 @@ public class ISenseOtapProgramHandler extends SimpleChannelHandler implements Li
 
             if (isDeviceFullyProgrammed(device)) {
                 programStatus.addDoneDevice(device.getId());
-                log.info("Device {} is fully programmed. Now got {} done devices.", device.getId(), programStatus
+                log.info("Device {} is fully programmed. Now got {} done devices.", Integer.toHexString(device.getId()), programStatus
                         .getDoneDevices().size());
             }
         }
@@ -268,8 +263,8 @@ public class ISenseOtapProgramHandler extends SimpleChannelHandler implements Li
     }
 
     /**
-    *
-    */
+     *
+     */
     private synchronized void prepareChunk(int number) {
         chunk = programImage.getChunk(number);
         remainingPacketsInChunk.clear();
@@ -296,8 +291,8 @@ public class ISenseOtapProgramHandler extends SimpleChannelHandler implements Li
     }
 
     /**
-    *
-    */
+     *
+     */
     private synchronized void checkLeapToNextChunk() {
         // Remove failed devices
         List<ISenseOtapDevice> failedDevicesToRemove = new LinkedList<ISenseOtapDevice>();
@@ -308,9 +303,10 @@ public class ISenseOtapProgramHandler extends SimpleChannelHandler implements Li
             }
         }
 
+
         for (ISenseOtapDevice device : failedDevicesToRemove) {
             log.warn("Device {} failed (still in chunk {}, current is {}. Removing it.",
-                    new Object[] { Integer.toHexString(device.getId()), device.getChunkNo(), chunk.getChunkNumber() });
+                    new Object[]{Integer.toHexString(device.getId()), device.getChunkNo(), chunk.getChunkNumber()});
 
             programStatus.addFailedDevice(device.getId());
             devicesToProgram.remove(device.getId());
@@ -323,8 +319,8 @@ public class ISenseOtapProgramHandler extends SimpleChannelHandler implements Li
     }
 
     /**
-    *
-    */
+     *
+     */
     private boolean isAllDevicesReceivedAllPacketsInChunk() {
         boolean allPacketsAtAllDevicesRX = true;
 
