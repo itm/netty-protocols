@@ -22,18 +22,9 @@
  */
 package de.uniluebeck.itm.netty.handlerstack.isenseotap;
 
-import java.util.Set;
-
-import com.coalesenses.tools.iSenseAes128BitKey;
-import org.jboss.netty.channel.ChannelHandlerContext;
-import org.jboss.netty.channel.LifeCycleAwareChannelHandler;
-import org.jboss.netty.channel.MessageEvent;
-import org.jboss.netty.channel.SimpleChannelHandler;
-import org.slf4j.LoggerFactory;
-
 import com.coalesenses.binaryimage.BinaryImage;
+import com.coalesenses.tools.iSenseAes128BitKey;
 import com.google.common.collect.Sets;
-
 import de.uniluebeck.itm.netty.handlerstack.isenseotap.init.ISenseOtapInitResult;
 import de.uniluebeck.itm.netty.handlerstack.isenseotap.init.ISenseOtapInitStartCommand;
 import de.uniluebeck.itm.netty.handlerstack.isenseotap.presencedetect.PresenceDetectControlStart;
@@ -44,13 +35,22 @@ import de.uniluebeck.itm.netty.handlerstack.isenseotap.program.ISenseOtapProgram
 import de.uniluebeck.itm.netty.handlerstack.util.HandlerTools;
 import de.uniluebeck.itm.tr.util.StringUtils;
 import de.uniluebeck.itm.tr.util.TimeDiff;
+import org.jboss.netty.channel.ChannelHandlerContext;
+import org.jboss.netty.channel.LifeCycleAwareChannelHandler;
+import org.jboss.netty.channel.MessageEvent;
+import org.jboss.netty.channel.SimpleChannelHandler;
+import org.slf4j.LoggerFactory;
+
+import java.util.Set;
 
 public class ISenseOtapAutomatedProgrammingHandler extends SimpleChannelHandler implements LifeCycleAwareChannelHandler {
     private final org.slf4j.Logger log;
 
     private enum State {
         IDLE, PRESENCE_DETECT, OTAP_INIT, OTAP_PROGRAM
-    };
+    }
+
+    ;
 
     private ChannelHandlerContext context;
     private State state = State.IDLE;
@@ -114,6 +114,7 @@ public class ISenseOtapAutomatedProgrammingHandler extends SimpleChannelHandler 
 
             if (state == State.IDLE) {
                 ISenseOtapAutomatedProgrammingRequest request = (ISenseOtapAutomatedProgrammingRequest) message;
+
                 log.info("Received automated programming request switching to presence detect mode.");
                 log.info("Automated programming request: {}", request);
                 switchToPresenceDetectMode(request);
@@ -144,7 +145,15 @@ public class ISenseOtapAutomatedProgrammingHandler extends SimpleChannelHandler 
         HandlerTools.sendDownstream(new PresenceDetectControlStop(), context);
 
         Set<Integer> detectedDevices = message.getDetectedDevices();
-        log.info("Detected devices: {}", StringUtils.toString(detectedDevices, ","));
+        StringBuilder builder = new StringBuilder();
+        for (Integer deviceid : detectedDevices) {
+            builder.append("0x");
+            builder.append(Integer.toHexString(deviceid));
+            builder.append(",");
+        }
+
+
+        log.info("Detected devices: {}", builder.toString());
 
         Set<Integer> detectedDevicesToProgram =
                 Sets.intersection(detectedDevices, programRequest.getDevicesToProgram());
@@ -177,12 +186,12 @@ public class ISenseOtapAutomatedProgrammingHandler extends SimpleChannelHandler 
                 new ISenseOtapProgramRequest(otapInitResult.getInitializedDevices(), programRequest.getOtapProgram());
 
         // Select the desired AES encryption/decryption
-		iSenseAes128BitKey aesKeyAsISenseAes128BitKey = programRequest.getAesKeyAsISenseAes128BitKey();
-		if (aesKeyAsISenseAes128BitKey != null) {
-			HandlerTools.sendDownstream(new ISenseOtapPacketEncoderSetAESKeyRequest(aesKeyAsISenseAes128BitKey), context);
-		}
+        iSenseAes128BitKey aesKeyAsISenseAes128BitKey = programRequest.getAesKeyAsISenseAes128BitKey();
+        if (aesKeyAsISenseAes128BitKey != null) {
+            HandlerTools.sendDownstream(new ISenseOtapPacketEncoderSetAESKeyRequest(aesKeyAsISenseAes128BitKey), context);
+        }
 
-		// Send the programming request downstream
+        // Send the programming request downstream
         HandlerTools.sendDownstream(request, context);
     }
 
@@ -192,8 +201,8 @@ public class ISenseOtapAutomatedProgrammingHandler extends SimpleChannelHandler 
         }
 
         log.info("Programming done or timed out (selected: {}, done: {}, failed: {}), switching to idle state",
-                new Object[] { message.getDevicesToBeProgrammed().size(), message.getDoneDevices().size(),
-                        message.getFailedDevices().size() });
+                new Object[]{message.getDevicesToBeProgrammed().size(), message.getDoneDevices().size(),
+                        message.getFailedDevices().size()});
 
         state = State.IDLE;
         programRequest = null;
