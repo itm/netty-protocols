@@ -15,18 +15,18 @@
 
 <itm-netty-handlerstack>
 
-	<!-- handler name="logging-handler" factory="logging-handler" / -->
+    <!--<handler name="logging-handler" factory="logging-handler" />-->
 
-	<handler name="otap" factory="isense-otap" />
+    <handler name="otap" factory="isense-otap"/>
 
-	<handler name="isense-ishell-interpreter" factory="isense-ishell-interpreter" />
+    <handler name="isense-ishell-interpreter" factory="isense-ishell-interpreter"/>
 
-	<handler name="iseraerial" factory="iseraerial-packet" />
+    <handler name="iseraerial" factory="iseraerial-packet"/>
 
-	<handler name="isense-packet" factory="isense-packet" />
+    <handler name="isense-packet" factory="isense-packet"/>
 
-	<handler name="dle-framing" factory="dlestxetx-framing" />
+    <handler name="dle-framing" factory="dlestxetx-framing"/>
 
-	<!-- handler name="logging-handler1" factory="logging-handler" / -->
+    <handler name="logging-handler1" factory="connecting-handler"/>
 
 </itm-netty-handlerstack>
