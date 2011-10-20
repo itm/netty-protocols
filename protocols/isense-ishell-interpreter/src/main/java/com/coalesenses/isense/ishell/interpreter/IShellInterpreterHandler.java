@@ -22,6 +22,9 @@
  */
 package com.coalesenses.isense.ishell.interpreter;
 
+import de.uniluebeck.itm.netty.handlerstack.isense.ISensePacket;
+import de.uniluebeck.itm.netty.handlerstack.isense.ISensePacketType;
+import de.uniluebeck.itm.netty.handlerstack.util.HandlerTools;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBuffers;
 import org.jboss.netty.channel.ChannelHandlerContext;
@@ -29,10 +32,6 @@ import org.jboss.netty.channel.ChannelStateEvent;
 import org.jboss.netty.channel.MessageEvent;
 import org.jboss.netty.channel.SimpleChannelHandler;
 import org.slf4j.LoggerFactory;
-
-import de.uniluebeck.itm.netty.handlerstack.isense.ISensePacket;
-import de.uniluebeck.itm.netty.handlerstack.isense.ISensePacketType;
-import de.uniluebeck.itm.netty.handlerstack.util.HandlerTools;
 
 public class IShellInterpreterHandler extends SimpleChannelHandler {
     private final org.slf4j.Logger log;
@@ -55,8 +54,12 @@ public class IShellInterpreterHandler extends SimpleChannelHandler {
 
     @Override
     public void channelConnected(final ChannelHandlerContext ctx, final ChannelStateEvent e) throws Exception {
+        log.debug("channel connected");
+        if (ctx == null) log.debug("received null ctx channel");
         context = ctx;
         super.channelConnected(ctx, e);
+
+        setChannel((byte) 11);
     }
 
     @Override
@@ -65,6 +68,16 @@ public class IShellInterpreterHandler extends SimpleChannelHandler {
         if (e.getMessage() instanceof IShellInterpreterSetChannelMessage) {
             IShellInterpreterSetChannelMessage msg = (IShellInterpreterSetChannelMessage) e.getMessage();
             setChannel(msg.getChannel());
+        } else if (e.getMessage() instanceof ChannelBuffer) {
+            log.debug("setting channel");
+            ChannelBuffer cbuf = (ChannelBuffer) e.getMessage();
+            if ((cbuf.getByte(0) == ISensePacketType.CODE.getValue()) &&
+                    (cbuf.getByte(1) == IShellInterpreterPacketTypes.COMMAND_SET_CHANNEL.getValue())) {
+                setChannel(cbuf.getByte(2));
+            } else {
+                super.writeRequested(ctx, e);
+            }
+
         } else {
             super.writeRequested(ctx, e);
         }
