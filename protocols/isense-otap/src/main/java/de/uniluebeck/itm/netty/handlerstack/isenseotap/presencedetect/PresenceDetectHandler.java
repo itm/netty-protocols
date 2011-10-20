@@ -22,26 +22,21 @@
  */
 package de.uniluebeck.itm.netty.handlerstack.isenseotap.presencedetect;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
-
-import de.uniluebeck.itm.wsn.drivers.core.ChipType;
-import org.jboss.netty.channel.ChannelHandlerContext;
-import org.jboss.netty.channel.LifeCycleAwareChannelHandler;
-import org.jboss.netty.channel.MessageEvent;
-import org.jboss.netty.channel.SimpleChannelHandler;
-import org.jboss.netty.channel.UpstreamMessageEvent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import de.uniluebeck.itm.netty.handlerstack.isenseotap.ISenseOtapDevice;
 import de.uniluebeck.itm.netty.handlerstack.isenseotap.generatedmessages.PresenceDetectReply;
 import de.uniluebeck.itm.netty.handlerstack.isenseotap.generatedmessages.PresenceDetectRequest;
 import de.uniluebeck.itm.netty.handlerstack.util.HandlerTools;
 import de.uniluebeck.itm.tr.util.TimedCache;
+import de.uniluebeck.itm.wsn.drivers.core.ChipType;
+import org.jboss.netty.channel.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 public class PresenceDetectHandler extends SimpleChannelHandler implements LifeCycleAwareChannelHandler {
 
