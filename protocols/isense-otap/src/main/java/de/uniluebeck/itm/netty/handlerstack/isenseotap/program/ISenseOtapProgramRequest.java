@@ -31,10 +31,10 @@ public class ISenseOtapProgramRequest {
 
     private byte[] otapProgram;
 
-	protected ISenseOtapProgramRequest() {
-	}
+    protected ISenseOtapProgramRequest() {
+    }
 
-	public ISenseOtapProgramRequest(Set<Integer> otapDevices, byte[] otapProgram) {
+    public ISenseOtapProgramRequest(Set<Integer> otapDevices, byte[] otapProgram) {
         this.devicesToProgram = otapDevices;
         this.otapProgram = otapProgram;
     }
@@ -62,38 +62,43 @@ public class ISenseOtapProgramRequest {
     public String toString() {
         StringBuilder builder = new StringBuilder();
         builder.append("ISenseOtapProgramRequest [devicesToProgram=");
-        builder.append(devicesToProgram);
-        builder.append(", otapProgram=");
+        for (Integer deviceid : devicesToProgram) {
+            builder.append("0x");
+            builder.append(Integer.toHexString(deviceid));
+            builder.append(",");
+        }
+
+        builder.append("], otapProgram=");
         builder.append(otapProgram.length);
         builder.append(" bytes]");
         return builder.toString();
     }
 
-	@Override
-	public boolean equals(final Object o) {
-		if (this == o) {
-			return true;
-		}
-		if (o == null || getClass() != o.getClass()) {
-			return false;
-		}
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
-		final ISenseOtapProgramRequest that = (ISenseOtapProgramRequest) o;
+        final ISenseOtapProgramRequest that = (ISenseOtapProgramRequest) o;
 
-		if (!devicesToProgram.equals(that.devicesToProgram)) {
-			return false;
-		}
-		if (!Arrays.equals(otapProgram, that.otapProgram)) {
-			return false;
-		}
+        if (!devicesToProgram.equals(that.devicesToProgram)) {
+            return false;
+        }
+        if (!Arrays.equals(otapProgram, that.otapProgram)) {
+            return false;
+        }
 
-		return true;
-	}
+        return true;
+    }
 
-	@Override
-	public int hashCode() {
-		int result = devicesToProgram.hashCode();
-		result = 31 * result + Arrays.hashCode(otapProgram);
-		return result;
-	}
+    @Override
+    public int hashCode() {
+        int result = devicesToProgram.hashCode();
+        result = 31 * result + Arrays.hashCode(otapProgram);
+        return result;
+    }
 }
