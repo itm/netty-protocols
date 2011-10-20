@@ -22,12 +22,13 @@
  */
 package de.uniluebeck.itm.netty.handlerstack.isenseotap.init;
 
-import java.util.Set;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
-
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Sets;
+import de.uniluebeck.itm.netty.handlerstack.isenseotap.generatedmessages.OtapInitReply;
+import de.uniluebeck.itm.netty.handlerstack.isenseotap.generatedmessages.OtapInitRequest;
+import de.uniluebeck.itm.netty.handlerstack.util.HandlerTools;
+import de.uniluebeck.itm.tr.util.StringUtils;
+import de.uniluebeck.itm.tr.util.TimeDiff;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.LifeCycleAwareChannelHandler;
 import org.jboss.netty.channel.MessageEvent;
@@ -35,14 +36,11 @@ import org.jboss.netty.channel.SimpleChannelHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Sets;
-
-import de.uniluebeck.itm.netty.handlerstack.isenseotap.generatedmessages.OtapInitReply;
-import de.uniluebeck.itm.netty.handlerstack.isenseotap.generatedmessages.OtapInitRequest;
-import de.uniluebeck.itm.netty.handlerstack.util.HandlerTools;
-import de.uniluebeck.itm.tr.util.StringUtils;
-import de.uniluebeck.itm.tr.util.TimeDiff;
+import java.util.Set;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 public class ISenseOtapInitHandler extends SimpleChannelHandler implements LifeCycleAwareChannelHandler {
     private final Logger log;
@@ -53,7 +51,9 @@ public class ISenseOtapInitHandler extends SimpleChannelHandler implements LifeC
     private ChannelHandlerContext context;
     private TimeDiff otapInitStart;
 
-    /** A set of devices selected to program, they must all ack before they are programmed */
+    /**
+     * A set of devices selected to program, they must all ack before they are programmed
+     */
     private Set<Integer> initializedDevices;
 
     private ScheduledFuture<?> sendOtapInitRequestsSchedule;
@@ -161,7 +161,7 @@ public class ISenseOtapInitHandler extends SimpleChannelHandler implements LifeC
             if (request != null) {
                 handleOtapInitReply(reply);
             } else {
-                log.warn("Ignoring otap init reply in wrong state --> no previous request");
+                log.debug("Ignoring otap init reply in wrong state --> no previous request");
             }
 
         } else {
@@ -175,8 +175,8 @@ public class ISenseOtapInitHandler extends SimpleChannelHandler implements LifeC
 
         if (devicesToInitialize.contains(reply.device_id)) {
             initializedDevices.add(reply.device_id);
-            log.trace("Init reply from device {}, now got {} devices: {}", new Object[] { reply.device_id,
-                    initializedDevices.size(), StringUtils.toString(initializedDevices, ", ") });
+            log.trace("Init reply from device {}, now got {} devices: {}", new Object[]{reply.device_id,
+                    initializedDevices.size(), StringUtils.toString(initializedDevices, ", ")});
         } else {
             log.trace("Ignored unsolicited reply from device {} that does not participate.",
                     StringUtils.toHexString(reply.device_id));
@@ -195,8 +195,8 @@ public class ISenseOtapInitHandler extends SimpleChannelHandler implements LifeC
 
         if (timeout || allDevicesInitialized) {
 
-            log.info("All {} devices have either acknowledged {}, or a timeout occured {}. Done", new Object[] {
-                    devicesToInitialize.size(), allDevicesInitialized, timeout });
+            log.info("All {} devices have either acknowledged {}, or a timeout occured {}. Done", new Object[]{
+                    devicesToInitialize.size(), allDevicesInitialized, timeout});
 
             ISenseOtapInitResult result = new ISenseOtapInitResult(request, initializedDevices);
 
