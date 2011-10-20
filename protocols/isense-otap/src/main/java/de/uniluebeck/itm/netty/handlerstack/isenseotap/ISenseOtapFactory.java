@@ -142,7 +142,7 @@ public class ISenseOtapFactory implements HandlerFactory {
             throws Exception {
 
         int presenceDetectInterval =
-                HandlerFactoryPropertiesHelper.getFirstValueOf(properties, PRESENCE_DETECT_INTERVAL, 2000);
+                HandlerFactoryPropertiesHelper.getFirstValueOf(properties, PRESENCE_DETECT_INTERVAL, 1000);
         int deviceTimeout =
                 HandlerFactoryPropertiesHelper.getFirstValueOf(properties, DEVICE_TIMEOUT, (short) 160
                         * presenceDetectInterval);
@@ -164,10 +164,10 @@ public class ISenseOtapFactory implements HandlerFactory {
         ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
 
         short settingMaxRerequests =
-                HandlerFactoryPropertiesHelper.getFirstValueOf(properties, MAX_REREQUESTS, (short) 30);
+                HandlerFactoryPropertiesHelper.getFirstValueOf(properties, MAX_REREQUESTS, (short) 10);
 
         short settingTimeoutMultiplier =
-                HandlerFactoryPropertiesHelper.getFirstValueOf(properties, TIMEOUT_MULTIPLIER, (short) 1000);
+                HandlerFactoryPropertiesHelper.getFirstValueOf(properties, TIMEOUT_MULTIPLIER, (short) 200);
 
         log.debug("Creating new Otap Program Handler, settingMaxRerequests: {}, settingTimeoutMultiplier: {}",
                 settingMaxRerequests, settingTimeoutMultiplier);
