@@ -22,16 +22,19 @@
  */
 package de.uniluebeck.itm.netty.cmdlineclient;
 
-import com.coalesenses.isense.ishell.interpreter.IShellInterpreterSetChannelMessage;
+import com.coalesenses.isense.ishell.interpreter.IShellInterpreterPacketTypes;
 import com.google.common.collect.Sets;
 import com.google.common.io.Files;
 import de.uniluebeck.itm.netty.handlerstack.FilterHandler;
 import de.uniluebeck.itm.netty.handlerstack.FilterPipeline;
 import de.uniluebeck.itm.netty.handlerstack.FilterPipelineImpl;
 import de.uniluebeck.itm.netty.handlerstack.HandlerFactoryRegistry;
+import de.uniluebeck.itm.netty.handlerstack.isense.ISensePacketType;
 import de.uniluebeck.itm.netty.handlerstack.isenseotap.ISenseOtapAutomatedProgrammingRequest;
 import de.uniluebeck.itm.netty.handlerstack.isenseotap.presencedetect.PresenceDetectControlStop;
 import de.uniluebeck.itm.netty.handlerstack.protocolcollection.ProtocolCollection;
+import de.uniluebeck.itm.netty.handlerstack.util.HandlerTools;
+import de.uniluebeck.itm.netty.handlerstack.util.HeaderAndJavaBeansXMLDecoderEncoder;
 import de.uniluebeck.itm.nettyrxtx.RXTXChannelFactory;
 import de.uniluebeck.itm.nettyrxtx.RXTXDeviceAddress;
 import org.apache.commons.cli.CommandLine;
@@ -40,15 +43,15 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.PosixParser;
 import org.apache.log4j.*;
 import org.jboss.netty.bootstrap.ClientBootstrap;
+import org.jboss.netty.buffer.ChannelBuffer;
+import org.jboss.netty.buffer.ChannelBuffers;
 import org.jboss.netty.channel.*;
 import org.jboss.netty.channel.group.ChannelGroup;
 import org.jboss.netty.channel.group.DefaultChannelGroup;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
+import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -56,10 +59,18 @@ import java.util.concurrent.Executors;
 import static org.jboss.netty.channel.Channels.pipeline;
 
 public class Main {
-    static final Options options = new Options();
+
+
+    private static final Options options = new Options();
+    private static int OtapChannel = 12;
+
     static {
-        options.addOption("d", "device", true, "Device address (e.g., /dev/ttyUSB0)");
+        options.addOption("p", "properties", true, "my.properties");
+        options.addOption("d", "device", true, "Device address (e.g., /dev/ttyUSB1)");
+        options.addOption("i", "isense", true, "isense macs (e.g. 0x1234,0x1235");
+        options.addOption("b", "binary", true, "binary file (e.g. DemoApp.bin");
         options.addOption("f", "file", true, "A config file");
+        options.addOption("c", "channel", true, "The channel to search in");
         options.addOption("v", "verbose", false, "Verbose logging output");
         options.addOption("x", "xtremlyverbose", false, "Extremly verbose logging output");
         options.addOption("h", "help", false, "Help output");
@@ -74,7 +85,7 @@ public class Main {
         Logger.getRootLogger().setLevel(Level.INFO);
     }
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) {
         configureLoggingDefaults();
         final org.slf4j.Logger log = LoggerFactory.getLogger(Main.class);
 
@@ -84,7 +95,11 @@ public class Main {
 
         // Options set from the command line
         String deviceAddress = null;
+        String nodeids = null;
+        String binaryPath = null;
+
         File xmlConfigFile = null;
+
 
         // Parse the command line
         try {
@@ -107,16 +122,50 @@ public class Main {
                 usage(options);
             }
 
-            if (line.hasOption('d')) {
-                deviceAddress = line.getOptionValue('d');
-            } else {
-                throw new Exception("Please supply -d");
-            }
+            // Check if verbose output should be used
+            if (line.hasOption('p')) {
+                Properties properties = new Properties();
+                properties.load(new FileInputStream(line.getOptionValue("p")));
+                log.info("loaded properties");
+                deviceAddress = properties.getProperty("device");
+                nodeids = properties.getProperty("nodeids");
+                binaryPath = properties.getProperty("binary");
+                OtapChannel = Integer.parseInt(properties.getProperty("channel"));
+                xmlConfigFile = new File(properties.getProperty("xmlconfig"));
 
-            if (line.hasOption('f')) {
-                xmlConfigFile = new File(line.getOptionValue('f'));
+
             } else {
-                throw new Exception("Please supply -f");
+
+
+                if (line.hasOption('d')) {
+                    deviceAddress = line.getOptionValue('d');
+                } else {
+                    throw new Exception("Please supply -d");
+                }
+
+                if (line.hasOption('f')) {
+                    xmlConfigFile = new File(line.getOptionValue('f'));
+                } else {
+                    throw new Exception("Please supply -f");
+                }
+
+
+                if (line.hasOption('i')) {
+                    nodeids = line.getOptionValue('i');
+                } else {
+                    throw new Exception("Please supply -i");
+                }
+
+                if (line.hasOption('b')) {
+                    binaryPath = line.getOptionValue('b');
+                } else {
+                    throw new Exception("Please supply -b");
+                }
+                if (line.hasOption('c')) {
+                    OtapChannel = Integer.parseInt(line.getOptionValue('c'));
+                } else {
+                    OtapChannel = 12;
+                }
             }
 
         } catch (Exception e) {
@@ -131,83 +180,123 @@ public class Main {
 
         final Set<Integer> otapDevices = Sets.newHashSet();
 
-        @SuppressWarnings("unused")
-        final int[] wisebedISenseDevices =
-                new int[] { 0x1bb3, 0x99a8, 0x997e, 0x14e2, 0x1cca, 0xf85d, 0x5a34, 0xcf04, 0xcc33, 0x151f, 0x1c6c,
-                        0x1c73, 0x61e1, 0xf7b7, 0x61e5, 0x1c2c, 0x1bd8, 0x1bb0, 0xcc3a, 0x85a4, 0x80f5, 0x599d, 0xcbe4,
-                        0xf859, 0x99af, 0x753d, 0x1b57, 0x5a35, 0x1b74, 0xcc3d, 0x970b, 0x1b5a, 0x1b6b, 0x1c72, 0xf851,
-                        0xcff1, 0x1cd2, 0x7e6c, 0xcc43, 0x85ba, 0x9960, 0x9961, 0x14f7, 0x96f9, 0xc179, 0x96df, 0x9995,
-                        0x971e, 0xcbe5, 0x1234, 0x14e0, 0x96f0, 0x1721, 0x5980 };
 
-        // for (Integer id : wisebedISenseDevices)
-        // otapDevices.add(id);
-        otapDevices.add(0x1b87);
+        String[] devices = nodeids.split(",");
+        for (String mac : devices) {
+            otapDevices.add(Integer.parseInt(mac.substring(2), 16));
+            log.info("added {}({}) ", mac, Integer.parseInt(mac.substring(2), 16));
+        }
 
-        final byte[] otapProgram = Files.toByteArray(new File("src/main/resources/iSenseDemoApp.bin"));
+        byte[] otapProgram = new byte[0];
+        try {
+            otapProgram = Files.toByteArray(new File(binaryPath));
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.exit(1);
+        }
 
+        final byte[] finalOtapProgram = otapProgram;
         final SimpleChannelHandler otapProgrammingHandler = new SimpleChannelHandler() {
-
             /*
              * (non-Javadoc)
-             * 
+             *
              * @see
              * org.jboss.netty.channel.SimpleChannelHandler#channelConnected(org.jboss.netty.channel.ChannelHandlerContext
              * , org.jboss.netty.channel.ChannelStateEvent)
              */
             @Override
-            public void channelConnected(ChannelHandlerContext ctx, final ChannelStateEvent e) throws Exception {
+            public void channelConnected(final ChannelHandlerContext ctx, final ChannelStateEvent e) {
+                log.debug("----connected----");
+                try {
+                    super.channelConnected(ctx, e);
+                } catch (Exception e1) {
+                    e1.printStackTrace();
+                }
+
                 executorService.submit(new Runnable() {
+
                     @Override
                     public void run() {
-                        e.getChannel().write(new IShellInterpreterSetChannelMessage((byte) 11));
                         try {
-                            Thread.sleep(500);
+                            Thread.sleep(5000);
                         } catch (InterruptedException e1) {
                             log.debug(" :" + e1, e1);
                         }
 
-                        ISenseOtapAutomatedProgrammingRequest req =
-                                new ISenseOtapAutomatedProgrammingRequest(otapDevices, otapProgram);
 
-                        e.getChannel().write(req);
+//                        IShellInterpreterSetChannelMessage setChannelMessage = new IShellInterpreterSetChannelMessage((byte) channelNumber);
+                        ChannelBuffer buffer = ChannelBuffers.buffer(3);
+                        buffer.writeByte(ISensePacketType.CODE.getValue());
+                        buffer.writeByte(IShellInterpreterPacketTypes.COMMAND_SET_CHANNEL.getValue());
+                        buffer.writeByte(OtapChannel);
+
+                        log.debug("Setting channel to {}", OtapChannel);
+                        e.getChannel().write(buffer);
+
+
+                        ISenseOtapAutomatedProgrammingRequest req =
+                                new ISenseOtapAutomatedProgrammingRequest(otapDevices, finalOtapProgram);
+
+
+                        e.getChannel().write(HeaderAndJavaBeansXMLDecoderEncoder.encode(ISenseOtapAutomatedProgrammingRequest.SERIALIZATION_HEADER, req));
+
+                        log.debug("sent otap");
                     }
                 });
 
-                super.channelConnected(ctx, e);
+
+            }
+
+            @Override
+            public void messageReceived(
+                    ChannelHandlerContext ctx, MessageEvent e) throws Exception {
+//                log.debug("received : " + e.getMessage());
+                ctx.sendUpstream(e);
             }
 
             /*
-             * (non-Javadoc)
-             * 
-             * @see org.jboss.netty.channel.SimpleChannelHandler#channelDisconnected(org.jboss.netty.channel.
-             * ChannelHandlerContext, org.jboss.netty.channel.ChannelStateEvent)
-             */
+            * (non-Javadoc)
+            *
+            * @see org.jboss.netty.channel.SimpleChannelHandler#channelDisconnected(org.jboss.netty.channel.
+            * ChannelHandlerContext, org.jboss.netty.channel.ChannelStateEvent)
+            */
             @Override
             public void channelDisconnected(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
-                e.getChannel().write(new PresenceDetectControlStop());
+                HandlerTools.sendDownstream(new PresenceDetectControlStop(), ctx);
                 super.channelDisconnected(ctx, e);
             }
 
         };
 
+
         FilterPipeline filterPipeline = new FilterPipelineImpl();
-        filterPipeline.setChannelPipeline(factoryRegistry.create(xmlConfigFile));
+        try {
+            filterPipeline.setChannelPipeline(factoryRegistry.create(xmlConfigFile));
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.exit(1);
+        }
 
         final FilterHandler filterHandler = new FilterHandler(filterPipeline);
-
         bootstrap.setPipelineFactory(new ChannelPipelineFactory() {
             @Override
             public ChannelPipeline getPipeline() throws Exception {
                 final ChannelPipeline pipeline = pipeline();
-                pipeline.addLast("filterHandler", filterHandler);
+
+
                 pipeline.addLast("otapProgrammingHandler", otapProgrammingHandler);
+
+                pipeline.addLast("filterHandler", filterHandler);
+
                 return pipeline;
             }
         });
 
         // Create a new connection and wait until the connection is made successfully.
         ChannelFuture connectFuture = bootstrap.connect(new RXTXDeviceAddress(deviceAddress));
+
         Channel rxtxChannel = connectFuture.awaitUninterruptibly().getChannel();
+
         allChannels.add(rxtxChannel);
 
         // Run the program until the user enters "exit".
@@ -221,8 +310,7 @@ public class Main {
                 if ("exit".equals(line)) {
                     exit = true;
                 }
-            } catch (IOException e) {
-                // ignore
+            } catch (IOException ignore) {
             }
         }
 
