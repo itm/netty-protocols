@@ -38,23 +38,23 @@ import java.util.concurrent.TimeUnit;
 @Default(DefaultType.FIELD)
 public class ISenseOtapAutomatedProgrammingRequest extends ISenseOtapProgramRequest {
 
-	public static final String SERIALIZATION_HEADER = "ISenseOtapAutomatedProgrammingRequest-version1";
+    public static final String SERIALIZATION_HEADER = "ISenseOtapAutomatedProgrammingRequest-version1";
 
-    private long presenceDetectTimeout = new DurationPlusUnit(30, TimeUnit.SECONDS).toMillis();
+    private long presenceDetectTimeout = new DurationPlusUnit(10, TimeUnit.SECONDS).toMillis();
 
-    private long otapInitTimeout = new DurationPlusUnit(30, TimeUnit.SECONDS).toMillis();
+    private long otapInitTimeout = new DurationPlusUnit(10, TimeUnit.SECONDS).toMillis();
 
     private long programmingTimeout = new DurationPlusUnit(15, TimeUnit.MINUTES).toMillis();
 
-    private short maxRerequests = 50;
+    private short maxRerequests = 0x1e;
 
-    private short timeoutMultiplier = 15;
+    private short timeoutMultiplier = 10;
 
-	@Element(required = false)
+    @Element(required = false)
     private byte[] aesKey = null;
 
-	protected ISenseOtapAutomatedProgrammingRequest() {
-	}
+    protected ISenseOtapAutomatedProgrammingRequest() {
+    }
 
     public ISenseOtapAutomatedProgrammingRequest(Set<Integer> otapDevices, byte[] otapProgram) {
         super(otapDevices, otapProgram);
@@ -64,12 +64,11 @@ public class ISenseOtapAutomatedProgrammingRequest extends ISenseOtapProgramRequ
      * @return the presenceDetectTimeout
      */
     public DurationPlusUnit getPresenceDetectTimeoutAsDurationPlusUnit() {
-		return new DurationPlusUnit(presenceDetectTimeout, TimeUnit.MILLISECONDS);
-	}
+        return new DurationPlusUnit(presenceDetectTimeout, TimeUnit.MILLISECONDS);
+    }
 
     /**
-     * @param presenceDetectTimeout
-     *            the presenceDetectTimeout to set
+     * @param presenceDetectTimeout the presenceDetectTimeout to set
      */
     public void setPresenceDetectTimeoutFromDurationPlusUnit(DurationPlusUnit presenceDetectTimeout) {
         this.presenceDetectTimeout = presenceDetectTimeout.toMillis();
@@ -83,8 +82,7 @@ public class ISenseOtapAutomatedProgrammingRequest extends ISenseOtapProgramRequ
     }
 
     /**
-     * @param otapInitTimeout
-     *            the otapInitTimeout to set
+     * @param otapInitTimeout the otapInitTimeout to set
      */
     public void setOtapInitTimeoutFromDurationPlusUnit(DurationPlusUnit otapInitTimeout) {
         this.otapInitTimeout = otapInitTimeout.toMillis();
@@ -98,8 +96,7 @@ public class ISenseOtapAutomatedProgrammingRequest extends ISenseOtapProgramRequ
     }
 
     /**
-     * @param programmingTimeout
-     *            the programmingTimeout to set
+     * @param programmingTimeout the programmingTimeout to set
      */
     public void setProgrammingTimeoutFromDurationPlusUnit(DurationPlusUnit programmingTimeout) {
         this.programmingTimeout = programmingTimeout.toMillis();
@@ -113,8 +110,7 @@ public class ISenseOtapAutomatedProgrammingRequest extends ISenseOtapProgramRequ
     }
 
     /**
-     * @param maxRerequests
-     *            the maxRerequests to set
+     * @param maxRerequests the maxRerequests to set
      */
     public void setMaxRerequests(short maxRerequests) {
         this.maxRerequests = maxRerequests;
@@ -128,8 +124,7 @@ public class ISenseOtapAutomatedProgrammingRequest extends ISenseOtapProgramRequ
     }
 
     /**
-     * @param timeoutMultiplier
-     *            the timeoutMultiplier to set
+     * @param timeoutMultiplier the timeoutMultiplier to set
      */
     public void setTimeoutMultiplier(short timeoutMultiplier) {
         this.timeoutMultiplier = timeoutMultiplier;
@@ -143,8 +138,7 @@ public class ISenseOtapAutomatedProgrammingRequest extends ISenseOtapProgramRequ
     }
 
     /**
-     * @param aesKey
-     *            the aesKey to set
+     * @param aesKey the aesKey to set
      */
     public void setAesKeyFromISenseAes128BitKey(iSenseAes128BitKey aesKey) {
         this.aesKey = aesKey.getAes128BitKey();
@@ -178,83 +172,83 @@ public class ISenseOtapAutomatedProgrammingRequest extends ISenseOtapProgramRequ
         return builder.toString();
     }
 
-	public long getOtapInitTimeout() {
-		return otapInitTimeout;
-	}
+    public long getOtapInitTimeout() {
+        return otapInitTimeout;
+    }
 
-	public void setOtapInitTimeout(final long otapInitTimeout) {
-		this.otapInitTimeout = otapInitTimeout;
-	}
+    public void setOtapInitTimeout(final long otapInitTimeout) {
+        this.otapInitTimeout = otapInitTimeout;
+    }
 
-	public long getPresenceDetectTimeout() {
-		return presenceDetectTimeout;
-	}
+    public long getPresenceDetectTimeout() {
+        return presenceDetectTimeout;
+    }
 
-	public void setPresenceDetectTimeout(final long presenceDetectTimeout) {
-		this.presenceDetectTimeout = presenceDetectTimeout;
-	}
+    public void setPresenceDetectTimeout(final long presenceDetectTimeout) {
+        this.presenceDetectTimeout = presenceDetectTimeout;
+    }
 
-	public long getProgrammingTimeout() {
-		return programmingTimeout;
-	}
+    public long getProgrammingTimeout() {
+        return programmingTimeout;
+    }
 
-	public void setProgrammingTimeout(final long programmingTimeout) {
-		this.programmingTimeout = programmingTimeout;
-	}
+    public void setProgrammingTimeout(final long programmingTimeout) {
+        this.programmingTimeout = programmingTimeout;
+    }
 
-	@Override
-	public boolean equals(final Object o) {
-		if (this == o) {
-			return true;
-		}
-		if (o == null || getClass() != o.getClass()) {
-			return false;
-		}
-		if (!super.equals(o)) {
-			return false;
-		}
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
 
-		final ISenseOtapAutomatedProgrammingRequest that = (ISenseOtapAutomatedProgrammingRequest) o;
+        final ISenseOtapAutomatedProgrammingRequest that = (ISenseOtapAutomatedProgrammingRequest) o;
 
-		if (maxRerequests != that.maxRerequests) {
-			return false;
-		}
-		if (otapInitTimeout != that.otapInitTimeout) {
-			return false;
-		}
-		if (presenceDetectTimeout != that.presenceDetectTimeout) {
-			return false;
-		}
-		if (programmingTimeout != that.programmingTimeout) {
-			return false;
-		}
-		if (timeoutMultiplier != that.timeoutMultiplier) {
-			return false;
-		}
-		if (!Arrays.equals(aesKey, that.aesKey)) {
-			return false;
-		}
+        if (maxRerequests != that.maxRerequests) {
+            return false;
+        }
+        if (otapInitTimeout != that.otapInitTimeout) {
+            return false;
+        }
+        if (presenceDetectTimeout != that.presenceDetectTimeout) {
+            return false;
+        }
+        if (programmingTimeout != that.programmingTimeout) {
+            return false;
+        }
+        if (timeoutMultiplier != that.timeoutMultiplier) {
+            return false;
+        }
+        if (!Arrays.equals(aesKey, that.aesKey)) {
+            return false;
+        }
 
-		return true;
-	}
+        return true;
+    }
 
-	@Override
-	public int hashCode() {
-		int result = super.hashCode();
-		result = 31 * result + (int) (presenceDetectTimeout ^ (presenceDetectTimeout >>> 32));
-		result = 31 * result + (int) (otapInitTimeout ^ (otapInitTimeout >>> 32));
-		result = 31 * result + (int) (programmingTimeout ^ (programmingTimeout >>> 32));
-		result = 31 * result + (int) maxRerequests;
-		result = 31 * result + (int) timeoutMultiplier;
-		result = 31 * result + (aesKey != null ? Arrays.hashCode(aesKey) : 0);
-		return result;
-	}
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 31 * result + (int) (presenceDetectTimeout ^ (presenceDetectTimeout >>> 32));
+        result = 31 * result + (int) (otapInitTimeout ^ (otapInitTimeout >>> 32));
+        result = 31 * result + (int) (programmingTimeout ^ (programmingTimeout >>> 32));
+        result = 31 * result + (int) maxRerequests;
+        result = 31 * result + (int) timeoutMultiplier;
+        result = 31 * result + (aesKey != null ? Arrays.hashCode(aesKey) : 0);
+        return result;
+    }
 
-	public byte[] getAesKey() {
-		return aesKey;
-	}
+    public byte[] getAesKey() {
+        return aesKey;
+    }
 
-	public void setAesKey(final byte[] aesKey) {
-		this.aesKey = aesKey;
-	}
+    public void setAesKey(final byte[] aesKey) {
+        this.aesKey = aesKey;
+    }
 }
