@@ -33,9 +33,11 @@ import de.uniluebeck.itm.netty.handlerstack.util.HeaderAndJavaBeansXMLDecoderEnc
 import de.uniluebeck.itm.nettyrxtx.RXTXChannelFactory;
 import de.uniluebeck.itm.wisebed.cmdlineclient.BeanShellHelper;
 import de.uniluebeck.itm.wisebed.cmdlineclient.protobuf.ProtobufControllerClient;
+import de.uniluebeck.itm.wisebed.cmdlineclient.protobuf.ProtobufControllerClientListener;
 import de.uniluebeck.itm.wisebed.cmdlineclient.wrapper.WSNAsyncWrapper;
 import eu.wisebed.api.common.KeyValuePair;
 import eu.wisebed.api.common.Message;
+import eu.wisebed.api.controller.RequestStatus;
 import eu.wisebed.api.sm.ExperimentNotRunningException_Exception;
 import eu.wisebed.api.sm.SessionManagement;
 import eu.wisebed.api.sm.UnknownReservationIdException_Exception;
@@ -195,7 +197,7 @@ public class TestbedMain {
 
 
         List<String> nodes = new ArrayList<String>();
-        nodes.add("urn:wisebed:ctitestbed:0x9979");
+        nodes.add("urn:wisebed:ctitestbed:0x8978");
 
         try {
             wsn.setChannelPipeline(nodes, create(xmlConfigFile), 20, TimeUnit.SECONDS);
@@ -204,11 +206,21 @@ public class TestbedMain {
         }
 
 
-	//packet for changing channel
+        wsn.resetNodes(nodes, 60, TimeUnit.SECONDS);
+
+        try {
+            Thread.sleep(20000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
+
+
+        //packet for changing channel
         ChannelBuffer buffer = ChannelBuffers.buffer(3);
         buffer.writeByte(ISensePacketType.CODE.getValue());
         buffer.writeByte(IShellInterpreterPacketTypes.COMMAND_SET_CHANNEL.getValue());
         buffer.writeByte(OtapChannel);
+        log.info("setting channel to " + OtapChannel);
 
         Message msg1 = new Message();
         msg1.setBinaryData(buffer.array());
@@ -221,8 +233,7 @@ public class TestbedMain {
         wsn.send(nodes, msg1, 120, TimeUnit.SECONDS);
 
 
-
-	//packet for flashing
+        //packet for flashing
         ISenseOtapAutomatedProgrammingRequest req =
                 new ISenseOtapAutomatedProgrammingRequest(otapDevices, finalOtapProgram);
         ChannelBuffer serializedReq = HeaderAndJavaBeansXMLDecoderEncoder.encode(ISenseOtapAutomatedProgrammingRequest.SERIALIZATION_HEADER, req);
@@ -238,7 +249,7 @@ public class TestbedMain {
         }
 
 
-        wsn.send(nodes, msg, 120, TimeUnit.SECONDS);
+        //wsn.send(nodes, msg, 120, TimeUnit.SECONDS);
 
 
         // Run the program until the user enters "exit".
@@ -267,9 +278,11 @@ public class TestbedMain {
         try {
             wsnEndpointURL = sessionManagement.getInstance(BeanShellHelper.parseSecretReservationKeys(secretReservationKeys), "NONE");
         } catch (final ExperimentNotRunningException_Exception e) {
-            log.error(e);
+            log.error("Reservation time interval lies in the past");
+            System.exit(0);
         } catch (final UnknownReservationIdException_Exception e) {
-            log.error(e);
+            log.error("Unknown Reservation Key");
+            System.exit(0);
         }
         log.info("Got a WSN instance URL, endpoint is: " + wsnEndpointURL);
 
@@ -278,6 +291,8 @@ public class TestbedMain {
 
         pcc = ProtobufControllerClient.create(pccHost, pccPort, BeanShellHelper.parseSecretReservationKeys(secretReservationKeys));
         pcc.connect();
+
+        pcc.addListener(new ControllerClientListener());
     }
 
 
@@ -328,5 +343,52 @@ public class TestbedMain {
         HelpFormatter formatter = new HelpFormatter();
         formatter.printHelp(120, Main.class.getCanonicalName(), null, options, null);
         System.exit(1);
+    }
+
+
+    private static class ControllerClientListener implements ProtobufControllerClientListener {
+
+        @Override
+        public void onConnectionClosed() {
+            //To change body of implemented methods use File | Settings | File Templates.
+        }
+
+        @Override
+        public void onConnectionEstablished() {
+            //To change body of implemented methods use File | Settings | File Templates.
+        }
+
+        @Override
+        public void experimentEnded() {
+            log.info("Experiment Ended");
+        }
+
+        @Override
+        public void receive(List<Message> messages) {
+            for (int i = 0; i < messages.size(); i++) {
+                Message msg = (Message) messages.get(i);
+                synchronized (System.out) {
+                    String s = BeanShellHelper.toString(msg, true);
+                    log.debug(s);
+                }
+            }
+
+        }
+
+        @Override
+        public void receiveNotification(List<String> strings) {
+            log.info("received " + strings.size());
+        }
+
+        @Override
+        public void receiveStatus(List<RequestStatus> requestStatuses) {
+            for (int i = 0; i < requestStatuses.size(); i++) {
+                RequestStatus msg = (RequestStatus) requestStatuses.get(i);
+                synchronized (System.out) {
+                    String s = msg.toString();
+                    log.debug(s);
+                }
+            }
+        }
     }
 }

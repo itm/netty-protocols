@@ -15,7 +15,7 @@
 
 <itm-netty-handlerstack>
 
-    <!--<handler name="logging-handler" factory="logging-handler" />-->
+    <handler name="logging-handler" factory="logging-handler" />
 
     <handler name="otap" factory="isense-otap"/>
 
@@ -27,6 +27,6 @@
 
     <handler name="dle-framing" factory="dlestxetx-framing"/>
 
-    <handler name="logging-handler1" factory="connecting-handler"/>
+    <!--<handler name="logging-handler1" factory="connecting-handler"/>-->
 
 </itm-netty-handlerstack>

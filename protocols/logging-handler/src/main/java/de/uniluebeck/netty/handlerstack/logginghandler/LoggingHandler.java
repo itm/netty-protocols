@@ -47,7 +47,7 @@ public class LoggingHandler extends SimpleChannelHandler {
 
     @Override
     public void channelConnected(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
-        log.debug("{}", e);
+        log.debug("----LoggingHandler:connected----");
         super.channelConnected(ctx, e);
     }
 

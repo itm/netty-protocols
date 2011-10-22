@@ -3,12 +3,16 @@ package de.uniluebeck.itm.netty.handlerstack;
 import de.uniluebeck.itm.tr.util.Tuple;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.channel.ChannelHandler;
+import org.jboss.netty.channel.ChannelHandlerContext;
+import org.jboss.netty.channel.ChannelStateEvent;
 import org.jboss.netty.channel.UpstreamChannelStateEvent;
 
 import java.net.SocketAddress;
 import java.util.List;
 
 public interface FilterPipeline {
+
+    void channelConnected(ChannelHandlerContext ctx, ChannelStateEvent e);
 
     public interface DownstreamOutputListener {
         void receiveDownstreamOutput(ChannelBuffer message, SocketAddress targetAddress);

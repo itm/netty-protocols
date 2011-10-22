@@ -71,6 +71,7 @@ public class FilterPipelineImpl implements FilterPipeline {
         public void exceptionCaught(
                 ChannelPipeline pipeline, ChannelEvent e,
                 ChannelPipelineException cause) throws Exception {
+
             throw new RuntimeException(cause);
         }
 
@@ -106,7 +107,7 @@ public class FilterPipelineImpl implements FilterPipeline {
         }
     }
 
-    private class TopHandler extends SimpleChannelUpstreamHandler implements LifeCycleAwareChannelHandler {
+    private class TopHandler extends SimpleChannelHandler implements LifeCycleAwareChannelHandler {
 
         private ChannelHandlerContext ctx;
 
@@ -186,6 +187,7 @@ public class FilterPipelineImpl implements FilterPipeline {
             HandlerTools.sendUpstream(message, ctx, socketAddress);
         }
 
+
     }
 
     private UpstreamListenerManager upstreamListenerManager = new UpstreamListenerManager();
@@ -203,6 +205,16 @@ public class FilterPipelineImpl implements FilterPipeline {
 
     public FilterPipelineImpl() {
         setChannelPipeline(null);
+    }
+
+    @Override
+    public void channelConnected(ChannelHandlerContext ctx, ChannelStateEvent e) {
+        log.debug("----FilterPipelineImpl:connected----");
+        try {
+            pipeline.sendUpstream(e);
+        } catch (Exception e1) {
+
+        }
     }
 
     @Override

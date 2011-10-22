@@ -54,12 +54,12 @@ public class IShellInterpreterHandler extends SimpleChannelHandler {
 
     @Override
     public void channelConnected(final ChannelHandlerContext ctx, final ChannelStateEvent e) throws Exception {
-        log.debug("channel connected");
+        log.debug("----IShellInterpreterHandler:connected----");
         if (ctx == null) log.debug("received null ctx channel");
         context = ctx;
         super.channelConnected(ctx, e);
 
-        setChannel((byte) 11);
+//        setChannel((byte) 11);
     }
 
     @Override

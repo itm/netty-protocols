@@ -101,7 +101,11 @@ public class ISenseOtapAutomatedProgrammingHandler extends SimpleChannelHandler 
             }
 
         } else {
-            super.messageReceived(ctx, e);
+            try {
+                super.messageReceived(ctx, e);
+            } catch (java.lang.ClassCastException exception) {
+                log.error(exception.toString());
+            }
         }
 
     }

@@ -206,19 +206,18 @@ public class Main {
              */
             @Override
             public void channelConnected(final ChannelHandlerContext ctx, final ChannelStateEvent e) {
-                log.debug("----connected----");
+                log.debug("----otapProgrammingHandler:connected----");
                 try {
                     super.channelConnected(ctx, e);
                 } catch (Exception e1) {
-                    e1.printStackTrace();
+                    e1.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
                 }
-
                 executorService.submit(new Runnable() {
 
                     @Override
                     public void run() {
                         try {
-                            Thread.sleep(5000);
+                            Thread.sleep(10000);
                         } catch (InterruptedException e1) {
                             log.debug(" :" + e1, e1);
                         }
@@ -243,15 +242,6 @@ public class Main {
                         log.debug("sent otap");
                     }
                 });
-
-
-            }
-
-            @Override
-            public void messageReceived(
-                    ChannelHandlerContext ctx, MessageEvent e) throws Exception {
-//                log.debug("received : " + e.getMessage());
-                ctx.sendUpstream(e);
             }
 
             /*
@@ -283,14 +273,16 @@ public class Main {
             public ChannelPipeline getPipeline() throws Exception {
                 final ChannelPipeline pipeline = pipeline();
 
-
-                pipeline.addLast("otapProgrammingHandler", otapProgrammingHandler);
-
+//                pipeline.addLast("otapProgrammingHandler", otapProgrammingHandler);
                 pipeline.addLast("filterHandler", filterHandler);
+
+
+                log.debug(pipeline.toString());
 
                 return pipeline;
             }
         });
+
 
         // Create a new connection and wait until the connection is made successfully.
         ChannelFuture connectFuture = bootstrap.connect(new RXTXDeviceAddress(deviceAddress));
@@ -309,6 +301,32 @@ public class Main {
                 String line = reader.readLine();
                 if ("exit".equals(line)) {
                     exit = true;
+                } else if ("send".equals(line)) {
+
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e1) {
+                        log.debug(" :" + e1, e1);
+                    }
+
+
+//                        IShellInterpreterSetChannelMessage setChannelMessage = new IShellInterpreterSetChannelMessage((byte) channelNumber);
+                    ChannelBuffer buffer = ChannelBuffers.buffer(3);
+                    buffer.writeByte(ISensePacketType.CODE.getValue());
+                    buffer.writeByte(IShellInterpreterPacketTypes.COMMAND_SET_CHANNEL.getValue());
+                    buffer.writeByte(OtapChannel);
+
+                    log.debug("Setting channel to {}", OtapChannel);
+                    allChannels.write(buffer);
+
+
+                    ISenseOtapAutomatedProgrammingRequest req =
+                            new ISenseOtapAutomatedProgrammingRequest(otapDevices, finalOtapProgram);
+
+
+                    allChannels.write(HeaderAndJavaBeansXMLDecoderEncoder.encode(ISenseOtapAutomatedProgrammingRequest.SERIALIZATION_HEADER, req));
+
+                    log.debug("sent otap");
                 }
             } catch (IOException ignore) {
             }

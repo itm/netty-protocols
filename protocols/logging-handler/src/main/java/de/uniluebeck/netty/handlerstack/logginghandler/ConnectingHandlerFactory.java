@@ -36,7 +36,7 @@ public class ConnectingHandlerFactory implements HandlerFactory {
     @Override
     public List<Tuple<String, ChannelHandler>> create(String instanceName, Multimap<String, String> properties) throws Exception {
         List<Tuple<String, ChannelHandler>> handlers = new LinkedList<Tuple<String, ChannelHandler>>();
-        handlers.add(new Tuple<String, ChannelHandler>(instanceName, new LoggingHandler(instanceName)));
+        handlers.add(new Tuple<String, ChannelHandler>(instanceName, new ConnectingHandler(instanceName)));
         return handlers;
     }
 

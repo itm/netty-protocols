@@ -22,6 +22,12 @@ public class FilterHandler extends SimpleChannelHandler implements
 
     private ChannelHandlerContext ctx;
 
+    @Override
+    public void channelConnected(final ChannelHandlerContext ctx, final ChannelStateEvent e) {
+        log.debug("----FilterHandler:connected----");
+        this.filterPipeline.channelConnected(ctx,e);
+    }
+
     public FilterHandler(final FilterPipeline filterPipeline) {
         checkNotNull(filterPipeline);
         this.filterPipeline = filterPipeline;
