@@ -34,7 +34,6 @@ import de.uniluebeck.itm.netty.handlerstack.iseraerial.ISerAerialPacketDecoderFa
 import de.uniluebeck.itm.netty.handlerstack.iseraerial.ISerAerialPacketEncoderFactory;
 import de.uniluebeck.itm.netty.handlerstack.iseraerial.ISerAerialPacketFactory;
 import de.uniluebeck.itm.netty.handlerstack.nettyincluded.*;
-import de.uniluebeck.netty.handlerstack.logginghandler.ConnectingHandlerFactory;
 import de.uniluebeck.netty.handlerstack.logginghandler.LoggingHandlerFactory;
 
 public class ProtocolCollection {
@@ -72,7 +71,6 @@ public class ProtocolCollection {
             registry.register(new IShellInterpreterHandlerFactory());
 
             registry.register(new LoggingHandlerFactory());
-            registry.register(new ConnectingHandlerFactory());
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
