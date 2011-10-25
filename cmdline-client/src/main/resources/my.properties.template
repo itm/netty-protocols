@@ -3,15 +3,3 @@ nodeids=0x8979,0x897a,0x897b,0x897c,0x897d
 binary=path/to/file.bin
 xmlconfig=cmdline-client/target/classes/isense-otap.xml
 channel=11
-testbed.usernames=
-testbed.passwords=
-testbed.urnprefixes=urn:wisebed:TESTBE3D:
-testbed.snaa.endpointurl=http://PORTAL.URL:8890/snaa
-testbed.rs.endpointurl=http://PORTAL.URL:8889/rs
-testbed.sm.endpointurl=http://PORTAL.URL:8888/sessions
-testbed.protobuf.port=8885
-testbed.protobuf.hostname=hercules.cti.gr
-testbed.secretreservationkeys=urn:wisebed:TESTBED:,ASECRETRESERVATIONKEY
-
-
-

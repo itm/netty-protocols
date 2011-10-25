@@ -27,6 +27,4 @@
 
     <handler name="dle-framing" factory="dlestxetx-framing"/>
 
-    <!--<handler name="logging-handler1" factory="connecting-handler"/>-->
-
 </itm-netty-handlerstack>
