@@ -57,68 +57,13 @@ public class ConnectingHandler extends SimpleChannelHandler {
         super.handleDownstream(ctx, e);
     }
 
-    public void handleUpstream(
-            ChannelHandlerContext ctx, ChannelEvent e) throws Exception {
-        if (e instanceof ChannelStateEvent) {
-            log.debug("ChannelStateEvent");
-            ChannelStateEvent evt = (ChannelStateEvent) e;
-            switch (evt.getState()) {
-                case OPEN:
-                    if (Boolean.TRUE.equals(evt.getValue())) {
-                        channelOpen(ctx, evt);
-                    } else {
-                        channelClosed(ctx, evt);
-                    }
-                    break;
-                case BOUND:
-                    if (evt.getValue() != null) {
-                        channelBound(ctx, evt);
-                    } else {
-                        channelUnbound(ctx, evt);
-                    }
-                    break;
-                case CONNECTED:
-                    if (evt.getValue() != null) {
-                        channelConnected(ctx, evt);
-                    } else {
-                        channelDisconnected(ctx, evt);
-                    }
-                    break;
-                case INTEREST_OPS:
-                    channelInterestChanged(ctx, evt);
-                    break;
-                default:
-                    ctx.sendUpstream(e);
-            }
-        } else if (e instanceof WriteCompletionEvent) {
-            log.debug("WriteCompletionEvent");
-            WriteCompletionEvent evt = (WriteCompletionEvent) e;
-            writeComplete(ctx, evt);
-        } else if (e instanceof ChildChannelStateEvent) {
-            log.debug("ChildChannelStateEvent");
-            ChildChannelStateEvent evt = (ChildChannelStateEvent) e;
-            if (evt.getChildChannel().isOpen()) {
-                childChannelOpen(ctx, evt);
-            } else {
-                childChannelClosed(ctx, evt);
-            }
-        } else if (e instanceof MessageEvent) {
-            log.debug("MessageEvent");
-            messageReceived(ctx, (MessageEvent) e);
-        } else if (e instanceof ExceptionEvent) {
-            exceptionCaught(ctx, (ExceptionEvent) e);
-        } else {
-            ctx.sendUpstream(e);
-        }
-    }
-
-
     @Override
     public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) throws Exception {
         Object msg = e.getMessage();
-//        if (!connected) {
-//            channelConnected(ctx, new UpstreamChannelStateEvent(ctx.getChannel(), ChannelState.CONNECTED, ctx.getChannel().getRemoteAddress()));
-//        }
+        if (!connected) {
+		log.debug("trying to connect");
+            channelConnected(ctx, new UpstreamChannelStateEvent(ctx.getChannel(), ChannelState.CONNECTED, ctx.getChannel().getRemoteAddress()));
+        }
         if (msg instanceof ChannelBuffer) {
             if (log.isDebugEnabled()) {
                 ChannelBuffer b = (ChannelBuffer) msg;
