@@ -53,10 +53,9 @@ public abstract class ChannelBufferTools {
 	 * @return a printable String
 	 */
 	public static String toPrintableString(final ChannelBuffer buffer, int maxLength) {
-		final byte[] bytes = buffer.array();
-		final int offset = buffer.readerIndex();
-		final int length = buffer.readableBytes() < maxLength ? buffer.readableBytes() : maxLength;
-		return StringUtils.replaceNonPrintableAsciiCharacters(new String(bytes, offset, length));
+		final byte[] bytes = new byte[buffer.readableBytes() < maxLength ? buffer.readableBytes() : maxLength];
+		buffer.readBytes(bytes);
+		return StringUtils.replaceNonPrintableAsciiCharacters(new String(bytes));
 	}
 
 }
