@@ -5,7 +5,7 @@ import com.google.common.collect.Multimap;
 import de.uniluebeck.itm.netty.handlerstack.HandlerFactory;
 import de.uniluebeck.itm.tr.util.Tuple;
 import org.jboss.netty.channel.ChannelHandler;
-import org.jboss.netty.handler.codec.serialization.ObjectDecoder;
+import org.jboss.netty.handler.codec.serialization.ObjectEncoder;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -15,19 +15,19 @@ import static de.uniluebeck.itm.netty.handlerstack.nettyincluded.Util.getIntFrom
 
 public class ObjectEncoderFactory implements HandlerFactory {
 
-	private static final String MAX_OBJECT_SIZE = "maxObjectSize";
+	private static final String ESTIMATED_LENGTH = "estimatedLength";
 
 	@Override
 	public List<Tuple<String, ChannelHandler>> create(@Nullable final String instanceName,
 													  final Multimap<String, String> properties) throws Exception {
 
-		final Integer maxObjectSize = getIntFromProperties(properties, MAX_OBJECT_SIZE);
+		final Integer estimatedLength = getIntFromProperties(properties, ESTIMATED_LENGTH);
 
-		final ObjectDecoder decoder = maxObjectSize == null ?
-				new ObjectDecoder() :
-				new ObjectDecoder(maxObjectSize);
+		final ObjectEncoder encoder = estimatedLength == null ?
+				new ObjectEncoder() :
+				new ObjectEncoder(estimatedLength);
 
-		return newArrayList(new Tuple<String, ChannelHandler>(instanceName, decoder));
+		return newArrayList(new Tuple<String, ChannelHandler>(instanceName, encoder));
 	}
 
 	@Override
@@ -38,20 +38,21 @@ public class ObjectEncoderFactory implements HandlerFactory {
 	@Override
 	public Multimap<String, String> getConfigurationOptions() {
 		final HashMultimap<String, String> map = HashMultimap.create();
-		map.put(MAX_OBJECT_SIZE, "(int, optional, default=1048576) the maximum byte length of the serialized object. "
-				+ "if the length of the received object is greater than this value, StreamCorruptedException will be "
-				+ "raised."
+		map.put(ESTIMATED_LENGTH, "(int, optional, default=512) the estimated byte length of the serialized form of an "
+				+ "object. If the length of the serialized form exceeds this value, the internal buffer will be "
+				+ "expanded automatically at the cost of memory bandwidth. If this value is too big, it will also "
+				+ "waste memory bandwidth. To avoid unnecessary memory copy or allocation cost, please specify the "
+				+ "properly estimated value."
 		);
 		return map;
 	}
 
 	@Override
 	public String getDescription() {
-		return "A decoder which deserializes the received ChannelBuffers into Java objects. Please note that the "
-				+ "serialized form this decoder expects is not compatible with the standard ObjectOutputStream. "
-				+ "Please use ObjectEncoder or ObjectEncoderOutputStream to ensure the interoperability with this "
-				+ "decoder. See "
-				+ "http://docs.jboss.org/netty/3.2/api/org/jboss/netty/handler/codec/serialization/ObjectDecoder.html.";
+		return "An encoder which serializes a Java object into a ChannelBuffer. Please note that the serialized form "
+				+ "this encoder produces is not compatible with the standard ObjectInputStream. Please use "
+				+ "ObjectDecoder or ObjectDecoderInputStream to ensure the interoperability with this encoder.See "
+				+ "http://docs.jboss.org/netty/3.2/api/org/jboss/netty/handler/codec/serialization/ObjectEncoder.html.";
 	}
 
 	@Override
