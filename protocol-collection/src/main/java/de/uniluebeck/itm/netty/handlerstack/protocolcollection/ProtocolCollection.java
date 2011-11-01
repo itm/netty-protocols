@@ -84,6 +84,8 @@ public class ProtocolCollection {
 		registry.register(new ObjectEncoderFactory());
 		registry.register(new StringDecoderFactory());
 		registry.register(new StringEncoderFactory());
+		registry.register(new ZlibDecoderFactory());
+		registry.register(new ZlibEncoderFactory());
 	}
 
 }
