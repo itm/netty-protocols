@@ -65,19 +65,25 @@ public class ProtocolCollection {
 			registry.register(new IShellInterpreterHandlerFactory());
 			registry.register(new LoggingHandlerFactory());
 
-			registerNettyIncludeds(registry);
+			registerNettyIncluded(registry);
 
 		} catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
-	private static void registerNettyIncludeds(final HandlerFactoryRegistry registry) throws Exception {
+	private static void registerNettyIncluded(final HandlerFactoryRegistry registry) throws Exception {
 		registry.register(new Base64DecoderFactory());
 		registry.register(new Base64EncoderFactory());
+		registry.register(new CompatibleObjectDecoderFactory());
+		registry.register(new CompatibleObjectEncoderFactory());
 		registry.register(new FixedLengthFrameDecoderFactory());
 		registry.register(new LengthFieldBasedFrameDecoderFactory());
 		registry.register(new LengthFieldPrependerFactory());
+		registry.register(new ObjectDecoderFactory());
+		registry.register(new ObjectEncoderFactory());
+		registry.register(new StringDecoderFactory());
+		registry.register(new StringEncoderFactory());
 	}
 
 }
