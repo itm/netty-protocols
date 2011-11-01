@@ -7,9 +7,11 @@ import de.uniluebeck.itm.tr.util.Tuple;
 import org.jboss.netty.channel.ChannelHandler;
 import org.jboss.netty.handler.codec.frame.LengthFieldBasedFrameDecoder;
 
+import javax.annotation.Nullable;
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static de.uniluebeck.itm.netty.handlerstack.nettyincluded.Util.getIntFromProperties;
 
 public class LengthFieldBasedFrameDecoderFactory implements HandlerFactory {
 
@@ -24,15 +26,15 @@ public class LengthFieldBasedFrameDecoderFactory implements HandlerFactory {
 	private static final String INITIAL_BYTES_TO_STRIP = "initialBytesToStrip";
 
 	@Override
-	public List<Tuple<String, ChannelHandler>> create(final String instanceName,
+	public List<Tuple<String, ChannelHandler>> create(@Nullable final String instanceName,
 													  final Multimap<String, String> properties) throws Exception {
 
-		int maxFrameLength = Util.getIntFromProperties(properties, MAX_FRAME_LENGTH);
-		int lengthFieldOffset = Util.getIntFromProperties(properties, LENGTH_FIELD_OFFSET);
-		int lengthFieldLength = Util.getIntFromProperties(properties, LENGTH_FIELD_LENGTH);
+		int maxFrameLength = getIntFromProperties(properties, MAX_FRAME_LENGTH);
+		int lengthFieldOffset = getIntFromProperties(properties, LENGTH_FIELD_OFFSET);
+		int lengthFieldLength = getIntFromProperties(properties, LENGTH_FIELD_LENGTH);
 
-		Integer lengthAdjustment = Util.getIntFromProperties(properties, LENGTH_ADJUSTMENT);
-		Integer initialBytesToStrip = Util.getIntFromProperties(properties, INITIAL_BYTES_TO_STRIP);
+		Integer lengthAdjustment = getIntFromProperties(properties, LENGTH_ADJUSTMENT);
+		Integer initialBytesToStrip = getIntFromProperties(properties, INITIAL_BYTES_TO_STRIP);
 
 		boolean invalidOptionalProperties = (lengthAdjustment == null && initialBytesToStrip != null) ||
 				(lengthAdjustment != null && initialBytesToStrip == null);

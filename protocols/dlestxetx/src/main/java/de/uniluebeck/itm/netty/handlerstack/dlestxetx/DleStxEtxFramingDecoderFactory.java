@@ -22,26 +22,24 @@
  */
 package de.uniluebeck.itm.netty.handlerstack.dlestxetx;
 
-import java.util.LinkedList;
-import java.util.List;
-
 import com.google.common.collect.HashMultimap;
-import org.jboss.netty.channel.ChannelHandler;
-
 import com.google.common.collect.Multimap;
-
 import de.uniluebeck.itm.netty.handlerstack.HandlerFactory;
 import de.uniluebeck.itm.tr.util.Tuple;
+import org.jboss.netty.channel.ChannelHandler;
+
+import javax.annotation.Nullable;
+import java.util.List;
+
+import static com.google.common.collect.Lists.newArrayList;
 
 public class DleStxEtxFramingDecoderFactory implements HandlerFactory {
 
 	@Override
-	public List<Tuple<String, ChannelHandler>> create(String instanceName, Multimap<String, String> properties)
-			throws Exception {
+	public List<Tuple<String, ChannelHandler>> create(@Nullable final String instanceName,
+													  final Multimap<String, String> properties) throws Exception {
 
-		List<Tuple<String, ChannelHandler>> handlers = new LinkedList<Tuple<String, ChannelHandler>>();
-		handlers.add(new Tuple<String, ChannelHandler>(instanceName, new DleStxEtxFramingDecoder(instanceName)));
-		return handlers;
+		return newArrayList(new Tuple<String, ChannelHandler>(instanceName, new DleStxEtxFramingDecoder(instanceName)));
 	}
 
 	@Override

@@ -46,34 +46,38 @@ public class ProtocolCollection {
         try {
             registry.register(new DiscardMessagesHandlerFactory());
 
-            registry.register(new Base64DecoderFactory());
-            registry.register(new Base64EncoderFactory());
-            registry.register(new FixedLengthFrameDecoderFactory());
-            registry.register(new LengthFieldBasedFrameDecoderFactory());
-            registry.register(new LengthFieldPrependerFactory());
 
-            registry.register(new ISerAerialPacketDecoderFactory());
-            registry.register(new ISerAerialPacketEncoderFactory());
-            registry.register(new ISerAerialPacketFactory());
+			registry.register(new ISerAerialPacketDecoderFactory());
+			registry.register(new ISerAerialPacketEncoderFactory());
+			registry.register(new ISerAerialPacketFactory());
 
-            registry.register(new ISensePacketDecoderFactory());
-            registry.register(new ISensePacketEncoderFactory());
-            registry.register(new ISensePacketDownstreamDecoderFactory());
-            registry.register(new ISensePacketUpstreamEncoderFactory());
-            registry.register(new ISensePacketFactory());
+			registry.register(new ISensePacketDecoderFactory());
+			registry.register(new ISensePacketEncoderFactory());
+			registry.register(new ISensePacketDownstreamDecoderFactory());
+			registry.register(new ISensePacketUpstreamEncoderFactory());
+			registry.register(new ISensePacketFactory());
 
-            registry.register(new DleStxEtxFramingDecoderFactory());
-            registry.register(new DleStxEtxFramingEncoderFactory());
-            registry.register(new DleStxEtxFramingFactory());
+			registry.register(new DleStxEtxFramingDecoderFactory());
+			registry.register(new DleStxEtxFramingEncoderFactory());
+			registry.register(new DleStxEtxFramingFactory());
 
-            registry.register(new ISenseOtapFactory());
+			registry.register(new ISenseOtapFactory());
+			registry.register(new IShellInterpreterHandlerFactory());
+			registry.register(new LoggingHandlerFactory());
 
-            registry.register(new IShellInterpreterHandlerFactory());
+			registerNettyIncludeds(registry);
 
-            registry.register(new LoggingHandlerFactory());
-        } catch (Exception e) {
+		} catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
+
+	private static void registerNettyIncludeds(final HandlerFactoryRegistry registry) throws Exception {
+		registry.register(new Base64DecoderFactory());
+		registry.register(new Base64EncoderFactory());
+		registry.register(new FixedLengthFrameDecoderFactory());
+		registry.register(new LengthFieldBasedFrameDecoderFactory());
+		registry.register(new LengthFieldPrependerFactory());
+	}
 
 }

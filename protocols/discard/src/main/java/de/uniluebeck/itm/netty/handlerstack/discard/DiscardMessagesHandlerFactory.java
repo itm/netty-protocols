@@ -7,6 +7,7 @@ import de.uniluebeck.itm.netty.handlerstack.HandlerFactoryPropertiesHelper;
 import de.uniluebeck.itm.tr.util.Tuple;
 import org.jboss.netty.channel.ChannelHandler;
 
+import javax.annotation.Nullable;
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -18,7 +19,7 @@ public class DiscardMessagesHandlerFactory implements HandlerFactory {
 	private static final String KEY_DISCARD_DOWNSTREAM = "discardDownstream";
 
 	@Override
-	public List<Tuple<String, ChannelHandler>> create(final String instanceName,
+	public List<Tuple<String, ChannelHandler>> create(@Nullable final String instanceName,
 													  final Multimap<String, String> properties)
 			throws Exception {
 

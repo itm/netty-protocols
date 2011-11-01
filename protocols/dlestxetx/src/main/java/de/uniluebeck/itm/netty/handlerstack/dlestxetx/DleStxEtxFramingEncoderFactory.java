@@ -22,24 +22,24 @@
  */
 package de.uniluebeck.itm.netty.handlerstack.dlestxetx;
 
-import java.util.LinkedList;
-import java.util.List;
-
 import com.google.common.collect.HashMultimap;
-import org.jboss.netty.channel.ChannelHandler;
-
 import com.google.common.collect.Multimap;
-
 import de.uniluebeck.itm.netty.handlerstack.HandlerFactory;
 import de.uniluebeck.itm.tr.util.Tuple;
+import org.jboss.netty.channel.ChannelHandler;
+
+import javax.annotation.Nullable;
+import java.util.List;
+
+import static com.google.common.collect.Lists.newArrayList;
 
 public class DleStxEtxFramingEncoderFactory implements HandlerFactory {
 
 	@Override
-	public List<Tuple<String, ChannelHandler>> create(String instanceName, Multimap<String, String> properties) throws Exception {
-		List<Tuple<String, ChannelHandler>> handlers = new LinkedList<Tuple<String, ChannelHandler>>();
-		handlers.add(new Tuple<String, ChannelHandler>(instanceName, new DleStxEtxFramingEncoder(instanceName)));
-		return handlers;
+	public List<Tuple<String, ChannelHandler>> create(@Nullable final String instanceName,
+													  final Multimap<String, String> properties) throws Exception {
+
+		return newArrayList(new Tuple<String, ChannelHandler>(instanceName, new DleStxEtxFramingEncoder(instanceName)));
 	}
 
 	@Override
@@ -59,8 +59,8 @@ public class DleStxEtxFramingEncoderFactory implements HandlerFactory {
 				+ "https://github.com/itm/netty-handlerstack/wiki/DLESTXETX-Framing-Decoder-Encoder.";
 	}
 
-    @Override
-    public String getName() {
-        return "dlestxetx-framing-encoder";
-    }
+	@Override
+	public String getName() {
+		return "dlestxetx-framing-encoder";
+	}
 }

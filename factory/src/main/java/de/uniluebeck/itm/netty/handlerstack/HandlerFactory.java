@@ -26,6 +26,7 @@ import com.google.common.collect.Multimap;
 import de.uniluebeck.itm.tr.util.Tuple;
 import org.jboss.netty.channel.ChannelHandler;
 
+import javax.annotation.Nullable;
 import java.util.List;
 
 public interface HandlerFactory {
@@ -42,7 +43,7 @@ public interface HandlerFactory {
 	 * @throws Exception if one or more of the {@link ChannelHandler}s could not be constructed due to e.g., configuration
 	 *                   options are missing or contain invalid values
 	 */
-	List<Tuple<String, ChannelHandler>> create(String instanceName, Multimap<String, String> properties)
+	List<Tuple<String, ChannelHandler>> create(@Nullable String instanceName, Multimap<String, String> properties)
 	throws Exception;
 
 	/**

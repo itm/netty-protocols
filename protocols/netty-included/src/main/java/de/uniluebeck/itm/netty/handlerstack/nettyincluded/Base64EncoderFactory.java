@@ -6,8 +6,8 @@ import de.uniluebeck.itm.netty.handlerstack.HandlerFactory;
 import de.uniluebeck.itm.tr.util.Tuple;
 import org.jboss.netty.channel.ChannelHandler;
 import org.jboss.netty.handler.codec.base64.Base64Encoder;
-import org.jboss.netty.handler.codec.frame.FixedLengthFrameDecoder;
 
+import javax.annotation.Nullable;
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -15,7 +15,7 @@ import static com.google.common.collect.Lists.newArrayList;
 public class Base64EncoderFactory implements HandlerFactory {
 
 	@Override
-	public List<Tuple<String, ChannelHandler>> create(final String instanceName,
+	public List<Tuple<String, ChannelHandler>> create(@Nullable final String instanceName,
 													  final Multimap<String, String> properties) throws Exception {
 
 		Boolean breakLines = Util.getBooleanFromProperties(properties, "breakLines");

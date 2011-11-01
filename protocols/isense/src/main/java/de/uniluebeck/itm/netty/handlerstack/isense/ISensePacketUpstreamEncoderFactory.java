@@ -28,6 +28,7 @@ import de.uniluebeck.itm.netty.handlerstack.HandlerFactory;
 import de.uniluebeck.itm.tr.util.Tuple;
 import org.jboss.netty.channel.ChannelHandler;
 
+import javax.annotation.Nullable;
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -35,8 +36,8 @@ import static com.google.common.collect.Lists.newArrayList;
 public class ISensePacketUpstreamEncoderFactory implements HandlerFactory {
 
 	@Override
-	public List<Tuple<String, ChannelHandler>> create(String instanceName, Multimap<String, String> properties)
-			throws Exception {
+	public List<Tuple<String, ChannelHandler>> create(@Nullable final String instanceName,
+													  final Multimap<String, String> properties) throws Exception {
 
 		return newArrayList(
 				new Tuple<String, ChannelHandler>(instanceName, new ISensePacketUpstreamEncoder(instanceName))

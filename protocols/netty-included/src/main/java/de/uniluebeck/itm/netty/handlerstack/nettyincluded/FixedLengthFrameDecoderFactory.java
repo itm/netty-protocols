@@ -7,6 +7,7 @@ import de.uniluebeck.itm.tr.util.Tuple;
 import org.jboss.netty.channel.ChannelHandler;
 import org.jboss.netty.handler.codec.frame.FixedLengthFrameDecoder;
 
+import javax.annotation.Nullable;
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -14,7 +15,7 @@ import static com.google.common.collect.Lists.newArrayList;
 public class FixedLengthFrameDecoderFactory implements HandlerFactory {
 
 	@Override
-	public List<Tuple<String, ChannelHandler>> create(final String instanceName,
+	public List<Tuple<String, ChannelHandler>> create(@Nullable final String instanceName,
 													  final Multimap<String, String> properties) throws Exception {
 
 		int frameLength = Integer.parseInt(properties.get("frameLength").iterator().next());

@@ -33,11 +33,14 @@ import com.google.common.collect.Multimap;
 import de.uniluebeck.itm.netty.handlerstack.HandlerFactory;
 import de.uniluebeck.itm.tr.util.Tuple;
 
+import javax.annotation.Nullable;
+
 public class ISerAerialPacketFactory implements HandlerFactory {
 
 	@Override
-	public List<Tuple<String, ChannelHandler>> create(String instanceName, Multimap<String, String> properties)
-			throws Exception {
+	public List<Tuple<String, ChannelHandler>> create(@Nullable final String instanceName,
+													  final Multimap<String, String> properties) throws Exception {
+
 		List<Tuple<String, ChannelHandler>> handlers = new LinkedList<Tuple<String, ChannelHandler>>();
 		handlers.addAll(new ISerAerialPacketDecoderFactory().create(instanceName + "-decoder", properties));
 		handlers.addAll(new ISerAerialPacketEncoderFactory().create(instanceName + "-encoder", properties));

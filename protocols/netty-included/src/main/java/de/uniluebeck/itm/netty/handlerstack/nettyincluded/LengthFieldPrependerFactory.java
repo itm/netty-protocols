@@ -7,9 +7,12 @@ import de.uniluebeck.itm.tr.util.Tuple;
 import org.jboss.netty.channel.ChannelHandler;
 import org.jboss.netty.handler.codec.frame.LengthFieldPrepender;
 
+import javax.annotation.Nullable;
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static de.uniluebeck.itm.netty.handlerstack.nettyincluded.Util.getBooleanFromProperties;
+import static de.uniluebeck.itm.netty.handlerstack.nettyincluded.Util.getIntFromProperties;
 
 public class LengthFieldPrependerFactory implements HandlerFactory {
 
@@ -18,21 +21,20 @@ public class LengthFieldPrependerFactory implements HandlerFactory {
 	private static final String LENGTH_INCLUDES_LENGTH_FIELD_LENGTH = "lengthIncludesLengthFieldLength";
 
 	@Override
-	public List<Tuple<String, ChannelHandler>> create(final String instanceName,
+	public List<Tuple<String, ChannelHandler>> create(@Nullable final String instanceName,
 													  final Multimap<String, String> properties) throws Exception {
 
-		int lengthFieldLength = Util.getIntFromProperties(properties, LENGTH_FIELD_LENGTH);
-		Boolean lengthIncludesLengthFieldLength =
-				Util.getBooleanFromProperties(properties, LENGTH_INCLUDES_LENGTH_FIELD_LENGTH);
+		int lengthFieldLength = getIntFromProperties(properties, LENGTH_FIELD_LENGTH);
+		Boolean lengthIncludesLengthFieldLength = getBooleanFromProperties(
+				properties,
+				LENGTH_INCLUDES_LENGTH_FIELD_LENGTH
+		);
 
 		boolean optionalPropertiesProvided = lengthIncludesLengthFieldLength != null;
 
-		LengthFieldPrepender prepender;
-		if (optionalPropertiesProvided) {
-			prepender = new LengthFieldPrepender(lengthFieldLength, lengthIncludesLengthFieldLength);
-		} else {
-			prepender = new LengthFieldPrepender(lengthFieldLength);
-		}
+		LengthFieldPrepender prepender = optionalPropertiesProvided ?
+			new LengthFieldPrepender(lengthFieldLength, lengthIncludesLengthFieldLength) :
+			new LengthFieldPrepender(lengthFieldLength);
 
 		return newArrayList(new Tuple<String, ChannelHandler>(instanceName, prepender));
 	}
