@@ -33,8 +33,8 @@ public class LengthFieldPrependerFactory implements HandlerFactory {
 		boolean optionalPropertiesProvided = lengthIncludesLengthFieldLength != null;
 
 		LengthFieldPrepender prepender = optionalPropertiesProvided ?
-			new LengthFieldPrepender(lengthFieldLength, lengthIncludesLengthFieldLength) :
-			new LengthFieldPrepender(lengthFieldLength);
+				new LengthFieldPrepender(lengthFieldLength, lengthIncludesLengthFieldLength) :
+				new LengthFieldPrepender(lengthFieldLength);
 
 		return newArrayList(new Tuple<String, ChannelHandler>(instanceName, prepender));
 	}
@@ -51,7 +51,8 @@ public class LengthFieldPrependerFactory implements HandlerFactory {
 				"(int) the length of the prepended length field. Only 1, 2, 3, 4, and 8 are allowed."
 		);
 		map.put(LENGTH_INCLUDES_LENGTH_FIELD_LENGTH,
-				"(boolean) if true, the length of the prepended length field is added to the value of the prepended length field."
+				"(boolean, optional, default=false) if true, the length of the prepended length field is added to the "
+						+ "value of the prepended length field."
 		);
 		return map;
 	}

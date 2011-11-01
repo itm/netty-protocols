@@ -56,7 +56,7 @@ public class ISensePacketFactory implements HandlerFactory {
 
 	@Override
 	public String getDescription() {
-		return "";
+		return "Encoder and Decoder for encoding and decoding ISensePacket POJO instances.";
 	}
 
 	@Override

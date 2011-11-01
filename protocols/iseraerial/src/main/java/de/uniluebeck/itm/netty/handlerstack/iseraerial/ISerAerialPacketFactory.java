@@ -59,7 +59,7 @@ public class ISerAerialPacketFactory implements HandlerFactory {
 
 	@Override
     public String getDescription() {
-        return "";
+        return "Encoder and Decoder for encoding and decoding ISerAerialPacket POJO instances.";
     }
 
 	@Override
