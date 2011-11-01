@@ -43,6 +43,8 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Set;
 
+import static com.google.common.base.Preconditions.checkState;
+
 public class ISenseOtapAutomatedProgrammingHandler extends SimpleChannelHandler implements LifeCycleAwareChannelHandler {
     private final org.slf4j.Logger log;
 
@@ -221,9 +223,9 @@ public class ISenseOtapAutomatedProgrammingHandler extends SimpleChannelHandler 
 
     @Override
     public void afterAdd(ChannelHandlerContext ctx) throws Exception {
-        assert context == null;
-        this.context = ctx;
-    }
+		checkState(context == null);
+		this.context = ctx;
+	}
 
     @Override
     public void afterRemove(ChannelHandlerContext ctx) throws Exception {

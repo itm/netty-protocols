@@ -42,6 +42,8 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
+import static com.google.common.base.Preconditions.checkState;
+
 public class ISenseOtapProgramHandler extends SimpleChannelHandler implements LifeCycleAwareChannelHandler {
     private final Logger log;
 
@@ -338,9 +340,9 @@ public class ISenseOtapProgramHandler extends SimpleChannelHandler implements Li
 
     @Override
     public void afterAdd(ChannelHandlerContext ctx) throws Exception {
-        assert context == null;
-        this.context = ctx;
-    }
+		checkState(context == null);
+		this.context = ctx;
+	}
 
     @Override
     public void afterRemove(ChannelHandlerContext ctx) throws Exception {
