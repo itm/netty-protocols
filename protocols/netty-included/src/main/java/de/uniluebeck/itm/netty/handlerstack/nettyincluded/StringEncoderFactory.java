@@ -6,6 +6,7 @@ import de.uniluebeck.itm.netty.handlerstack.HandlerFactory;
 import de.uniluebeck.itm.tr.util.Tuple;
 import org.jboss.netty.channel.ChannelHandler;
 import org.jboss.netty.handler.codec.string.StringDecoder;
+import org.jboss.netty.handler.codec.string.StringEncoder;
 import org.jboss.netty.util.CharsetUtil;
 
 import javax.annotation.Nullable;
@@ -24,11 +25,11 @@ public class StringEncoderFactory implements HandlerFactory {
 
 		final String charsetName = properties.get(CHARSET_NAME).iterator().next();
 
-		final StringDecoder decoder = charsetName == null ?
-				new StringDecoder(CharsetUtil.UTF_8) :
-				new StringDecoder(Charset.forName(charsetName));
+		final StringEncoder encoder = charsetName == null ?
+				new StringEncoder(CharsetUtil.UTF_8) :
+				new StringEncoder(Charset.forName(charsetName));
 
-		return newArrayList(new Tuple<String, ChannelHandler>(instanceName, decoder));
+		return newArrayList(new Tuple<String, ChannelHandler>(instanceName, encoder));
 	}
 
 	@Override
@@ -52,6 +53,6 @@ public class StringEncoderFactory implements HandlerFactory {
 
 	@Override
 	public String getName() {
-		return "string-decoder";
+		return "string-encoder";
 	}
 }
