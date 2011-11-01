@@ -11,7 +11,7 @@
 	</parent>
 
 	<artifactId>dlestxetx</artifactId>
-	<name>DLESTXETX Framing Decoder/Encoder</name>
+	<name>Netty Handlerstack :: DLESTXETX Framing Decoder/Encoder</name>
 	<packaging>jar</packaging>
 
 	<dependencies>

@@ -11,7 +11,7 @@
 	</parent>
 
 	<artifactId>isense</artifactId>
-	<name>coalesenses iSense Packet Decoder/Encoder</name>
+	<name>Netty Handlerstack :: coalesenses iSense Packet Decoder/Encoder</name>
 	<packaging>jar</packaging>
 
 	<dependencies>

@@ -11,7 +11,7 @@
 	</parent>
 
 	<artifactId>swap</artifactId>
-	<name>SWAP Protocol Decoder/Encoder</name>
+	<name>Netty Handlerstack :: SWAP Protocol Decoder/Encoder</name>
 	<packaging>jar</packaging>
 
 	<dependencies>

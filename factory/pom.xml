@@ -11,7 +11,7 @@
 	</parent>
 
 	<artifactId>factory</artifactId>
-	<name>Factory classes</name>
+	<name>Netty Handlerstack :: Factory classes</name>
 
 	<packaging>jar</packaging>
 

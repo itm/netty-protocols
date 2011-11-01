@@ -11,7 +11,7 @@
 	</parent>
 
 	<artifactId>cmdline-client</artifactId>
-	<name>Command-line Client</name>
+	<name>Netty Handlerstack :: Command-line Client</name>
 
 	<packaging>jar</packaging>
 

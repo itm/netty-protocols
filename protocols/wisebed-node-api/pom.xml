@@ -11,7 +11,7 @@
 	</parent>
 
 	<artifactId>wisebed-node-api</artifactId>
-	<name>WISEBED Node API</name>
+	<name>Netty Handlerstack :: WISEBED Node API</name>
 	<packaging>jar</packaging>
 
 	<dependencies>

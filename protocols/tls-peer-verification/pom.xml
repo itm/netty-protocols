@@ -11,7 +11,7 @@
 	</parent>
 
 	<artifactId>tls-peer-verification</artifactId>
-	<name>Peer verification using Certificates</name>
+	<name>Netty Handlerstack :: Peer verification using Certificates</name>
 	<packaging>jar</packaging>
 
 	<dependencies>

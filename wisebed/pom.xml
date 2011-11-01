@@ -11,7 +11,7 @@
 	</parent>
 
 	<artifactId>wisebed</artifactId>
-	<name>Wisebed Handlers</name>
+	<name>Netty Handlerstack :: Wisebed Handlers</name>
 
 
 </project>

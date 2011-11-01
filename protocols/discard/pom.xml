@@ -11,7 +11,7 @@
 	</parent>
 
 	<artifactId>discard</artifactId>
-	<name>Discard Channel Handler</name>
+	<name>Netty Handlerstack :: Discard Channel Handler</name>
 	<packaging>jar</packaging>
 
 	<dependencies>

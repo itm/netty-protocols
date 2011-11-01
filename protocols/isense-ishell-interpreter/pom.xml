@@ -11,7 +11,7 @@
 	</parent>
 
 	<artifactId>isense-ishell-interpreter</artifactId>
-	<name>iSense to iShell Interpreter</name>
+	<name>Netty Handlerstack :: iSense to iShell Interpreter</name>
 
 	<packaging>jar</packaging>
 

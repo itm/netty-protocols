@@ -11,7 +11,7 @@
 	</parent>
 
 	<artifactId>isense-otap</artifactId>
-	<name>coalesenses iSense Over-the-Air-Programming</name>
+	<name>Netty Handlerstack :: coalesenses iSense Over-the-Air-Programming</name>
 	<packaging>jar</packaging>
 
 	<dependencies>

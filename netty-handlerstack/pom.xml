@@ -11,7 +11,7 @@
 	</parent>
 
 	<artifactId>netty-handlerstack</artifactId>
-	<name>Netty Handlerstack</name>
+	<name>Netty Handlerstack :: Netty Handlerstack</name>
 
 	<dependencies>
 

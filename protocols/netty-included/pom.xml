@@ -11,7 +11,7 @@
 	</parent>
 
 	<artifactId>netty-included</artifactId>
-	<name>Netty Decoders and Encoders</name>
+	<name>Netty Handlerstack :: Netty Decoders and Encoders</name>
 	<packaging>jar</packaging>
 
 	<dependencies>

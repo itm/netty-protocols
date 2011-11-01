@@ -11,7 +11,7 @@
 	</parent>
 
 	<artifactId>remote-uart-protocol</artifactId>
-	<name>Remote UART Protocol Decoder/Encoder</name>
+	<name>Netty Handlerstack :: Remote UART Protocol Decoder/Encoder</name>
 	<packaging>jar</packaging>
 
 	<dependencies>

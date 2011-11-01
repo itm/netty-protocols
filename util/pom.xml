@@ -12,7 +12,7 @@
 	</parent>
 
 	<artifactId>util</artifactId>
-	<name>Utils</name>
+	<name>Netty Handlerstack :: Utils</name>
 
 	<packaging>jar</packaging>
 

@@ -11,7 +11,7 @@
 	</parent>
 
 	<artifactId>protocol-collection</artifactId>
-	<name>Protocol Collection</name>
+	<name>Netty Handlerstack :: Protocol Collection</name>
 
 	<packaging>jar</packaging>
 

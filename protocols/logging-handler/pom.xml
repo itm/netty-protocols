@@ -11,7 +11,7 @@
 	</parent>
 
 	<artifactId>logging-handler</artifactId>
-	<name>Logging Handler</name>
+	<name>Netty Handlerstack :: Logging Handler</name>
 	<packaging>jar</packaging>
 
 	<dependencies>
