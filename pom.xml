@@ -16,7 +16,7 @@
 		<module>factory</module>
 		<module>protocol-collection</module>
 		<module>cmdline-client</module>
-		<module>netty-handlerstack</module>
+		<module>filterpipeline</module>
 		<module>util</module>
 		<module>wisebed</module>
 
