@@ -1,6 +1,8 @@
 package de.uniluebeck.itm.netty.handlerstack.discard;
 
-import org.jboss.netty.channel.*;
+import org.jboss.netty.channel.ChannelHandlerContext;
+import org.jboss.netty.channel.MessageEvent;
+import org.jboss.netty.channel.SimpleChannelHandler;
 
 public class DiscardMessagesHandler extends SimpleChannelHandler {
 
@@ -15,18 +17,14 @@ public class DiscardMessagesHandler extends SimpleChannelHandler {
 
 	@Override
 	public void writeRequested(final ChannelHandlerContext ctx, final MessageEvent e) throws Exception {
-		if (discardDownstream) {
-			// discard message
-		} else {
+		if (!discardDownstream) {
 			super.writeRequested(ctx, e);
 		}
 	}
 
 	@Override
 	public void messageReceived(final ChannelHandlerContext ctx, final MessageEvent e) throws Exception {
-		if (discardUpstream) {
-			// discard message
-		} else {
+		if (!discardUpstream) {
 			super.messageReceived(ctx, e);
 		}
 	}
