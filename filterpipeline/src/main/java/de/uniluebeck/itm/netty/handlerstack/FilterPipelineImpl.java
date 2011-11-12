@@ -1,6 +1,6 @@
 package de.uniluebeck.itm.netty.handlerstack;
 
-import de.uniluebeck.itm.tr.util.AbstractListenable;
+import de.uniluebeck.itm.tr.util.ListenerManagerImpl;
 import de.uniluebeck.itm.tr.util.Tuple;
 import org.jboss.netty.channel.*;
 import org.slf4j.Logger;
@@ -238,7 +238,7 @@ public class FilterPipelineImpl implements FilterPipeline {
 		}
 	}
 
-	private static class UpstreamListenerManager extends AbstractListenable<FilterPipelineUpstreamListener>
+	private static class UpstreamListenerManager extends ListenerManagerImpl<FilterPipelineUpstreamListener>
 			implements FilterPipelineUpstreamListener {
 
 		@Override
@@ -267,7 +267,7 @@ public class FilterPipelineImpl implements FilterPipeline {
 
 	}
 
-	private static class DownstreamListenerManager extends AbstractListenable<FilterPipelineDownstreamListener>
+	private static class DownstreamListenerManager extends ListenerManagerImpl<FilterPipelineDownstreamListener>
 			implements FilterPipelineDownstreamListener {
 
 		public void downstreamExceptionCaught(final Throwable e) {
