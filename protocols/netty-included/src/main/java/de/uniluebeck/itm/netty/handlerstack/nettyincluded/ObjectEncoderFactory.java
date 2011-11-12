@@ -57,6 +57,6 @@ public class ObjectEncoderFactory implements HandlerFactory {
 
 	@Override
 	public String getName() {
-		return "object-decoder";
+		return "object-encoder";
 	}
 }
