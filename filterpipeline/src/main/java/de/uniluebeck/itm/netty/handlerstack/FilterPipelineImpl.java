@@ -899,6 +899,19 @@ public class FilterPipelineImpl implements FilterPipeline {
 	}
 
 	@Override
+	public List<String> getNames() {
+		if (!isAttached()) {
+			return null;
+		}
+		List<String> names = newArrayList();
+		FilterPipelineChannelHandlerContext currentContext;
+		while ((currentContext = bottomContext.getUpperContext()) != topContext) {
+			names.add(currentContext.getName());
+		}
+		return names;
+	}
+
+	@Override
 	public Map<String, ChannelHandler> toMap() {
 		throw new RuntimeException("TODO implement");
 	}
