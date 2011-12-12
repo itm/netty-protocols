@@ -1,5 +1,5 @@
 device=/dev/ttyUSB5
 nodeids=0x8979,0x897a,0x897b,0x897c,0x897d
 binary=path/to/file.bin
-xmlconfig=cmdline-client/target/classes/isense-otap.xml
+xmlconfig=otap-cli/target/classes/isense-otap.xml
 channel=11
