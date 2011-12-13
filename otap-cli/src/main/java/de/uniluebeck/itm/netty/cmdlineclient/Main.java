@@ -25,7 +25,6 @@ package de.uniluebeck.itm.netty.cmdlineclient;
 import com.coalesenses.isense.ishell.interpreter.IShellInterpreterPacketTypes;
 import com.google.common.collect.Sets;
 import com.google.common.io.Files;
-import de.uniluebeck.itm.netty.handlerstack.FilterHandler;
 import de.uniluebeck.itm.netty.handlerstack.FilterPipeline;
 import de.uniluebeck.itm.netty.handlerstack.FilterPipelineImpl;
 import de.uniluebeck.itm.netty.handlerstack.HandlerFactoryRegistry;
@@ -259,7 +258,7 @@ public class Main {
         };
 
 
-        FilterPipeline filterPipeline = new FilterPipelineImpl();
+        final FilterPipeline filterPipeline = new FilterPipelineImpl();
         try {
             filterPipeline.setChannelPipeline(factoryRegistry.create(xmlConfigFile));
         } catch (Exception e) {
@@ -267,18 +266,12 @@ public class Main {
             System.exit(1);
         }
 
-        final FilterHandler filterHandler = new FilterHandler(filterPipeline);
         bootstrap.setPipelineFactory(new ChannelPipelineFactory() {
             @Override
             public ChannelPipeline getPipeline() throws Exception {
                 final ChannelPipeline pipeline = pipeline();
-
-//                pipeline.addLast("otapProgrammingHandler", otapProgrammingHandler);
-                pipeline.addLast("filterHandler", filterHandler);
-
-
+                pipeline.addLast("filterPipeline", filterPipeline);
                 log.debug(pipeline.toString());
-
                 return pipeline;
             }
         });
