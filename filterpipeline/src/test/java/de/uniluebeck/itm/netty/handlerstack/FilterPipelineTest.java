@@ -52,13 +52,13 @@ public class FilterPipelineTest {
 	private FilterPipeline pipeline;
 
 	@Mock
-	private FilterPipelineUpstreamListener upstreamOutputListenerMock;
-
-	@Mock
-	private FilterPipelineDownstreamListener downstreamOutputListenerMock;
-
-	@Mock
 	private ChannelSink channelSinkMock;
+
+	@Mock
+	private ChannelDownstreamHandler downstreamHandlerMock;
+
+	@Mock
+	private ChannelUpstreamHandler upstreamHandlerMock;
 
 	private PassThroughChannelHandler passThroughChannelHandler1;
 
@@ -103,7 +103,7 @@ public class FilterPipelineTest {
 
 	@Test
 	public void testIfMessageSentUpstreamIsReceivedByUpstreamListenerWithNoHandlers() throws Exception {
-
+		
 		assertThatMessageSentUpstreamIsReceivedByUpstreamListener();
 	}
 
@@ -167,12 +167,13 @@ public class FilterPipelineTest {
 	public void testIfAllEventsAreSwallowedWhenDiscardHandlerIsSet() throws Exception {
 
 		final List<Tuple<String, ChannelHandler>> discardPipeline = newArrayList(
-				new Tuple<String, ChannelHandler>("discard", new DiscardHandler(true, true))
+				new Tuple<String, ChannelHandler>("upstreamHandler", upstreamHandlerMock),
+				new Tuple<String, ChannelHandler>("discard", new DiscardHandler(true, true)),
+				new Tuple<String, ChannelHandler>("downstreamHandler", downstreamHandlerMock)
 		);
 
 		pipeline.setChannelPipeline(discardPipeline);
-		pipeline.addListener(downstreamOutputListenerMock);
-		pipeline.addListener(upstreamOutputListenerMock);
+		System.out.println(pipeline.toMap());
 
 		pipeline.sendUpstream(new UpstreamMessageEvent(
 				pipeline.getChannel(),
@@ -181,7 +182,7 @@ public class FilterPipelineTest {
 		)
 		);
 
-		verify(upstreamOutputListenerMock, never()).handleUpstream(
+		verify(upstreamHandlerMock, never()).handleUpstream(
 				Matchers.<ChannelHandlerContext>any(),
 				Matchers.<ChannelEvent>any()
 		);
@@ -194,7 +195,7 @@ public class FilterPipelineTest {
 		)
 		);
 
-		verify(downstreamOutputListenerMock, never()).handleDownstream(
+		verify(downstreamHandlerMock, never()).handleDownstream(
 				Matchers.<ChannelHandlerContext>any(),
 				Matchers.<ChannelEvent>any()
 		);
@@ -335,11 +336,13 @@ public class FilterPipelineTest {
 
 	private void assertThatMessageSentUpstreamIsReceivedByUpstreamListener() throws Exception {
 
-		pipeline.addListener(upstreamOutputListenerMock);
+		// place mock handler on the very top of the stack
+		pipeline.addLast("upstreamHandlerMock", upstreamHandlerMock);
 
+		// send message upstream from bottom
 		pipeline.sendUpstream(upstreamMessageEvent);
 
-		verify(upstreamOutputListenerMock)
+		verify(upstreamHandlerMock)
 				.handleUpstream(
 						Matchers.<ChannelHandlerContext>any(),
 						channelEventCaptor.capture()
@@ -358,11 +361,13 @@ public class FilterPipelineTest {
 
 	private void assertThatMessageSentDownstreamIsReceivedByDownstreamListener() throws Exception {
 
-		pipeline.addListener(downstreamOutputListenerMock);
+		// place mock handler on the very bottom of the stack
+		pipeline.addFirst("downstreamHandlerMock", downstreamHandlerMock);
 
+		// send message downstream from top
 		pipeline.sendDownstream(downstreamMessageEvent);
 
-		verify(downstreamOutputListenerMock)
+		verify(downstreamHandlerMock)
 				.handleDownstream(
 						Matchers.<ChannelHandlerContext>any(),
 						channelEventCaptor.capture()

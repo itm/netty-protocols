@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
 	<modelVersion>4.0.0</modelVersion>
 
@@ -10,8 +11,8 @@
 		<relativePath>../</relativePath>
 	</parent>
 
-	<artifactId>otap-cli</artifactId>
-	<name>Netty Handlerstack :: OTAP CLI</name>
+	<artifactId>filterpipeline-cli</artifactId>
+	<name>Netty Handlerstack :: FilterPipeline CLI</name>
 
 	<packaging>jar</packaging>
 
@@ -34,17 +35,28 @@
 			<groupId>de.uniluebeck.itm.netty-rxtx</groupId>
 			<artifactId>netty-rxtx</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>de.uniluebeck.itm.itmutils</groupId>
+			<artifactId>itmutils</artifactId>
+		</dependency>
 
 		<dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
 		</dependency>
-
 		<dependency>
 			<groupId>commons-cli</groupId>
 			<artifactId>commons-cli</artifactId>
 		</dependency>
 
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-log4j12</artifactId>
+		</dependency>
 
 	</dependencies>
 
@@ -59,7 +71,7 @@
 					</descriptors>
 					<archive>
 						<manifest>
-							<mainClass>de.uniluebeck.itm.netty.cmdlineclient.Main</mainClass>
+							<mainClass>de.uniluebeck.itm.netty.filterpipelinecli.FilterPipelineCLI</mainClass>
 						</manifest>
 					</archive>
 				</configuration>

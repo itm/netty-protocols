@@ -1,187 +1,26 @@
 package de.uniluebeck.itm.netty.handlerstack;
 
-import de.uniluebeck.itm.tr.util.ListenerManagerImpl;
+import com.google.common.collect.Lists;
 import de.uniluebeck.itm.tr.util.Tuple;
 import org.jboss.netty.channel.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.net.SocketAddress;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.Lists.newArrayList;
 
 public class FilterPipelineImpl implements FilterPipeline {
 
 	private static final Logger log = LoggerFactory.getLogger(FilterPipelineImpl.class);
-
-	private class FilterPipelineChannelHandlerContext implements ChannelHandlerContext {
-
-		volatile FilterPipelineChannelHandlerContext upperContext;
-
-		volatile FilterPipelineChannelHandlerContext lowerContext;
-
-		private final String name;
-
-		private final ChannelHandler handler;
-
-		private final boolean canHandleUpstream;
-
-		private final boolean canHandleDownstream;
-
-		private volatile Object attachment;
-
-		FilterPipelineChannelHandlerContext(final String name, final ChannelHandler handler) {
-
-			if (name == null) {
-				throw new NullPointerException("name");
-			}
-
-			if (handler == null) {
-				throw new NullPointerException("handler");
-			}
-
-			canHandleUpstream = handler instanceof ChannelUpstreamHandler;
-			canHandleDownstream = handler instanceof ChannelDownstreamHandler;
-
-			if (!canHandleUpstream && !canHandleDownstream) {
-				throw new IllegalArgumentException(
-						"handler must be either " +
-								ChannelUpstreamHandler.class.getName() + " or " +
-								ChannelDownstreamHandler.class.getName() + '.'
-				);
-			}
-
-			this.name = name;
-			this.handler = handler;
-		}
-
-		public void setLowerContext(final FilterPipelineChannelHandlerContext lowerContext) {
-			this.lowerContext = lowerContext;
-		}
-
-		public void setUpperContext(final FilterPipelineChannelHandlerContext upperContext) {
-			this.upperContext = upperContext;
-		}
-
-		public FilterPipelineChannelHandlerContext getLowerContext() {
-			return lowerContext;
-		}
-
-		public FilterPipelineChannelHandlerContext getUpperContext() {
-			return upperContext;
-		}
-
-		@Override
-		public Channel getChannel() {
-			return getPipeline().getChannel();
-		}
-
-		@Override
-		public ChannelPipeline getPipeline() {
-			return FilterPipelineImpl.this;
-		}
-
-		@Override
-		public boolean canHandleDownstream() {
-			return canHandleDownstream;
-		}
-
-		@Override
-		public boolean canHandleUpstream() {
-			return canHandleUpstream;
-		}
-
-		@Override
-		public ChannelHandler getHandler() {
-			return handler;
-		}
-
-		@Override
-		public String getName() {
-			return name;
-		}
-
-		@Override
-		public Object getAttachment() {
-			return attachment;
-		}
-
-		@Override
-		public void setAttachment(Object attachment) {
-			this.attachment = attachment;
-		}
-
-		@Override
-		public void sendDownstream(ChannelEvent e) {
-
-			// if we are at the bottom of the stack
-			if (lowerContext == null) {
-
-				if (outerContext != null) {
-					outerContext.sendDownstream(e);
-				}
-			}
-
-			// if there's at least one handler beneath us
-			else {
-				try {
-
-					((ChannelDownstreamHandler) lowerContext.getHandler()).handleDownstream(lowerContext, e);
-
-				} catch (Exception e1) {
-
-					try {
-						((ChannelDownstreamHandler) lowerContext.getHandler()).handleDownstream(
-								lowerContext,
-								new DefaultExceptionEvent(lowerContext.getChannel(), e1)
-						);
-					} catch (Exception e2) {
-						bottomHandler.exceptionCaught(
-								outerContext,
-								new DefaultExceptionEvent(outerContext.getChannel(), e2)
-						);
-					}
-				}
-			}
-		}
-
-		@Override
-		public void sendUpstream(ChannelEvent e) {
-
-			if (upperContext == null) {
-
-				if (outerContext != null) {
-					outerContext.sendUpstream(e);
-				}
-			}
-
-			else {
-
-				try {
-
-					((ChannelUpstreamHandler) upperContext.getHandler()).handleUpstream(upperContext, e);
-
-				} catch (Exception e1) {
-
-					try {
-						((ChannelUpstreamHandler) upperContext.getHandler()).handleUpstream(
-								upperContext,
-								new DefaultExceptionEvent(upperContext.getChannel(), e1)
-						);
-					} catch (Exception e2) {
-						topHandler.exceptionCaught(
-								outerContext,
-								new DefaultExceptionEvent(outerContext.getChannel(), e2)
-						);
-					}
-				}
-			}
-		}
-
-	}
 
 	private class FilterPipelineChannel extends AbstractChannel {
 
@@ -238,132 +77,6 @@ public class FilterPipelineImpl implements FilterPipeline {
 		}
 	}
 
-	private static class UpstreamListenerManager extends ListenerManagerImpl<FilterPipelineUpstreamListener>
-			implements FilterPipelineUpstreamListener {
-
-		@Override
-		public void upstreamExceptionCaught(final Throwable e) {
-
-			for (FilterPipelineUpstreamListener listener : listeners) {
-				listener.upstreamExceptionCaught(e);
-			}
-		}
-
-		@Override
-		public void handleUpstream(final ChannelHandlerContext ctx, final ChannelEvent e) {
-
-			for (FilterPipelineUpstreamListener listener : listeners) {
-
-				try {
-					listener.handleUpstream(ctx, e);
-				} catch (Exception e1) {
-					log.error(
-							"The FilterPipelineUpstreamListener {} throw the following exception on calling handleUpstream(): {}",
-							listener, e1
-					);
-				}
-			}
-		}
-
-	}
-
-	private static class DownstreamListenerManager extends ListenerManagerImpl<FilterPipelineDownstreamListener>
-			implements FilterPipelineDownstreamListener {
-
-		public void downstreamExceptionCaught(final Throwable e) {
-
-			for (FilterPipelineDownstreamListener listener : listeners) {
-				listener.downstreamExceptionCaught(e);
-			}
-		}
-
-		public void handleDownstream(final ChannelHandlerContext ctx, final ChannelEvent e) {
-			for (FilterPipelineDownstreamListener listener : listeners) {
-				try {
-					listener.handleDownstream(ctx, e);
-				} catch (Exception e1) {
-					log.error(
-							"The FilterPipelineDownstreamListener {} throw the following exception on calling handleDownstream(): {}",
-							listener, e1
-					);
-				}
-			}
-		}
-
-	}
-
-	private class TopHandler extends SimpleChannelHandler {
-
-		@Override
-		public void handleUpstream(final ChannelHandlerContext ctx, final ChannelEvent e) {
-
-			// pass message to all listeners
-			try {
-				upstreamListenerManager.handleUpstream(ctx, e);
-			} catch (Exception e1) {
-				upstreamListenerManager.upstreamExceptionCaught(e1);
-			}
-
-			// in case we ourselves are directly inside a pipeline also send it up the stream
-			try {
-				super.handleUpstream(ctx, e);
-			} catch (Exception e1) {
-				upstreamListenerManager.upstreamExceptionCaught(e1);
-			}
-		}
-
-		@Override
-		public void exceptionCaught(final ChannelHandlerContext ctx, final ExceptionEvent e) {
-			upstreamListenerManager.upstreamExceptionCaught(e.getCause());
-			try {
-				super.exceptionCaught(ctx, e);
-			} catch (Exception e1) {
-				upstreamListenerManager.upstreamExceptionCaught(e1);
-			}
-		}
-
-	}
-
-	private class BottomHandler extends SimpleChannelHandler {
-
-		@Override
-		public void handleDownstream(final ChannelHandlerContext ctx, final ChannelEvent e) {
-
-			// pass message to all listeners
-			try {
-				downstreamListenerManager.handleDownstream(ctx, e);
-			} catch (Exception e1) {
-				downstreamListenerManager.downstreamExceptionCaught(e1);
-			}
-
-			// in case we ourselves are directly inside a pipeline also send it down the stream
-			try {
-				super.handleDownstream(ctx, e);
-			} catch (Exception e1) {
-				downstreamListenerManager.downstreamExceptionCaught(e1);
-			}
-		}
-
-		@Override
-		public void exceptionCaught(final ChannelHandlerContext ctx, final ExceptionEvent e) {
-			downstreamListenerManager.downstreamExceptionCaught(e.getCause());
-			try {
-				super.exceptionCaught(ctx, e);
-			} catch (Exception e1) {
-				downstreamListenerManager.downstreamExceptionCaught(e1);
-			}
-		}
-
-	}
-
-	private final UpstreamListenerManager upstreamListenerManager = new UpstreamListenerManager();
-
-	private final DownstreamListenerManager downstreamListenerManager = new DownstreamListenerManager();
-
-	private final TopHandler topHandler;
-
-	private final BottomHandler bottomHandler;
-
 	private org.jboss.netty.channel.ChannelSink channelSink;
 
 	private Channel channel;
@@ -388,14 +101,6 @@ public class FilterPipelineImpl implements FilterPipeline {
 
 	public FilterPipelineImpl() {
 
-		this.bottomHandler = new BottomHandler();
-		this.bottomContext = new FilterPipelineChannelHandlerContext("bottomHandler", bottomHandler);
-		this.topHandler = new TopHandler();
-		this.topContext = new FilterPipelineChannelHandlerContext("topHandler", topHandler);
-
-		this.bottomContext.setUpperContext(this.topContext);
-		this.topContext.setLowerContext(this.bottomContext);
-
 		this.channelSink = new ChannelSink();
 		this.channel = new FilterPipelineChannel(this, this.channelSink);
 
@@ -404,7 +109,8 @@ public class FilterPipelineImpl implements FilterPipeline {
 
 	@Override
 	public void beforeAdd(final ChannelHandlerContext ctx) throws Exception {
-		this.outerContext = ctx;
+		checkState(outerContext == null, "A FilterPipeline instance may only be added once to another pipeline!");
+		outerContext = ctx;
 	}
 
 	@Override
@@ -419,76 +125,70 @@ public class FilterPipelineImpl implements FilterPipeline {
 
 	@Override
 	public void afterRemove(final ChannelHandlerContext ctx) throws Exception {
-		this.outerContext = ctx;
+		checkState(outerContext == ctx);
+		outerContext = null;
 	}
 
 	@Override
 	public void handleDownstream(final ChannelHandlerContext ctx, final ChannelEvent e) throws Exception {
-		topHandler.handleDownstream(ctx, e);
+		if (topContext.getLowerContext() != null) {
+			topContext.getLowerContext().sendDownstream(e);
+		} else {
+			outerContext.sendDownstream(e);
+		}
 	}
 
 	@Override
 	public void handleUpstream(final ChannelHandlerContext ctx, final ChannelEvent e) throws Exception {
-		bottomHandler.handleUpstream(ctx, e);
+		FilterPipelineChannelHandlerContext lowestUpstreamHandlerContext = getLowestUpstreamHandlerContext();
+		if (lowestUpstreamHandlerContext != null) {
+			ChannelUpstreamHandler upstreamHandler = (ChannelUpstreamHandler) lowestUpstreamHandlerContext.getHandler();
+			upstreamHandler.handleUpstream(lowestUpstreamHandlerContext, e);
+		}
 	}
 
 	@Override
 	public void setChannelPipeline(@Nullable final List<Tuple<String, ChannelHandler>> newChannelPipeline) {
 
-		final Tuple<FilterPipelineChannelHandlerContext, FilterPipelineChannelHandlerContext> newContexts =
-				createContextChain(newChannelPipeline);
+		FilterPipelineChannelHandlerContext newBottomContext = null;
+		FilterPipelineChannelHandlerContext newTopContext = null;
 
-		FilterPipelineChannelHandlerContext currentContext = topContext;
+		if (newChannelPipeline != null) {
 
-		while ((currentContext = currentContext.getLowerContext()) != bottomContext) {
+			FilterPipelineChannelHandlerContext currentContext = null;
 
-			final ChannelHandler handler = currentContext.getHandler();
+			for (Tuple<String, ChannelHandler> tuple : Lists.reverse(newChannelPipeline)) {
 
-			if (handler instanceof LifeCycleAwareChannelHandler) {
-				try {
-					((LifeCycleAwareChannelHandler) handler).beforeRemove(currentContext);
-				} catch (Exception e) {
-					log.warn("" + e, e);
+				FilterPipelineChannelHandlerContext newContext =
+						new FilterPipelineChannelHandlerContext(this, tuple.getFirst(), tuple.getSecond());
+				newContext.setLowerContext(currentContext);
+
+				if (currentContext == null) {
+					newBottomContext = newContext;
+				} else {
+					currentContext.setUpperContext(newContext);
 				}
+
+				currentContext = newContext;
 			}
+
+			newTopContext = currentContext;
 		}
 
-		currentContext = newContexts.getSecond();
-		while ((currentContext = currentContext.getLowerContext()) != newContexts.getFirst()) {
+		notifyBeforeRemove(bottomContext);
+		notifyBeforeAdd(newBottomContext);
 
-			final ChannelHandler handler = currentContext.getHandler();
-
-			if (handler instanceof LifeCycleAwareChannelHandler) {
-				try {
-					((LifeCycleAwareChannelHandler) handler).beforeAdd(currentContext);
-				} catch (Exception e) {
-					log.warn("" + e, e);
-				}
-			}
-		}
-
-		final FilterPipelineChannelHandlerContext oldTopContext = topContext;
 		final FilterPipelineChannelHandlerContext oldBottomContext = bottomContext;
+		bottomContext = newBottomContext;
+		topContext = newTopContext;
 
-		bottomContext = newContexts.getFirst();
-		topContext = newContexts.getSecond();
+		notifyAfterAdd(bottomContext);
+		notifyAfterRemove(oldBottomContext);
+	}
 
-		currentContext = bottomContext;
-		while ((currentContext = currentContext.getUpperContext()) != topContext) {
+	private void notifyAfterRemove(@Nullable FilterPipelineChannelHandlerContext currentContext) {
 
-			final ChannelHandler handler = currentContext.getHandler();
-
-			if (handler instanceof LifeCycleAwareChannelHandler) {
-				try {
-					((LifeCycleAwareChannelHandler) handler).afterAdd(currentContext);
-				} catch (Exception e) {
-					log.warn("" + e, e);
-				}
-			}
-		}
-
-		currentContext = oldBottomContext;
-		while ((currentContext = currentContext.getUpperContext()) != oldTopContext) {
+		while (currentContext != null) {
 
 			final ChannelHandler handler = currentContext.getHandler();
 
@@ -499,398 +199,311 @@ public class FilterPipelineImpl implements FilterPipeline {
 					log.warn("" + e, e);
 				}
 			}
+
+			currentContext = currentContext.getUpperContext();
 		}
 	}
 
-	private Tuple<FilterPipelineChannelHandlerContext, FilterPipelineChannelHandlerContext> createContextChain(
-			final List<Tuple<String, ChannelHandler>> newChannelPipeline) {
+	private void notifyAfterAdd(@Nullable FilterPipelineChannelHandlerContext currentContext) {
 
-		FilterPipelineChannelHandlerContext bottomContext = new FilterPipelineChannelHandlerContext(
-				"bottomHandler", bottomHandler
-		);
+		while (currentContext != null) {
 
-		FilterPipelineChannelHandlerContext topContext = new FilterPipelineChannelHandlerContext(
-				"topHandler", topHandler
-		);
+			final ChannelHandler handler = currentContext.getHandler();
 
-		FilterPipelineChannelHandlerContext lowerContext = bottomContext;
-		FilterPipelineChannelHandlerContext currentContext = null;
-
-		if (newChannelPipeline != null) {
-
-			for (Tuple<String, ChannelHandler> handlerTuple : newChannelPipeline) {
-
-				// create context for the current handler
-				currentContext = new FilterPipelineImpl.FilterPipelineChannelHandlerContext(
-						handlerTuple.getFirst(),
-						handlerTuple.getSecond()
-				);
-
-				// wire it together with the context below
-				lowerContext.setUpperContext(currentContext);
-				currentContext.setLowerContext(lowerContext);
-
-				// remember current context as the one below for the next iteration
-				lowerContext = currentContext;
+			if (handler instanceof LifeCycleAwareChannelHandler) {
+				try {
+					((LifeCycleAwareChannelHandler) handler).afterAdd(currentContext);
+				} catch (Exception e) {
+					log.warn("" + e, e);
+				}
 			}
-		}
 
-		// if no context at all was created connect bottomContext to topContext directly
-		if (currentContext == null) {
-			bottomContext.setUpperContext(topContext);
-			topContext.setLowerContext(bottomContext);
+			currentContext = currentContext.getUpperContext();
 		}
-
-		// otherwise connect the last (=topmost) context to the topContext
-		else {
-			currentContext.setUpperContext(topContext);
-			topContext.setLowerContext(currentContext);
-		}
-
-		return new Tuple<FilterPipelineChannelHandlerContext, FilterPipelineChannelHandlerContext>(
-				bottomContext,
-				topContext
-		);
 	}
 
+	private void notifyBeforeAdd(@Nullable FilterPipelineChannelHandlerContext currentContext) {
+		while (currentContext != null) {
+
+			final ChannelHandler handler = currentContext.getHandler();
+
+			if (handler instanceof LifeCycleAwareChannelHandler) {
+				try {
+					((LifeCycleAwareChannelHandler) handler).beforeAdd(currentContext);
+				} catch (Exception e) {
+					log.warn("" + e, e);
+				}
+			}
+
+			currentContext = currentContext.getUpperContext();
+		}
+	}
+
+	private void notifyBeforeRemove(@Nullable FilterPipelineChannelHandlerContext currentContext) {
+		while (currentContext != null) {
+
+			final ChannelHandler handler = currentContext.getHandler();
+
+			if (handler instanceof LifeCycleAwareChannelHandler) {
+				try {
+					((LifeCycleAwareChannelHandler) handler).beforeRemove(currentContext);
+				} catch (Exception e) {
+					log.warn("" + e, e);
+				}
+			}
+
+			currentContext = currentContext.getUpperContext();
+		}
+	}
+
+	@Nonnull
 	@Override
 	public List<Tuple<String, ChannelHandler>> getChannelPipeline() {
 
+		checkPipelineState();
+
 		final List<Tuple<String, ChannelHandler>> list = newArrayList();
 
+		if (bottomContext == null) {
+			return list;
+		}
+
 		FilterPipelineChannelHandlerContext currentContext = bottomContext;
-		while ((currentContext = currentContext.getUpperContext()) != topContext) {
+		list.add(new Tuple<String, ChannelHandler>(currentContext.getName(), currentContext.getHandler()));
+
+		while ((currentContext = currentContext.getUpperContext()) != null) {
 			list.add(new Tuple<String, ChannelHandler>(currentContext.getName(), currentContext.getHandler()));
 		}
 
 		return list;
 	}
 
-	@Override
-	public void addListener(final FilterPipelineDownstreamListener listener) {
-		downstreamListenerManager.addListener(listener);
+	private void checkPipelineState() {
+		checkState((bottomContext == null && topContext == null) || (bottomContext != null && topContext != null));
 	}
 
 	@Override
-	public void addListener(final FilterPipelineUpstreamListener listener) {
-		upstreamListenerManager.addListener(listener);
+	public void addAfter(@Nonnull final String baseName, @Nonnull final String name,
+						 @Nonnull final ChannelHandler handler) {
+
+		checkNotNull(baseName);
+		checkNotNull(name);
+		checkNotNull(handler);
+
+		checkPipelineState();
+
+		final FilterPipelineChannelHandlerContext newContext =
+				new FilterPipelineChannelHandlerContext(this, name, handler);
+
+		FilterPipelineChannelHandlerContext baseContext = getContextOrDie(baseName);
+		insertContextInBetween(newContext, baseContext, baseContext.getUpperContext());
+
+		checkPipelineState();
 	}
 
 	@Override
-	public void removeListener(final FilterPipelineDownstreamListener listener) {
-		downstreamListenerManager.addListener(listener);
+	public void addBefore(@Nonnull final String baseName, @Nonnull final String name,
+						  @Nonnull final ChannelHandler handler) {
+
+		checkNotNull(baseName);
+		checkNotNull(name);
+		checkNotNull(handler);
+
+		checkPipelineState();
+
+		final FilterPipelineChannelHandlerContext newContext =
+				new FilterPipelineChannelHandlerContext(this, name, handler);
+
+		FilterPipelineChannelHandlerContext baseContext = getContextOrDie(baseName);
+		insertContextInBetween(newContext, baseContext.getLowerContext(), baseContext);
+
+		checkPipelineState();
 	}
 
 	@Override
-	public void removeListener(final FilterPipelineUpstreamListener listener) {
-		upstreamListenerManager.addListener(listener);
+	public void addFirst(@Nonnull final String name, @Nonnull final ChannelHandler handler) {
+
+		checkNotNull(name);
+		checkNotNull(handler);
+
+		checkPipelineState();
+
+		final FilterPipelineChannelHandlerContext newContext =
+				new FilterPipelineChannelHandlerContext(this, name, handler);
+
+		insertContextInBetween(newContext, null, bottomContext);
+
+		checkPipelineState();
 	}
 
 	@Override
-	public void addFirst(final String name, final ChannelHandler handler) {
+	public void addLast(@Nonnull final String name, @Nonnull final ChannelHandler handler) {
 
-		final FilterPipelineChannelHandlerContext newContext = new FilterPipelineChannelHandlerContext(name, handler);
-		final FilterPipelineChannelHandlerContext lowerContext = bottomContext;
-		final FilterPipelineChannelHandlerContext upperContext = lowerContext.getUpperContext();
+		checkNotNull(name);
+		checkNotNull(handler);
 
-		setContextInBetween(newContext, lowerContext, upperContext);
-	}
+		checkPipelineState();
 
-	private void setContextInBetween(final FilterPipelineImpl.FilterPipelineChannelHandlerContext newContext,
-									 final FilterPipelineImpl.FilterPipelineChannelHandlerContext lowerContext,
-									 final FilterPipelineImpl.FilterPipelineChannelHandlerContext upperContext) {
+		final FilterPipelineChannelHandlerContext newContext =
+				new FilterPipelineChannelHandlerContext(this, name, handler);
 
-		newContext.setLowerContext(lowerContext);
-		upperContext.setLowerContext(newContext);
+		insertContextInBetween(newContext, topContext, null);
 
-		lowerContext.setUpperContext(newContext);
-		newContext.setUpperContext(upperContext);
+		checkPipelineState();
 	}
 
 	@Override
-	public void addLast(final String name, final ChannelHandler handler) {
+	public void attach(@Nonnull final Channel channel, @Nonnull final org.jboss.netty.channel.ChannelSink sink) {
 
-		final FilterPipelineChannelHandlerContext newContext = new FilterPipelineChannelHandlerContext(name, handler);
-		final FilterPipelineChannelHandlerContext upperContext = topContext;
-		final FilterPipelineChannelHandlerContext lowerContext = upperContext.getLowerContext();
+		checkNotNull(channel);
+		checkNotNull(sink);
 
-		setContextInBetween(newContext, lowerContext, upperContext);
+		this.channel = channel;
+		this.channelSink = sink;
 	}
 
 	@Override
-	public void addBefore(final String baseName, final String name, final ChannelHandler handler) {
+	@Nullable
+	@SuppressWarnings("unchecked")
+	public <T extends ChannelHandler> T get(@Nonnull final Class<T> handlerType) {
 
-		final FilterPipelineChannelHandlerContext newContext = new FilterPipelineChannelHandlerContext(name, handler);
+		checkNotNull(handlerType);
 
-		FilterPipelineChannelHandlerContext currentContext;
-		while ((currentContext = bottomContext.getUpperContext()) != topContext) {
+		FilterPipelineChannelHandlerContext currentContext = bottomContext;
 
-			if (currentContext.getName().equals(baseName)) {
+		while (currentContext != null) {
 
-				final FilterPipelineChannelHandlerContext upperContext = currentContext;
-				final FilterPipelineChannelHandlerContext lowerContext = currentContext.getLowerContext();
-
-				setContextInBetween(newContext, lowerContext, upperContext);
-			}
-		}
-	}
-
-	@Override
-	public void addAfter(final String baseName, final String name, final ChannelHandler handler) {
-
-		final FilterPipelineChannelHandlerContext newContext = new FilterPipelineChannelHandlerContext(name, handler);
-
-		FilterPipelineChannelHandlerContext currentContext;
-		while ((currentContext = topContext.getLowerContext()) != bottomContext) {
-
-			if (currentContext.getName().equals(baseName)) {
-
-				FilterPipelineChannelHandlerContext lowerContext = currentContext;
-				FilterPipelineChannelHandlerContext upperContext = currentContext.getUpperContext();
-
-				setContextInBetween(newContext, lowerContext, upperContext);
-			}
-		}
-
-	}
-
-	@Override
-	public void remove(final ChannelHandler handler) {
-
-		FilterPipelineChannelHandlerContext currentContext;
-		while ((currentContext = bottomContext.getUpperContext()) != topContext) {
-
-			if (currentContext.getHandler() == handler) {
-				removeContext(currentContext);
-			}
-		}
-
-	}
-
-	private void removeContext(final FilterPipelineChannelHandlerContext currentContext) {
-		currentContext.getLowerContext().setUpperContext(currentContext.getUpperContext());
-		currentContext.getUpperContext().setLowerContext(currentContext.getLowerContext());
-	}
-
-	@Override
-	public ChannelHandler remove(final String name) {
-
-		FilterPipelineChannelHandlerContext currentContext;
-		while ((currentContext = bottomContext.getUpperContext()) != topContext) {
-
-			if (currentContext.getName().equals(name)) {
-				removeContext(currentContext);
-				return currentContext.getHandler();
-			}
-		}
-
-		return null;
-	}
-
-	@Override
-	public <T extends ChannelHandler> T remove(final Class<T> handlerType) {
-
-		FilterPipelineChannelHandlerContext currentContext;
-		while ((currentContext = bottomContext.getUpperContext()) != topContext) {
-
-			if (currentContext.getHandler().getClass().equals(handlerType)) {
-				removeContext(currentContext);
-				return (T) currentContext.getHandler();
-			}
-		}
-
-		return null;
-	}
-
-	@Override
-	public ChannelHandler removeFirst() {
-
-		FilterPipelineChannelHandlerContext firstContextOverBottom = bottomContext.getUpperContext();
-
-		if (firstContextOverBottom != topContext) {
-			removeContext(firstContextOverBottom);
-			return firstContextOverBottom.getHandler();
-		}
-
-		return null;
-	}
-
-	@Override
-	public ChannelHandler removeLast() {
-
-		FilterPipelineChannelHandlerContext firstContextUnderTop = topContext.getLowerContext();
-
-		if (firstContextUnderTop != bottomContext) {
-			removeContext(firstContextUnderTop);
-			return firstContextUnderTop.getHandler();
-		}
-
-		return null;
-	}
-
-	@Override
-	public void replace(final ChannelHandler oldHandler, final String newName, final ChannelHandler newHandler) {
-
-		FilterPipelineChannelHandlerContext newContext = new FilterPipelineChannelHandlerContext(newName, newHandler);
-
-		FilterPipelineChannelHandlerContext currentContext;
-		while ((currentContext = bottomContext.getUpperContext()) != topContext) {
-
-			if (currentContext.getHandler() == oldHandler) {
-				replaceContext(currentContext, newContext);
-			}
-		}
-	}
-
-	private void replaceContext(final FilterPipelineChannelHandlerContext oldContext,
-								final FilterPipelineChannelHandlerContext newContext) {
-
-		oldContext.getLowerContext().setUpperContext(newContext);
-		newContext.setUpperContext(oldContext.getUpperContext());
-
-		oldContext.getUpperContext().setLowerContext(newContext);
-		newContext.setLowerContext(oldContext.getLowerContext());
-	}
-
-	@Override
-	public ChannelHandler replace(final String oldName, final String newName, final ChannelHandler newHandler) {
-
-		FilterPipelineChannelHandlerContext newContext = new FilterPipelineChannelHandlerContext(newName, newHandler);
-
-		FilterPipelineChannelHandlerContext currentContext;
-		while ((currentContext = bottomContext.getUpperContext()) != topContext) {
-
-			if (currentContext.getName().equals(oldName)) {
-				replaceContext(currentContext, newContext);
-				return currentContext.getHandler();
-			}
-		}
-
-		return null;
-	}
-
-	@Override
-	public <T extends ChannelHandler> T replace(final Class<T> oldHandlerType, final String newName,
-												final ChannelHandler newHandler) {
-
-		FilterPipelineChannelHandlerContext newContext = new FilterPipelineChannelHandlerContext(newName, newHandler);
-
-		FilterPipelineChannelHandlerContext currentContext;
-		while ((currentContext = bottomContext.getUpperContext()) != topContext) {
-
-			if (currentContext.getHandler().getClass().equals(oldHandlerType)) {
-				replaceContext(currentContext, newContext);
-				return (T) currentContext.getHandler();
-			}
-		}
-
-		return null;
-	}
-
-	@Override
-	public ChannelHandler getFirst() {
-		return bottomContext.getUpperContext() == topContext ? null : bottomContext.getUpperContext().getHandler();
-	}
-
-	@Override
-	public ChannelHandler getLast() {
-		return topContext.getLowerContext() == bottomContext ? null : topContext.getLowerContext().getHandler();
-	}
-
-	@Override
-	public ChannelHandler get(final String name) {
-
-		FilterPipelineChannelHandlerContext currentContext;
-
-		while ((currentContext = bottomContext.getUpperContext()) != topContext) {
-			if (currentContext.getName().equals(name)) {
-				return currentContext.getHandler();
-			}
-		}
-
-		return null;
-	}
-
-	@Override
-	public <T extends ChannelHandler> T get(final Class<T> handlerType) {
-
-		FilterPipelineChannelHandlerContext currentContext;
-
-		while ((currentContext = bottomContext.getUpperContext()) != topContext) {
 			if (currentContext.getHandler().getClass().equals(handlerType)) {
 				return (T) currentContext.getHandler();
 			}
+
+			currentContext = currentContext.getUpperContext();
 		}
 
 		return null;
 	}
 
 	@Override
-	public ChannelHandlerContext getContext(final ChannelHandler handler) {
+	@Nullable
+	public ChannelHandler get(@Nonnull final String name) {
 
-		FilterPipelineChannelHandlerContext currentContext;
+		checkNotNull(name);
 
-		while ((currentContext = bottomContext.getUpperContext()) != topContext) {
-			if (currentContext.getHandler() == handler) {
-				return currentContext;
-			}
-		}
-
-		return null;
+		ChannelHandlerContext context = getContext(name);
+		return context == null ?
+				null :
+				context.getHandler();
 	}
 
 	@Override
-	public ChannelHandlerContext getContext(final String name) {
-
-		FilterPipelineChannelHandlerContext currentContext;
-
-		while ((currentContext = bottomContext.getUpperContext()) != topContext) {
-			if (currentContext.getName().equals(name)) {
-				return currentContext;
-			}
-		}
-
-		return null;
-	}
-
-	@Override
-	public ChannelHandlerContext getContext(final Class<? extends ChannelHandler> handlerType) {
-
-		FilterPipelineChannelHandlerContext currentContext;
-
-		while ((currentContext = bottomContext.getUpperContext()) != topContext) {
-			if (currentContext.getHandler().getClass().equals(handlerType)) {
-				return currentContext;
-			}
-		}
-
-		return null;
-	}
-
-	@Override
-	public void sendUpstream(final ChannelEvent e) {
-		bottomContext.sendUpstream(e);
-	}
-
-	@Override
-	public void sendDownstream(final ChannelEvent e) {
-		topContext.sendDownstream(e);
-	}
-
-	@Override
+	@Nullable
 	public Channel getChannel() {
 		return channel;
 	}
 
 	@Override
-	public org.jboss.netty.channel.ChannelSink getSink() {
-		return channelSink;
+	@Nullable
+	public ChannelHandlerContext getContext(@Nonnull final ChannelHandler handler) {
+
+		checkNotNull(handler);
+
+		FilterPipelineChannelHandlerContext currentContext = bottomContext;
+
+		while (currentContext != null) {
+
+			if (currentContext.getHandler() == handler) {
+				return currentContext;
+			}
+
+			currentContext = currentContext.getUpperContext();
+		}
+
+		return null;
 	}
 
 	@Override
-	public void attach(final Channel channel, final org.jboss.netty.channel.ChannelSink sink) {
-		this.channel = channel;
-		this.channelSink = sink;
+	@Nullable
+	public ChannelHandlerContext getContext(@Nonnull final Class<? extends ChannelHandler> handlerType) {
+
+		checkNotNull(handlerType);
+
+		FilterPipelineChannelHandlerContext currentContext = bottomContext;
+
+		while (currentContext != null) {
+
+			if (currentContext.getHandler().getClass().equals(handlerType)) {
+				return currentContext;
+			}
+
+			currentContext = currentContext.getUpperContext();
+		}
+
+		return null;
+	}
+
+	@Override
+	@Nullable
+	public ChannelHandlerContext getContext(@Nonnull final String name) {
+
+		checkNotNull(name);
+
+		FilterPipelineChannelHandlerContext currentContext = bottomContext;
+
+		while (currentContext != null) {
+
+			if (currentContext.getName().equals(name)) {
+				return currentContext;
+			}
+
+			currentContext = currentContext.getUpperContext();
+		}
+
+		return null;
+	}
+
+	@Nonnull
+	private FilterPipelineChannelHandlerContext getContextOrDie(@Nonnull final String name) {
+
+		checkNotNull(name);
+
+		ChannelHandlerContext context = getContext(name);
+		if (context == null) {
+			throw new NoSuchElementException(name);
+		}
+		return (FilterPipelineChannelHandlerContext) context;
+	}
+
+	@Override
+	@Nullable
+	public ChannelHandler getFirst() {
+		return bottomContext != null ? bottomContext.getHandler() : null;
+	}
+
+	@Override
+	@Nullable
+	public ChannelHandler getLast() {
+		return topContext != null ? topContext.getHandler() : null;
+	}
+
+	@Override
+	@Nonnull
+	public List<String> getNames() {
+
+		List<String> names = newArrayList();
+
+		FilterPipelineChannelHandlerContext currentContext = bottomContext;
+		while (currentContext != null) {
+			names.add(currentContext.getName());
+			currentContext = currentContext.getUpperContext();
+		}
+
+		return names;
+	}
+
+	@Override
+	@Nullable
+	public org.jboss.netty.channel.ChannelSink getSink() {
+		return channelSink;
 	}
 
 	@Override
@@ -899,20 +512,297 @@ public class FilterPipelineImpl implements FilterPipeline {
 	}
 
 	@Override
-	public List<String> getNames() {
-		if (!isAttached()) {
-			return null;
-		}
-		List<String> names = newArrayList();
-		FilterPipelineChannelHandlerContext currentContext;
-		while ((currentContext = bottomContext.getUpperContext()) != topContext) {
-			names.add(currentContext.getName());
-		}
-		return names;
+	public void remove(final ChannelHandler handler) {
+		removeContext(getContextOrDie(handler));
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
+	public <T extends ChannelHandler> T remove(final Class<T> handlerType) {
+
+		checkPipelineState();
+
+		FilterPipelineChannelHandlerContext currentContext = bottomContext;
+		while (bottomContext != null) {
+
+			if (currentContext.getHandler().getClass().equals(handlerType)) {
+				removeContext(currentContext);
+				checkPipelineState();
+				return (T) currentContext.getHandler();
+			}
+
+			currentContext = currentContext.getUpperContext();
+		}
+
+		return null;
+	}
+
+	@Nonnull
+	private FilterPipelineChannelHandlerContext getContextOrDie(@Nonnull final ChannelHandler handler) {
+		checkNotNull(handler);
+		ChannelHandlerContext context = getContext(handler);
+		if (context == null) {
+			throw new NoSuchElementException("No such handler: " + handler);
+		}
+		return (FilterPipelineChannelHandlerContext) context;
+	}
+
+	@Nonnull
+	private <T extends ChannelHandler> FilterPipelineChannelHandlerContext getContextOrDie(
+			@Nonnull final Class<T> handlerType) {
+		checkNotNull(handlerType);
+		ChannelHandlerContext context = getContext(handlerType);
+		if (context == null) {
+			throw new NoSuchElementException("No such handler: " + handlerType);
+		}
+		return (FilterPipelineChannelHandlerContext) context;
+	}
+
+	private boolean isEmpty() {
+		return bottomContext == null && topContext == null;
+	}
+
+	@Override
+	@Nonnull
+	public ChannelHandler remove(@Nonnull final String name) {
+		checkNotNull(name);
+		FilterPipelineChannelHandlerContext contextToBeRemoved = getContextOrDie(name);
+		removeContext(contextToBeRemoved);
+		return contextToBeRemoved.getHandler();
+	}
+
+	@Override
+	@Nonnull
+	public ChannelHandler removeFirst() {
+
+		checkPipelineState();
+
+		ChannelHandler first = getFirst();
+		if (first == null) {
+			throw new NoSuchElementException();
+		}
+		remove(first);
+		return first;
+	}
+
+	@Override
+	@Nonnull
+	public ChannelHandler removeLast() {
+
+		checkPipelineState();
+
+		ChannelHandler last = getLast();
+		if (last == null) {
+			throw new NoSuchElementException();
+		}
+		remove(last);
+		return last;
+	}
+
+	@Override
+	public void replace(final ChannelHandler oldHandler, final String newName, final ChannelHandler newHandler) {
+
+		FilterPipelineChannelHandlerContext oldContext = getContextOrDie(oldHandler);
+		FilterPipelineChannelHandlerContext newContext =
+				new FilterPipelineChannelHandlerContext(this, newName, newHandler);
+
+		replaceContext(oldContext, newContext);
+	}
+
+	@Override
+	public ChannelHandler replace(final String oldName, final String newName, final ChannelHandler newHandler) {
+
+		FilterPipelineChannelHandlerContext oldContext = getContextOrDie(oldName);
+		FilterPipelineChannelHandlerContext newContext =
+				new FilterPipelineChannelHandlerContext(this, newName, newHandler);
+
+		replaceContext(oldContext, newContext);
+
+		return oldContext.getHandler();
+	}
+
+	@Override
+	@SuppressWarnings("unchecked")
+	public <T extends ChannelHandler> T replace(final Class<T> oldHandlerType, final String newName,
+												final ChannelHandler newHandler) {
+
+		FilterPipelineChannelHandlerContext oldContext = getContextOrDie(oldHandlerType);
+		FilterPipelineChannelHandlerContext newContext =
+				new FilterPipelineChannelHandlerContext(this, newName, newHandler);
+
+		replaceContext(oldContext, newContext);
+
+		return (T) oldContext.getHandler();
+	}
+
+	@Override
+	public void sendDownstream(final ChannelEvent e) {
+
+		checkState(isAttached());
+
+		FilterPipelineChannelHandlerContext highestDownstreamHandlerContext = getHighestDownstreamHandlerContext();
+
+		if (highestDownstreamHandlerContext != null) {
+
+			try {
+
+				ChannelDownstreamHandler downstreamHandler = (ChannelDownstreamHandler) highestDownstreamHandlerContext.getHandler();
+				downstreamHandler.handleDownstream(highestDownstreamHandlerContext, e);
+
+			} catch (Exception e1) {
+				notifyHandlerException(e, e1);
+			}
+		}
+	}
+
+	@Override
+	public void sendUpstream(final ChannelEvent e) {
+
+		checkState(isAttached());
+
+		FilterPipelineChannelHandlerContext lowestUpstreamHandlerContext = getLowestUpstreamHandlerContext();
+
+		if (lowestUpstreamHandlerContext != null) {
+
+			try {
+
+				ChannelUpstreamHandler upstreamHandler = (ChannelUpstreamHandler) lowestUpstreamHandlerContext.getHandler();
+				upstreamHandler.handleUpstream(lowestUpstreamHandlerContext, e);
+
+			} catch (Exception e1) {
+				notifyHandlerException(e, e1);
+			}
+		}
+	}
+
+	private void notifyHandlerException(final ChannelEvent e, final Exception e1) {
+		if (e instanceof ExceptionEvent) {
+			log.warn(
+					"An exception was thrown by a user handler while handling an exception event ({}): {}",
+					e1, e
+			);
+			return;
+		}
+
+		ChannelPipelineException channelPipelineException;
+		if (e1 instanceof ChannelPipelineException) {
+			channelPipelineException = (ChannelPipelineException) e1;
+		} else {
+			channelPipelineException = new ChannelPipelineException(e1);
+		}
+
+		try {
+			channelSink.exceptionCaught(this, e, channelPipelineException);
+		} catch (Exception e2) {
+			log.warn("Sink threw an exception while handling an exception: {}", channelPipelineException);
+		}
+	}
+
+	@Nullable
+	private FilterPipelineChannelHandlerContext getLowestUpstreamHandlerContext() {
+		FilterPipelineChannelHandlerContext currentContext = bottomContext;
+		while (currentContext != null) {
+			if (currentContext.canHandleUpstream()) {
+				return currentContext;
+			}
+			currentContext = currentContext.getUpperContext();
+		}
+		return null;
+	}
+
+	ChannelHandlerContext getOuterContext() {
+		return outerContext;
+	}
+
+	@Nullable
+	private FilterPipelineChannelHandlerContext getHighestDownstreamHandlerContext() {
+		FilterPipelineChannelHandlerContext currentContext = topContext;
+		while (currentContext != null) {
+			if (currentContext.canHandleDownstream()) {
+				return currentContext;
+			}
+			currentContext = currentContext.getLowerContext();
+		}
+		return null;
+	}
+
+	@Override
+	@Nonnull
 	public Map<String, ChannelHandler> toMap() {
-		throw new RuntimeException("TODO implement");
+
+		Map<String, ChannelHandler> map = new LinkedHashMap<String, ChannelHandler>();
+
+		FilterPipelineChannelHandlerContext currentContext = bottomContext;
+		while (currentContext != null) {
+			map.put(currentContext.getName(), currentContext.getHandler());
+			currentContext = currentContext.getUpperContext();
+		}
+		
+		return map;
+	}
+
+	private void removeContext(@Nonnull final FilterPipelineChannelHandlerContext contextToBeRemoved) {
+
+		checkNotNull(contextToBeRemoved);
+
+		if (isEmpty()) {
+			return;
+		}
+
+		if (contextToBeRemoved.getUpperContext() == null) {
+			topContext = contextToBeRemoved.getLowerContext();
+		} else {
+			contextToBeRemoved.getUpperContext().setLowerContext(contextToBeRemoved.getLowerContext());
+		}
+
+		if (contextToBeRemoved.getLowerContext() == null) {
+			bottomContext = contextToBeRemoved.getUpperContext();
+		} else {
+			contextToBeRemoved.getLowerContext().setUpperContext(contextToBeRemoved.getUpperContext());
+		}
+	}
+
+	private void replaceContext(@Nonnull final FilterPipelineChannelHandlerContext oldContext,
+								@Nonnull final FilterPipelineChannelHandlerContext newContext) {
+
+		checkNotNull(oldContext);
+		checkNotNull(newContext);
+
+		removeContext(oldContext);
+		insertContextInBetween(newContext, oldContext.getLowerContext(), oldContext.getUpperContext());
+	}
+
+	private void insertContextInBetween(@Nonnull final FilterPipelineChannelHandlerContext newContext,
+										@Nullable final FilterPipelineChannelHandlerContext lowerContext,
+										@Nullable final FilterPipelineChannelHandlerContext upperContext) {
+
+		checkNotNull(newContext);
+
+		if (isEmpty() && (lowerContext != null || upperContext != null)) {
+			throw new IllegalArgumentException();
+		} else if (!isEmpty() && lowerContext == null && upperContext == null) {
+			throw new IllegalArgumentException();
+		}
+
+		if (isEmpty()) {
+			bottomContext = newContext;
+			topContext = newContext;
+			return;
+		}
+
+		newContext.setLowerContext(lowerContext);
+		newContext.setUpperContext(upperContext);
+
+		if (upperContext == null) {
+			topContext = newContext;
+		} else {
+			upperContext.setLowerContext(newContext);
+		}
+
+		if (lowerContext == null) {
+			bottomContext = newContext;
+		} else {
+			lowerContext.setUpperContext(newContext);
+		}
 	}
 }
