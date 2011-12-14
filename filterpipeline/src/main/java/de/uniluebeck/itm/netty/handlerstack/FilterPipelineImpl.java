@@ -1,5 +1,6 @@
 package de.uniluebeck.itm.netty.handlerstack;
 
+import com.google.common.collect.Lists;
 import de.uniluebeck.itm.tr.util.Tuple;
 import org.jboss.netty.channel.*;
 import org.slf4j.Logger;
@@ -156,14 +157,14 @@ public class FilterPipelineImpl implements FilterPipeline {
 
 			FilterPipelineChannelHandlerContext currentContext = null;
 
-			for (Tuple<String, ChannelHandler> tuple : newChannelPipeline) {
+			for (Tuple<String, ChannelHandler> tuple : Lists.reverse(newChannelPipeline)) {
 
 				FilterPipelineChannelHandlerContext newContext =
 						new FilterPipelineChannelHandlerContext(this, tuple.getFirst(), tuple.getSecond());
 				newContext.setLowerContext(currentContext);
 
 				if (currentContext == null) {
-					newBottomContext = currentContext;
+					newBottomContext = newContext;
 				} else {
 					currentContext.setUpperContext(newContext);
 				}
@@ -734,6 +735,7 @@ public class FilterPipelineImpl implements FilterPipeline {
 		FilterPipelineChannelHandlerContext currentContext = bottomContext;
 		while (currentContext != null) {
 			map.put(currentContext.getName(), currentContext.getHandler());
+			currentContext = currentContext.getUpperContext();
 		}
 		
 		return map;
