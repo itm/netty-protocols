@@ -8,8 +8,6 @@ import de.uniluebeck.itm.netty.handlerstack.protocolcollection.ProtocolCollectio
 import de.uniluebeck.itm.nettyrxtx.RXTXChannelFactory;
 import de.uniluebeck.itm.nettyrxtx.RXTXDeviceAddress;
 import de.uniluebeck.itm.tr.util.Logging;
-import de.uniluebeck.itm.tr.util.Tuple;
-import de.uniluebeck.netty.handlerstack.logginghandler.LoggingHandler;
 import org.apache.commons.cli.*;
 import org.apache.log4j.Level;
 import org.jboss.netty.bootstrap.ClientBootstrap;
@@ -18,9 +16,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.io.FileReader;
-import java.util.Map;
-import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
