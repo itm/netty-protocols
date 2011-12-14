@@ -358,6 +358,8 @@ public class FilterPipelineImpl implements FilterPipeline {
 		checkNotNull(channel);
 		checkNotNull(sink);
 
+		checkState(!isAttached());
+
 		this.channel = channel;
 		this.channelSink = sink;
 	}
