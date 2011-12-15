@@ -24,6 +24,10 @@ import static org.jboss.netty.channel.Channels.pipeline;
 
 public class FilterPipelineCLI {
 
+	static {
+		Logging.setLoggingDefaults();
+	}
+
 	private static final Logger log = LoggerFactory.getLogger(FilterPipelineCLI.class);
 
 	private static final int EXIT_CODE_INVALID_ARGUMENTS = 1;
@@ -37,8 +41,6 @@ public class FilterPipelineCLI {
 	private final static Level[] LOG_LEVELS = {Level.TRACE, Level.DEBUG, Level.INFO, Level.WARN, Level.ERROR};
 	
 	public static void main(String[] args) {
-
-		Logging.setLoggingDefaults();
 
 		Options options = createCommandLineOptions();
 		FilterPipelineCLIConfig config = parseCommandLineOptions(options, args);
