@@ -1,6 +1,5 @@
 package de.uniluebeck.itm.netty.handlerstack;
 
-import com.google.common.collect.Lists;
 import de.uniluebeck.itm.tr.util.Tuple;
 import org.jboss.netty.channel.*;
 import org.slf4j.Logger;
@@ -8,7 +7,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.net.SocketAddress;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,64 +20,18 @@ public class FilterPipelineImpl implements FilterPipeline {
 
 	private static final Logger log = LoggerFactory.getLogger(FilterPipelineImpl.class);
 
-	private class FilterPipelineChannel extends AbstractChannel {
+	private static final String ERROR_MESSAGE_NOT_ATTACHED_AND_NOT_HANDLER =
+			"This FilterPipeline instance is neither used as pipeline nor was it added to another pipeline as a handler!";
 
-		private final ChannelConfig config;
+	private static final String ERROR_MESSAGE_ALREADY_ADDED_AS_HANDLER =
+			"A FilterPipeline instance may only be added once to another pipeline!";
 
-		private final SocketAddress localAddress = new SocketAddress() {
-		};
+	private static final String ERROR_MESSAGE_ALREADY_ATTACHED_AS_PIPELINE =
+			"A FilterPipeline instance may only be used once as handler OR pipeline!";
 
-		private final SocketAddress remoteAddress = new SocketAddress() {
-		};
+	private org.jboss.netty.channel.ChannelSink outerChannelSink;
 
-		public FilterPipelineChannel(ChannelPipeline pipeline, org.jboss.netty.channel.ChannelSink sink) {
-			super(0, null, null, pipeline, sink);
-			config = new DefaultChannelConfig();
-		}
-
-		public ChannelConfig getConfig() {
-			return config;
-		}
-
-		public SocketAddress getLocalAddress() {
-			return localAddress;
-		}
-
-		public SocketAddress getRemoteAddress() {
-			return remoteAddress;
-		}
-
-		public boolean isBound() {
-			return outerContext != null;
-		}
-
-		public boolean isConnected() {
-			return outerContext != null;
-		}
-
-	}
-
-	private class ChannelSink implements org.jboss.netty.channel.ChannelSink {
-
-		public ChannelSink() {
-			super();
-		}
-
-		public void eventSunk(ChannelPipeline pipeline, ChannelEvent e) {
-			// do nothing
-		}
-
-		public void exceptionCaught(
-				ChannelPipeline pipeline, ChannelEvent e,
-				ChannelPipelineException cause) throws Exception {
-
-			throw new RuntimeException(cause);
-		}
-	}
-
-	private org.jboss.netty.channel.ChannelSink channelSink;
-
-	private Channel channel;
+	private Channel outerChannel;
 
 	/**
 	 * If this FilterPipeline instance is placed inside another pipeline this field will hold the "outer context",
@@ -99,51 +51,90 @@ public class FilterPipelineImpl implements FilterPipeline {
 	 */
 	private FilterPipelineChannelHandlerContext topContext;
 
-	public FilterPipelineImpl() {
+	private volatile boolean isUsedAsHandler = false;
 
-		this.channelSink = new ChannelSink();
-		this.channel = new FilterPipelineChannel(this, this.channelSink);
-
-		setChannelPipeline(null);
-	}
+	private volatile boolean isAttached = false;
 
 	@Override
 	public void beforeAdd(final ChannelHandlerContext ctx) throws Exception {
-		checkState(outerContext == null, "A FilterPipeline instance may only be added once to another pipeline!");
-		outerContext = ctx;
+
+		checkState(!isUsedAsHandler, ERROR_MESSAGE_ALREADY_ADDED_AS_HANDLER);
+		checkState(!isAttached, ERROR_MESSAGE_ALREADY_ATTACHED_AS_PIPELINE);
+
 	}
 
 	@Override
 	public void afterAdd(final ChannelHandlerContext ctx) throws Exception {
-		// nothing to do
+
+		checkState(!isUsedAsHandler, ERROR_MESSAGE_ALREADY_ADDED_AS_HANDLER);
+		checkState(!isAttached, ERROR_MESSAGE_ALREADY_ATTACHED_AS_PIPELINE);
+
+		outerContext = ctx;
+		outerChannel = ctx.getChannel();
+		outerChannelSink = ctx.getChannel() != null ? ctx.getChannel().getPipeline().getSink() : null;
+		isUsedAsHandler = true;
 	}
 
 	@Override
 	public void beforeRemove(final ChannelHandlerContext ctx) throws Exception {
-		// nothing to do
+
+		checkState(isUsedAsHandler);
+		checkState(!isAttached);
+
 	}
 
 	@Override
 	public void afterRemove(final ChannelHandlerContext ctx) throws Exception {
-		checkState(outerContext == ctx);
+
+		checkState(isUsedAsHandler);
+		checkState(!isAttached);
+
 		outerContext = null;
+		outerChannel = null;
+		outerChannelSink = null;
+		isUsedAsHandler = false;
 	}
 
 	@Override
-	public void handleDownstream(final ChannelHandlerContext ctx, final ChannelEvent e) throws Exception {
-		if (topContext.getLowerContext() != null) {
-			topContext.getLowerContext().sendDownstream(e);
-		} else {
+	public void handleDownstream(@Nonnull final ChannelHandlerContext ctx, @Nonnull final ChannelEvent e)
+			throws Exception {
+
+		checkNotNull(ctx);
+		checkNotNull(e);
+		checkState(isAttached || isUsedAsHandler, ERROR_MESSAGE_NOT_ATTACHED_AND_NOT_HANDLER);
+
+		if (e instanceof UpstreamMessageEvent || e instanceof UpstreamChannelStateEvent) {
+			throw new IllegalArgumentException("handleDownstream does not handle upstream events!");
+		}
+
+		FilterPipelineChannelHandlerContext highestDownstreamHandlerContext = getHighestDownstreamHandlerContext();
+		if (highestDownstreamHandlerContext != null) {
+			ChannelDownstreamHandler downstreamHandler =
+					(ChannelDownstreamHandler) highestDownstreamHandlerContext.getHandler();
+			downstreamHandler.handleDownstream(highestDownstreamHandlerContext, e);
+		} else if (outerContext != null) {
 			outerContext.sendDownstream(e);
 		}
 	}
 
 	@Override
-	public void handleUpstream(final ChannelHandlerContext ctx, final ChannelEvent e) throws Exception {
+	public void handleUpstream(@Nonnull final ChannelHandlerContext ctx, @Nonnull final ChannelEvent e)
+			throws Exception {
+
+		checkNotNull(ctx);
+		checkNotNull(e);
+		checkState(isAttached || isUsedAsHandler, ERROR_MESSAGE_NOT_ATTACHED_AND_NOT_HANDLER);
+
+		if (e instanceof DownstreamMessageEvent || e instanceof DownstreamChannelStateEvent) {
+			throw new IllegalArgumentException("handleUpstream does not handle downstream events!");
+		}
+
 		FilterPipelineChannelHandlerContext lowestUpstreamHandlerContext = getLowestUpstreamHandlerContext();
 		if (lowestUpstreamHandlerContext != null) {
 			ChannelUpstreamHandler upstreamHandler = (ChannelUpstreamHandler) lowestUpstreamHandlerContext.getHandler();
 			upstreamHandler.handleUpstream(lowestUpstreamHandlerContext, e);
+		} else if (outerContext != null) {
+			outerContext.sendUpstream(e);
 		}
 	}
 
@@ -157,7 +148,7 @@ public class FilterPipelineImpl implements FilterPipeline {
 
 			FilterPipelineChannelHandlerContext currentContext = null;
 
-			for (Tuple<String, ChannelHandler> tuple : Lists.reverse(newChannelPipeline)) {
+			for (Tuple<String, ChannelHandler> tuple : newChannelPipeline) {
 
 				FilterPipelineChannelHandlerContext newContext =
 						new FilterPipelineChannelHandlerContext(this, tuple.getFirst(), tuple.getSecond());
@@ -353,13 +344,18 @@ public class FilterPipelineImpl implements FilterPipeline {
 	}
 
 	@Override
-	public void attach(@Nonnull final Channel channel, @Nonnull final org.jboss.netty.channel.ChannelSink sink) {
+	public void attach(@Nonnull final Channel outerChannel,
+					   @Nonnull final org.jboss.netty.channel.ChannelSink outerChannelSink) {
 
-		checkNotNull(channel);
-		checkNotNull(sink);
+		checkNotNull(outerChannel);
+		checkNotNull(outerChannelSink);
 
-		this.channel = channel;
-		this.channelSink = sink;
+		checkState(!isUsedAsHandler, "A FilterPipeline instance may only be used once as handler OR pipeline!");
+		checkState(!isAttached, "A FilterPipeline instance may only be attached once!");
+
+		this.outerChannel = outerChannel;
+		this.outerChannelSink = outerChannelSink;
+		this.isAttached = true;
 	}
 
 	@Override
@@ -398,7 +394,7 @@ public class FilterPipelineImpl implements FilterPipeline {
 	@Override
 	@Nullable
 	public Channel getChannel() {
-		return channel;
+		return outerChannel;
 	}
 
 	@Override
@@ -503,12 +499,12 @@ public class FilterPipelineImpl implements FilterPipeline {
 	@Override
 	@Nullable
 	public org.jboss.netty.channel.ChannelSink getSink() {
-		return channelSink;
+		return outerChannelSink;
 	}
 
 	@Override
 	public boolean isAttached() {
-		return channel != null && channelSink != null;
+		return isAttached;
 	}
 
 	@Override
@@ -638,7 +634,7 @@ public class FilterPipelineImpl implements FilterPipeline {
 	@Override
 	public void sendDownstream(final ChannelEvent e) {
 
-		checkState(isAttached());
+		checkState(isAttached || isUsedAsHandler);
 
 		FilterPipelineChannelHandlerContext highestDownstreamHandlerContext = getHighestDownstreamHandlerContext();
 
@@ -646,7 +642,8 @@ public class FilterPipelineImpl implements FilterPipeline {
 
 			try {
 
-				ChannelDownstreamHandler downstreamHandler = (ChannelDownstreamHandler) highestDownstreamHandlerContext.getHandler();
+				ChannelDownstreamHandler downstreamHandler =
+						(ChannelDownstreamHandler) highestDownstreamHandlerContext.getHandler();
 				downstreamHandler.handleDownstream(highestDownstreamHandlerContext, e);
 
 			} catch (Exception e1) {
@@ -658,7 +655,7 @@ public class FilterPipelineImpl implements FilterPipeline {
 	@Override
 	public void sendUpstream(final ChannelEvent e) {
 
-		checkState(isAttached());
+		checkState(isAttached || isUsedAsHandler);
 
 		FilterPipelineChannelHandlerContext lowestUpstreamHandlerContext = getLowestUpstreamHandlerContext();
 
@@ -666,7 +663,8 @@ public class FilterPipelineImpl implements FilterPipeline {
 
 			try {
 
-				ChannelUpstreamHandler upstreamHandler = (ChannelUpstreamHandler) lowestUpstreamHandlerContext.getHandler();
+				ChannelUpstreamHandler upstreamHandler =
+						(ChannelUpstreamHandler) lowestUpstreamHandlerContext.getHandler();
 				upstreamHandler.handleUpstream(lowestUpstreamHandlerContext, e);
 
 			} catch (Exception e1) {
@@ -692,7 +690,7 @@ public class FilterPipelineImpl implements FilterPipeline {
 		}
 
 		try {
-			channelSink.exceptionCaught(this, e, channelPipelineException);
+			outerChannelSink.exceptionCaught(this, e, channelPipelineException);
 		} catch (Exception e2) {
 			log.warn("Sink threw an exception while handling an exception: {}", channelPipelineException);
 		}
@@ -737,7 +735,7 @@ public class FilterPipelineImpl implements FilterPipeline {
 			map.put(currentContext.getName(), currentContext.getHandler());
 			currentContext = currentContext.getUpperContext();
 		}
-		
+
 		return map;
 	}
 

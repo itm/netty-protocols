@@ -2,7 +2,9 @@ package de.uniluebeck.itm.netty.handlerstack;
 
 import com.google.common.collect.Lists;
 import de.uniluebeck.itm.netty.handlerstack.discard.DiscardHandler;
+import de.uniluebeck.itm.tr.util.Logging;
 import de.uniluebeck.itm.tr.util.Tuple;
+import org.apache.log4j.Level;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBuffers;
 import org.jboss.netty.channel.*;
@@ -11,15 +13,12 @@ import org.jboss.netty.handler.codec.embedder.EncoderEmbedder;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.InOrder;
-import org.mockito.Matchers;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.junit.runners.Parameterized;
+import org.mockito.*;
 
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
-import java.util.List;
+import java.util.*;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static de.uniluebeck.itm.netty.handlerstack.util.ChannelBufferTools.getToByteArray;
@@ -27,9 +26,13 @@ import static org.jboss.netty.channel.Channels.future;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
-@RunWith(MockitoJUnitRunner.class)
+@RunWith(Parameterized.class)
 public class FilterPipelineTest {
 
+	static {
+		Logging.setLoggingDefaults();
+	}
+	
 	/**
 	 * Helper interface that allows to create mocks of lifecycle-aware ChannelHandler mocks in unit tests.
 	 */
@@ -52,48 +55,60 @@ public class FilterPipelineTest {
 	private FilterPipeline pipeline;
 
 	@Mock
-	private ChannelSink channelSinkMock;
+	private Channel outerChannelMock;
 
 	@Mock
-	private ChannelDownstreamHandler downstreamHandlerMock;
+	private ChannelPipeline outerChannelPipelineMock;
 
 	@Mock
-	private ChannelUpstreamHandler upstreamHandlerMock;
+	private ChannelSink outerChannelSinkMock;
+	
+	@Mock
+	private ChannelHandlerContext outerChannelHandlerContextMock;
 
-	private PassThroughChannelHandler passThroughChannelHandler1;
+	@Spy
+	private PassThroughChannelHandler handler1 = new PassThroughChannelHandler();
 
-	private PassThroughChannelHandler passThroughChannelHandler2;
+	@Spy
+	private PassThroughChannelHandler handler2 = new PassThroughChannelHandler();
 
-	private PassThroughChannelHandler passThroughChannelHandler3;
+	@Spy
+	private PassThroughChannelHandler handler3 = new PassThroughChannelHandler();
 
-	private ArgumentCaptor<ChannelEvent> channelEventCaptor;
+	@Spy
+	private DiscardHandler discardHandler = new DiscardHandler(true, true);
 
 	private InetSocketAddress messageRemoteAddress;
-
-	private UpstreamMessageEvent upstreamMessageEvent;
-
-	private DownstreamMessageEvent downstreamMessageEvent;
 
 	private ChannelBuffer messageBuffer;
 
 	private byte[] messageBytes;
 
+	private boolean asPipeline;
+
+	@Parameterized.Parameters
+	public static Collection<Object[]> getAsPipelineParameter() {
+		return newArrayList(new Object[]{true}, new Object[]{false});
+	}
+
+	public FilterPipelineTest(final boolean asPipeline) {
+		this.asPipeline = asPipeline;
+	}
+
 	@Before
 	public void setUp() throws Exception {
 
+		MockitoAnnotations.initMocks(this);
+
 		pipeline = new FilterPipelineImpl();
-
-		channelEventCaptor = ArgumentCaptor.forClass(ChannelEvent.class);
-
-		passThroughChannelHandler1 = new PassThroughChannelHandler();
-		passThroughChannelHandler2 = new PassThroughChannelHandler();
-		passThroughChannelHandler3 = new PassThroughChannelHandler();
 
 		messageRemoteAddress = new InetSocketAddress("localhost", 1234);
 		messageBytes = "Hello, World".getBytes();
 		messageBuffer = ChannelBuffers.wrappedBuffer(messageBytes);
-		upstreamMessageEvent = new UpstreamMessageEvent(pipeline.getChannel(), messageBuffer, messageRemoteAddress);
-		downstreamMessageEvent = new DownstreamMessageEvent(
+	}
+
+	private DownstreamMessageEvent createDownstreamMessageEvent() {
+		return new DownstreamMessageEvent(
 				pipeline.getChannel(),
 				future(pipeline.getChannel()),
 				messageBuffer,
@@ -101,104 +116,194 @@ public class FilterPipelineTest {
 		);
 	}
 
+	private UpstreamMessageEvent createUpstreamMessageEvent() {
+		return new UpstreamMessageEvent(pipeline.getChannel(), messageBuffer, messageRemoteAddress);
+	}
+
 	@Test
-	public void testIfMessageSentUpstreamIsReceivedByUpstreamListenerWithNoHandlers() throws Exception {
+	public void testIfMessageSentUpstreamIsReceivedOneHandler() throws Exception {
+
+		pipeline.addFirst("first", handler1);
+
+		assertThatMessageSentUpstreamIsReceivedByUpstreamListener(handler1);
+	}
+
+	@Test
+	public void testIfMessageSentUpstreamIsReceivedByTwoHandlersInCorrectOrder() throws Exception {
+
+		pipeline.addFirst("second", handler2);
+		pipeline.addFirst("first", handler1);
+
+		assertThatMessageSentUpstreamIsReceivedByUpstreamListener(handler1, handler2);
+	}
+
+	@Test
+	public void testIfMessageSentUpstreamIsReceivedByThreeHandlersInCorrectOrder() throws Exception {
+
+		pipeline.addFirst("third", handler3);
+		pipeline.addFirst("second", handler2);
+		pipeline.addFirst("first", handler1);
+
+		assertThatMessageSentUpstreamIsReceivedByUpstreamListener(handler1, handler2, handler3);
+	}
+
+	@Test
+	public void testIfMessageSentUpstreamIsReceivedByThreeHandlersInCorrectOrderForSetChannelPipeline() throws Exception {
+
+		@SuppressWarnings("unchecked")
+		List<Tuple<String,ChannelHandler>> channelPipeline = newArrayList(
+				new Tuple<String, ChannelHandler>("first", handler1),
+				new Tuple<String, ChannelHandler>("second", handler2),
+				new Tuple<String, ChannelHandler>("third", handler3)
+		);
+
+		pipeline.setChannelPipeline(channelPipeline);
+
+		assertThatMessageSentUpstreamIsReceivedByUpstreamListener(handler1, handler2, handler3);
+	}
+
+	@Test
+	public void testIfMessageSentDownstreamIsReceivedByOneHandler() throws Exception {
+
+		pipeline.addFirst("first", handler1);
+
+		assertThatMessageSentDownstreamIsReceivedByDownstreamListener(handler1);
+	}
+
+	@Test
+	public void testIfMessageSentDownstreamIsReceivedByTwoHandlersInCorrectOrder() throws Exception {
+
+		pipeline.addFirst("second", handler2);
+		pipeline.addFirst("first", handler1);
+
+		assertThatMessageSentDownstreamIsReceivedByDownstreamListener(handler2, handler1);
+	}
+
+	@Test
+	public void testIfMessageSentDownstreamIsReceivedByThreeHandlersInCorrectOrder() throws Exception {
+
+		pipeline.addFirst("third", handler3);
+		pipeline.addFirst("second", handler2);
+		pipeline.addFirst("first", handler1);
+
+		assertThatMessageSentDownstreamIsReceivedByDownstreamListener(handler3, handler2, handler1);
+	}
+
+	@Test
+	public void testIfMessageSentDownstreamIsReceivedByThreeHandlersInCorrectOrderForSetChannelPipeline() throws Exception {
+
+		@SuppressWarnings("unchecked")
+		List<Tuple<String,ChannelHandler>> channelPipeline = newArrayList(
+				new Tuple<String, ChannelHandler>("first", handler1),
+				new Tuple<String, ChannelHandler>("second", handler2),
+				new Tuple<String, ChannelHandler>("third", handler3)
+		);
 		
-		assertThatMessageSentUpstreamIsReceivedByUpstreamListener();
+		pipeline.setChannelPipeline(channelPipeline);
+
+		assertThatMessageSentDownstreamIsReceivedByDownstreamListener(handler3, handler2, handler1);
 	}
 
 	@Test
-	public void testIfMessageSentUpstreamIsReceivedByUpstreamListenerWithOneHandler() throws Exception {
+	public void testIfToMapReturnsHandlersInCorrectOrder() throws Exception {
 
-		pipeline.addFirst("first", passThroughChannelHandler1);
+		pipeline.addFirst("third", handler3);
+		pipeline.addFirst("second", handler2);
+		pipeline.addFirst("first", handler1);
 
-		assertThatMessageSentUpstreamIsReceivedByUpstreamListener();
+		Map<String,ChannelHandler> map = pipeline.toMap();
+
+		Iterator<Map.Entry<String,ChannelHandler>> entryIterator = map.entrySet().iterator();
+
+		Map.Entry<String, ChannelHandler> firstEntry = entryIterator.next();
+		assertEquals("first", firstEntry.getKey());
+		assertSame(handler1, firstEntry.getValue());
+
+		Map.Entry<String, ChannelHandler> secondEntry = entryIterator.next();
+		assertEquals("second", secondEntry.getKey());
+		assertSame(handler2, secondEntry.getValue());
+
+		Map.Entry<String, ChannelHandler> thirdEntry = entryIterator.next();
+		assertEquals("third", thirdEntry.getKey());
+		assertSame(handler3, thirdEntry.getValue());
+		
+		assertFalse(entryIterator.hasNext());
 	}
 
 	@Test
-	public void testIfMessageSentUpstreamIsReceivedByUpstreamListenerWithTwoHandlers() throws Exception {
+	public void testIfGetLastReturnsTopMostHandler() throws Exception {
 
-		pipeline.addLast("first", passThroughChannelHandler1);
-		pipeline.addLast("second", passThroughChannelHandler2);
-
-		assertThatMessageSentUpstreamIsReceivedByUpstreamListener();
+		pipeline.addFirst("third", handler3);
+		pipeline.addFirst("second", handler2);
+		pipeline.addFirst("first", handler1);
+		
+		assertSame(handler3, pipeline.getLast());
 	}
 
 	@Test
-	public void testIfMessageSentUpstreamIsReceivedByUpstreamListenerWithThreeHandlers() throws Exception {
+	public void testIfGetFirstReturnsBottomMostHandler() throws Exception {
 
-		pipeline.addLast("first", passThroughChannelHandler1);
-		pipeline.addLast("second", passThroughChannelHandler2);
-		pipeline.addLast("third", passThroughChannelHandler3);
-
-		assertThatMessageSentUpstreamIsReceivedByUpstreamListener();
+		pipeline.addLast("first", handler1);
+		pipeline.addLast("second", handler2);
+		pipeline.addLast("third", handler3);
+		
+		assertSame(handler1, pipeline.getFirst());
 	}
 
 	@Test
-	public void testIfMessageSentDownstreamIsReceivedWithNoHandlers() throws Exception {
-		assertThatMessageSentDownstreamIsReceivedByDownstreamListener();
-	}
+	public void testIfAllUpstreamEventsAreSwallowedWhenDiscardHandlerIsSet() throws Exception {
 
-	@Test
-	public void testIfMessageSentDownstreamIsReceivedWithOneHandler() throws Exception {
+		pipeline.addFirst("handler1", handler1);
+		pipeline.addFirst("discardHandler", discardHandler);
+		pipeline.addFirst("handler2", handler2);
 
-		pipeline.addLast("first", passThroughChannelHandler1);
-		assertThatMessageSentDownstreamIsReceivedByDownstreamListener();
-	}
+		setUpPipelineAsAttachedOrHandler();
 
-	@Test
-	public void testIfMessageSentDownstreamIsReceivedWithTwoHandlers() throws Exception {
+		final UpstreamMessageEvent upstreamMessageEvent = createUpstreamMessageEvent();
+		pipeline.sendUpstream(upstreamMessageEvent);
 
-		pipeline.addLast("first", passThroughChannelHandler1);
-		pipeline.addLast("second", passThroughChannelHandler2);
-		assertThatMessageSentDownstreamIsReceivedByDownstreamListener();
-	}
+		InOrder upstreamOrder = inOrder(handler2, discardHandler);
 
-	@Test
-	public void testIfMessageSentDownstreamIsReceivedWithThreeHandlers() throws Exception {
-
-		pipeline.addLast("first", passThroughChannelHandler1);
-		pipeline.addLast("second", passThroughChannelHandler2);
-		pipeline.addLast("third", passThroughChannelHandler3);
-		assertThatMessageSentDownstreamIsReceivedByDownstreamListener();
-	}
-
-	@Test
-	public void testIfAllEventsAreSwallowedWhenDiscardHandlerIsSet() throws Exception {
-
-		final List<Tuple<String, ChannelHandler>> discardPipeline = newArrayList(
-				new Tuple<String, ChannelHandler>("upstreamHandler", upstreamHandlerMock),
-				new Tuple<String, ChannelHandler>("discard", new DiscardHandler(true, true)),
-				new Tuple<String, ChannelHandler>("downstreamHandler", downstreamHandlerMock)
-		);
-
-		pipeline.setChannelPipeline(discardPipeline);
-		System.out.println(pipeline.toMap());
-
-		pipeline.sendUpstream(new UpstreamMessageEvent(
-				pipeline.getChannel(),
-				messageBuffer,
-				messageRemoteAddress
-		)
-		);
-
-		verify(upstreamHandlerMock, never()).handleUpstream(
+		upstreamOrder.verify(handler2).handleUpstream(
 				Matchers.<ChannelHandlerContext>any(),
-				Matchers.<ChannelEvent>any()
+				eq(upstreamMessageEvent)
 		);
 
-		pipeline.sendDownstream(new DownstreamMessageEvent(
-				pipeline.getChannel(),
-				future(pipeline.getChannel()),
-				messageBuffer,
-				messageRemoteAddress
-		)
-		);
-
-		verify(downstreamHandlerMock, never()).handleDownstream(
+		upstreamOrder.verify(discardHandler).handleUpstream(
 				Matchers.<ChannelHandlerContext>any(),
-				Matchers.<ChannelEvent>any()
+				eq(upstreamMessageEvent)
 		);
+
+		verify(handler1, never()).handleUpstream(Matchers.<ChannelHandlerContext>any(), Matchers.<ChannelEvent>any());
+
+	}
+
+	@Test
+	public void testIfAllDownstreamEventsAreSwallowedWhenDiscardHandlerIsSet() throws Exception {
+
+		pipeline.addFirst("handler1", handler1);
+		pipeline.addFirst("discardHandler", discardHandler);
+		pipeline.addFirst("handler2", handler2);
+
+		setUpPipelineAsAttachedOrHandler();
+
+		final DownstreamMessageEvent downstreamMessageEvent = createDownstreamMessageEvent();
+		pipeline.sendDownstream(downstreamMessageEvent);
+
+		InOrder downstreamOrder = inOrder(handler1, discardHandler);
+
+		downstreamOrder.verify(handler1).handleDownstream(
+				Matchers.<ChannelHandlerContext>any(),
+				eq(downstreamMessageEvent)
+		);
+
+		downstreamOrder.verify(discardHandler).handleDownstream(
+				Matchers.<ChannelHandlerContext>any(),
+				eq(downstreamMessageEvent)
+		);
+
+		verify(handler2, never()).handleDownstream(Matchers.<ChannelHandlerContext>any(), Matchers.<ChannelEvent>any());
+
 	}
 
 	@Test
@@ -206,6 +311,8 @@ public class FilterPipelineTest {
 
 		final SimpleChannelHandler handlerMock = mock(SimpleChannelHandler.class);
 		pipeline.addLast("first", handlerMock);
+
+		setUpPipelineAsAttachedOrHandler();
 		assertThatUpstreamEventIsPassedThroughHandlerMock(handlerMock);
 	}
 
@@ -214,7 +321,8 @@ public class FilterPipelineTest {
 
 		final SimpleChannelHandler handlerMock = mock(SimpleChannelHandler.class);
 		pipeline.addLast("first", handlerMock);
-		pipeline.addLast("second", passThroughChannelHandler1);
+		pipeline.addLast("second", handler1);
+		setUpPipelineAsAttachedOrHandler();
 		assertThatUpstreamEventIsPassedThroughHandlerMock(handlerMock);
 	}
 
@@ -223,6 +331,7 @@ public class FilterPipelineTest {
 
 		final SimpleChannelHandler handlerMock = mock(SimpleChannelHandler.class);
 		pipeline.addLast("first", handlerMock);
+		setUpPipelineAsAttachedOrHandler();
 		assertThatDownstreamEventIsPassedThroughHandlerMock(handlerMock);
 	}
 
@@ -231,16 +340,17 @@ public class FilterPipelineTest {
 
 		final SimpleChannelHandler handlerMock = mock(SimpleChannelHandler.class);
 		pipeline.addLast("second", handlerMock);
-		pipeline.addLast("first", passThroughChannelHandler1);
+		pipeline.addLast("first", handler1);
+		setUpPipelineAsAttachedOrHandler();
 		assertThatDownstreamEventIsPassedThroughHandlerMock(handlerMock);
 	}
 
 	@Test
 	public void testIfUpstreamMessageEventArrivesAtTheTopWhenUsedInsideAnOuterPipeline() throws Exception {
 
-		pipeline.addLast("first", passThroughChannelHandler1);
-		pipeline.addLast("second", passThroughChannelHandler2);
-		pipeline.addLast("third", passThroughChannelHandler3);
+		pipeline.addLast("first", handler1);
+		pipeline.addLast("second", handler2);
+		pipeline.addLast("third", handler3);
 
 		DecoderEmbedder<ChannelBuffer> embedder = new DecoderEmbedder<ChannelBuffer>(pipeline);
 
@@ -255,9 +365,9 @@ public class FilterPipelineTest {
 	@Test
 	public void testIfDownstreamMessageEventArrivesAtTheBottomWhenUsedInsideAnOuterPipeline() throws Exception {
 
-		pipeline.addLast("first", passThroughChannelHandler1);
-		pipeline.addLast("second", passThroughChannelHandler2);
-		pipeline.addLast("third", passThroughChannelHandler3);
+		pipeline.addLast("first", handler1);
+		pipeline.addLast("second", handler2);
+		pipeline.addLast("third", handler3);
 
 		EncoderEmbedder<ChannelBuffer> embedder = new EncoderEmbedder<ChannelBuffer>(pipeline);
 
@@ -297,6 +407,129 @@ public class FilterPipelineTest {
 		inOrder.verify(mockHandler).afterRemove(Matchers.<ChannelHandlerContext>any());
 	}
 
+	@Test
+	public void testIfFilterPipelineCanBeUsedAsPipelineButNotAsHandlerAtTheSameTime() throws Exception {
+
+		pipeline.attach(outerChannelMock, outerChannelSinkMock);
+
+		try {
+			pipeline.beforeAdd(mock(ChannelHandlerContext.class));
+			fail();
+		} catch (IllegalStateException expected) {
+		}
+
+		try {
+			pipeline.afterAdd(mock(ChannelHandlerContext.class));
+			fail();
+		} catch (IllegalStateException expected) {
+		}
+
+		try {
+			pipeline.beforeRemove(mock(ChannelHandlerContext.class));
+			fail();
+		} catch (IllegalStateException expected) {
+		}
+
+		try {
+			pipeline.afterRemove(mock(ChannelHandlerContext.class));
+			fail();
+		} catch (IllegalStateException expected) {
+		}
+
+	}
+
+	@Test
+	public void testIfFilterPipelineCantBeAttachedTwice() throws Exception {
+
+		pipeline.attach(outerChannelMock, outerChannelSinkMock);
+
+		try {
+			pipeline.attach(mock(Channel.class), mock(ChannelSink.class));
+			fail();
+		} catch (IllegalStateException expected) {
+		}
+
+	}
+
+	@Test
+	public void testIfFilterPipelineCantBeAttachedWhenUsedAsHandler() throws Exception {
+
+		ChannelHandlerContext mockContext = mock(ChannelHandlerContext.class);
+
+		pipeline.beforeAdd(mockContext);
+		pipeline.afterAdd(mockContext);
+
+		try {
+			pipeline.attach(outerChannelMock, outerChannelSinkMock);
+			fail();
+		} catch (IllegalStateException e) {
+		}
+
+		pipeline.beforeRemove(mockContext);
+		pipeline.afterRemove(mockContext);
+
+		pipeline.attach(outerChannelMock, outerChannelSinkMock);
+
+	}
+
+	@Test
+	public void testIfFilterPipelineCantBeUsedAsHandlerTwice() throws Exception {
+
+		ChannelHandlerContext mockContext = mock(ChannelHandlerContext.class);
+
+		pipeline.beforeAdd(mockContext);
+		pipeline.afterAdd(mockContext);
+
+		ChannelHandlerContext mockContext2 = mock(ChannelHandlerContext.class);
+
+		try {
+			pipeline.beforeAdd(mockContext2);
+			fail();
+		} catch (IllegalStateException e) {
+		}
+
+		try {
+			pipeline.afterAdd(mockContext2);
+			fail();
+		} catch (IllegalStateException e) {
+		}
+
+	}
+
+	@Test(expected = IllegalStateException.class)
+	public void testIfHandleUpstreamThrowsIllegalStateExceptionIfNotAttachedOrAddedAsHandler() throws Exception {
+		pipeline.handleUpstream(mock(ChannelHandlerContext.class), mock(UpstreamMessageEvent.class));
+	}
+
+	@Test(expected = IllegalStateException.class)
+	public void testIfHandleDownstreamThrowsIllegalStateExceptionIfNotAttachedOrAddedAsHandler() throws Exception {
+		pipeline.handleDownstream(mock(ChannelHandlerContext.class), mock(DownstreamMessageEvent.class));
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void testIfHandleDownstreamThrowsIllegalArgumentExceptionForUpstreamMessageEvent() throws Exception {
+		setUpPipelineAsAttachedOrHandler();
+		pipeline.handleDownstream(mock(ChannelHandlerContext.class), mock(UpstreamMessageEvent.class));
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void testIfHandleUpstreamThrowsIllegalArgumentExceptionForDownstreamMessageEvent() throws Exception {
+		setUpPipelineAsAttachedOrHandler();
+		pipeline.handleUpstream(mock(ChannelHandlerContext.class), mock(DownstreamMessageEvent.class));
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void testIfHandleDownstreamThrowsIllegalArgumentExceptionForUpstreamChannelStateEvent() throws Exception {
+		setUpPipelineAsAttachedOrHandler();
+		pipeline.handleDownstream(mock(ChannelHandlerContext.class), mock(UpstreamChannelStateEvent.class));
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void testIfHandleUpstreamThrowsIllegalArgumentExceptionForDownstreamChannelStateEvent() throws Exception {
+		setUpPipelineAsAttachedOrHandler();
+		pipeline.handleUpstream(mock(ChannelHandlerContext.class), mock(DownstreamChannelStateEvent.class));
+	}
+
 	private void assertThatUpstreamEventIsPassedThroughHandlerMock(final SimpleChannelHandler handlerMock)
 			throws Exception {
 
@@ -334,46 +567,103 @@ public class FilterPipelineTest {
 				.handleDownstream(Matchers.<ChannelHandlerContext>any(), eq(channelStateEvent));
 	}
 
-	private void assertThatMessageSentUpstreamIsReceivedByUpstreamListener() throws Exception {
+	private void assertThatMessageSentUpstreamIsReceivedByUpstreamListener(PassThroughChannelHandler... mocks)
+			throws Exception {
 
-		// place mock handler on the very top of the stack
-		pipeline.addLast("upstreamHandlerMock", upstreamHandlerMock);
+		setUpPipelineAsAttachedOrHandler();
 
-		// send message upstream from bottom
-		pipeline.sendUpstream(upstreamMessageEvent);
+		final UpstreamMessageEvent upstreamMessageEvent = createUpstreamMessageEvent();
 
-		verify(upstreamHandlerMock)
-				.handleUpstream(
-						Matchers.<ChannelHandlerContext>any(),
-						channelEventCaptor.capture()
-				);
+		if (asPipeline) {
+			pipeline.sendUpstream(upstreamMessageEvent);
+		} else {
+			pipeline.handleUpstream(outerChannelHandlerContextMock, upstreamMessageEvent);
+		}
+
+		InOrder inOrder = inOrder(mocks);
+
+		for (PassThroughChannelHandler mock : mocks) {
+
+			ArgumentCaptor<ChannelEvent> channelEventCaptor = ArgumentCaptor.forClass(ChannelEvent.class);
+
+			inOrder.verify(mock).handleUpstream(Matchers.<ChannelHandlerContext>any(), channelEventCaptor.capture());
+
+			assertCapturedMessageEventEqualsSent(messageBytes, messageRemoteAddress, channelEventCaptor);
+		}
+
+		if (!asPipeline) {
+			verify(outerChannelHandlerContextMock).sendUpstream(eq(upstreamMessageEvent));
+		}
+	}
+
+	private void setUpPipelineAsAttachedOrHandler() throws Exception {
+		if (asPipeline) {
+			pipeline.attach(outerChannelMock, outerChannelSinkMock);
+		} else {
+			when(outerChannelHandlerContextMock.getChannel()).thenReturn(outerChannelMock);
+			when(outerChannelMock.getPipeline()).thenReturn(outerChannelPipelineMock);
+			when(outerChannelPipelineMock.getSink()).thenReturn(outerChannelSinkMock);
+			pipeline.beforeAdd(outerChannelHandlerContextMock);
+			pipeline.afterAdd(outerChannelHandlerContextMock);
+		}
+	}
+
+	private void assertThatMessageSentDownstreamIsReceivedByDownstreamListener(PassThroughChannelHandler... mocks)
+			throws Exception {
+
+		setUpPipelineAsAttachedOrHandler();
+
+		final DownstreamMessageEvent downstreamMessageEvent = createDownstreamMessageEvent();
+
+		if (asPipeline) {
+			pipeline.sendDownstream(downstreamMessageEvent);
+		} else {
+			pipeline.handleDownstream(outerChannelHandlerContextMock, downstreamMessageEvent);
+		}
+
+
+		InOrder inOrder = inOrder(mocks);
+
+		for (PassThroughChannelHandler mock : mocks) {
+
+			ArgumentCaptor<ChannelEvent> channelEventCaptor = ArgumentCaptor.forClass(ChannelEvent.class);
+
+			inOrder.verify(mock).handleDownstream(Matchers.<ChannelHandlerContext>any(), channelEventCaptor.capture());
+
+			assertCapturedMessageEventEqualsSent(messageBytes, messageRemoteAddress, channelEventCaptor);
+		}
+
+		if (!asPipeline) {
+			verify(outerChannelHandlerContextMock).sendDownstream(eq(downstreamMessageEvent));
+		}
+	}
+
+	private void assertCapturedMessageEventEqualsSent(final byte[] expectedMessageBytes,
+													  final InetSocketAddress expectedRemoteAddress,
+													  final ArgumentCaptor<ChannelEvent> channelEventCaptor) {
 
 		final ChannelEvent capturedChannelEvent = channelEventCaptor.getValue();
 		assertNotNull(capturedChannelEvent);
-		assertTrue(capturedChannelEvent instanceof UpstreamMessageEvent);
 
-		final Object actualMessageObject = ((UpstreamMessageEvent) capturedChannelEvent).getMessage();
-		assertCapturedMessageEqualsMessageSent(messageBytes, actualMessageObject);
+		final Object actualMessageObject;
+		final SocketAddress actualRemoteAddress;
 
-		final SocketAddress actualRemoteAddress = ((UpstreamMessageEvent) capturedChannelEvent).getRemoteAddress();
-		assertCapturedRemoteAddressEqualsRemoteAddressSent(messageRemoteAddress, actualRemoteAddress);
-	}
+		if (capturedChannelEvent instanceof UpstreamMessageEvent) {
 
-	private void assertThatMessageSentDownstreamIsReceivedByDownstreamListener() throws Exception {
+			actualMessageObject = ((UpstreamMessageEvent) capturedChannelEvent).getMessage();
+			actualRemoteAddress = ((UpstreamMessageEvent) capturedChannelEvent).getRemoteAddress();
 
-		// place mock handler on the very bottom of the stack
-		pipeline.addFirst("downstreamHandlerMock", downstreamHandlerMock);
+		} else if (capturedChannelEvent instanceof DownstreamMessageEvent) {
 
-		// send message downstream from top
-		pipeline.sendDownstream(downstreamMessageEvent);
+			actualMessageObject = ((DownstreamMessageEvent) capturedChannelEvent).getMessage();
+			actualRemoteAddress = ((DownstreamMessageEvent) capturedChannelEvent).getRemoteAddress();
 
-		verify(downstreamHandlerMock)
-				.handleDownstream(
-						Matchers.<ChannelHandlerContext>any(),
-						channelEventCaptor.capture()
-				);
+		} else {
+			throw new AssertionError();
+		}
 
-		assertCapturedMessageEqualsMessageSentDownstream(messageBytes, messageRemoteAddress, channelEventCaptor);
+		assertCapturedMessageEqualsMessageSent(expectedMessageBytes, actualMessageObject);
+		assertCapturedRemoteAddressEqualsRemoteAddressSent(expectedRemoteAddress, actualRemoteAddress);
 	}
 
 	private static void assertCapturedMessageEqualsMessageSent(final byte[] expectedMessageBytes,
@@ -388,20 +678,5 @@ public class FilterPipelineTest {
 		assertNotNull(actualRemoteAddress);
 		assertTrue(actualRemoteAddress instanceof InetSocketAddress);
 		assertEquals(expectedRemoteAddress, actualRemoteAddress);
-	}
-
-	private static void assertCapturedMessageEqualsMessageSentDownstream(
-			final byte[] expectedMessageBytes, final SocketAddress expectedRemoteAddress,
-			final ArgumentCaptor<ChannelEvent> channelEventCaptor) {
-
-		final ChannelEvent capturedChannelEvent = channelEventCaptor.getValue();
-		assertNotNull(capturedChannelEvent);
-		assertTrue(capturedChannelEvent instanceof DownstreamMessageEvent);
-
-		final Object actualMessageObject = ((DownstreamMessageEvent) capturedChannelEvent).getMessage();
-		assertCapturedMessageEqualsMessageSent(expectedMessageBytes, actualMessageObject);
-
-		final SocketAddress actualRemoteAddress = ((DownstreamMessageEvent) capturedChannelEvent).getRemoteAddress();
-		assertCapturedRemoteAddressEqualsRemoteAddressSent(expectedRemoteAddress, actualRemoteAddress);
 	}
 }
