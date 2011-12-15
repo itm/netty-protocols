@@ -18,7 +18,7 @@ import org.mockito.*;
 
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
-import java.util.Collection;
+import java.util.*;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static de.uniluebeck.itm.netty.handlerstack.util.ChannelBufferTools.getToByteArray;
@@ -29,6 +29,10 @@ import static org.mockito.Mockito.*;
 @RunWith(Parameterized.class)
 public class FilterPipelineTest {
 
+	static {
+		Logging.setLoggingDefaults();
+	}
+	
 	/**
 	 * Helper interface that allows to create mocks of lifecycle-aware ChannelHandler mocks in unit tests.
 	 */
@@ -95,7 +99,6 @@ public class FilterPipelineTest {
 	public void setUp() throws Exception {
 
 		MockitoAnnotations.initMocks(this);
-		Logging.setLoggingDefaults(Level.WARN);
 
 		pipeline = new FilterPipelineImpl();
 
@@ -145,6 +148,21 @@ public class FilterPipelineTest {
 	}
 
 	@Test
+	public void testIfMessageSentUpstreamIsReceivedByThreeHandlersInCorrectOrderForSetChannelPipeline() throws Exception {
+
+		@SuppressWarnings("unchecked")
+		List<Tuple<String,ChannelHandler>> channelPipeline = newArrayList(
+				new Tuple<String, ChannelHandler>("first", handler1),
+				new Tuple<String, ChannelHandler>("second", handler2),
+				new Tuple<String, ChannelHandler>("third", handler3)
+		);
+
+		pipeline.setChannelPipeline(channelPipeline);
+
+		assertThatMessageSentUpstreamIsReceivedByUpstreamListener(handler1, handler2, handler3);
+	}
+
+	@Test
 	public void testIfMessageSentDownstreamIsReceivedByOneHandler() throws Exception {
 
 		pipeline.addFirst("first", handler1);
@@ -162,13 +180,74 @@ public class FilterPipelineTest {
 	}
 
 	@Test
-	public void testIfMessageSentDownstreamIsReceivedByThreeHandlersInCorrectOrderAsPipeline() throws Exception {
+	public void testIfMessageSentDownstreamIsReceivedByThreeHandlersInCorrectOrder() throws Exception {
 
 		pipeline.addFirst("third", handler3);
 		pipeline.addFirst("second", handler2);
 		pipeline.addFirst("first", handler1);
 
 		assertThatMessageSentDownstreamIsReceivedByDownstreamListener(handler3, handler2, handler1);
+	}
+
+	@Test
+	public void testIfMessageSentDownstreamIsReceivedByThreeHandlersInCorrectOrderForSetChannelPipeline() throws Exception {
+
+		@SuppressWarnings("unchecked")
+		List<Tuple<String,ChannelHandler>> channelPipeline = newArrayList(
+				new Tuple<String, ChannelHandler>("first", handler1),
+				new Tuple<String, ChannelHandler>("second", handler2),
+				new Tuple<String, ChannelHandler>("third", handler3)
+		);
+		
+		pipeline.setChannelPipeline(channelPipeline);
+
+		assertThatMessageSentDownstreamIsReceivedByDownstreamListener(handler3, handler2, handler1);
+	}
+
+	@Test
+	public void testIfToMapReturnsHandlersInCorrectOrder() throws Exception {
+
+		pipeline.addFirst("third", handler3);
+		pipeline.addFirst("second", handler2);
+		pipeline.addFirst("first", handler1);
+
+		Map<String,ChannelHandler> map = pipeline.toMap();
+
+		Iterator<Map.Entry<String,ChannelHandler>> entryIterator = map.entrySet().iterator();
+
+		Map.Entry<String, ChannelHandler> firstEntry = entryIterator.next();
+		assertEquals("first", firstEntry.getKey());
+		assertSame(handler1, firstEntry.getValue());
+
+		Map.Entry<String, ChannelHandler> secondEntry = entryIterator.next();
+		assertEquals("second", secondEntry.getKey());
+		assertSame(handler2, secondEntry.getValue());
+
+		Map.Entry<String, ChannelHandler> thirdEntry = entryIterator.next();
+		assertEquals("third", thirdEntry.getKey());
+		assertSame(handler3, thirdEntry.getValue());
+		
+		assertFalse(entryIterator.hasNext());
+	}
+
+	@Test
+	public void testIfGetLastReturnsTopMostHandler() throws Exception {
+
+		pipeline.addFirst("third", handler3);
+		pipeline.addFirst("second", handler2);
+		pipeline.addFirst("first", handler1);
+		
+		assertSame(handler3, pipeline.getLast());
+	}
+
+	@Test
+	public void testIfGetFirstReturnsBottomMostHandler() throws Exception {
+
+		pipeline.addLast("first", handler1);
+		pipeline.addLast("second", handler2);
+		pipeline.addLast("third", handler3);
+		
+		assertSame(handler1, pipeline.getFirst());
 	}
 
 	@Test

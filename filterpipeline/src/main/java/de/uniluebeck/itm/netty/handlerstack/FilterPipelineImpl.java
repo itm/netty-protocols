@@ -1,6 +1,5 @@
 package de.uniluebeck.itm.netty.handlerstack;
 
-import com.google.common.collect.Lists;
 import de.uniluebeck.itm.tr.util.Tuple;
 import org.jboss.netty.channel.*;
 import org.slf4j.Logger;
@@ -149,7 +148,7 @@ public class FilterPipelineImpl implements FilterPipeline {
 
 			FilterPipelineChannelHandlerContext currentContext = null;
 
-			for (Tuple<String, ChannelHandler> tuple : Lists.reverse(newChannelPipeline)) {
+			for (Tuple<String, ChannelHandler> tuple : newChannelPipeline) {
 
 				FilterPipelineChannelHandlerContext newContext =
 						new FilterPipelineChannelHandlerContext(this, tuple.getFirst(), tuple.getSecond());

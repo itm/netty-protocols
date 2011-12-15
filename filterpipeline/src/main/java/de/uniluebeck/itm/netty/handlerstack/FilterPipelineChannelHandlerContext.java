@@ -107,16 +107,16 @@ class FilterPipelineChannelHandlerContext implements ChannelHandlerContext {
 	@Override
 	public void sendDownstream(ChannelEvent e) {
 
-		// if we are at the bottom of the stack
 		if (lowerContext == null) {
 
-			ChannelHandlerContext outerContext = pipeline.getOuterContext();
-			outerContext.sendDownstream(e);
+			if (pipeline.getOuterContext() != null) {
 
-		}
+				ChannelHandlerContext outerContext = pipeline.getOuterContext();
+				outerContext.sendDownstream(e);
+			}
 
-		// if there's at least one handler beneath us
-		else {
+		} else {
+
 			try {
 
 				((ChannelDownstreamHandler) lowerContext.getHandler()).handleDownstream(lowerContext, e);
@@ -138,16 +138,15 @@ class FilterPipelineChannelHandlerContext implements ChannelHandlerContext {
 	@Override
 	public void sendUpstream(ChannelEvent e) {
 
-		// if we are at the top of the stack
 		if (upperContext == null) {
 
-			ChannelHandlerContext outerContext = pipeline.getOuterContext();
-			outerContext.sendUpstream(e);
+			if (pipeline.getOuterContext() != null) {
 
-		}
+				ChannelHandlerContext outerContext = pipeline.getOuterContext();
+				outerContext.sendUpstream(e);
+			}
 
-		// if there's at least one handler above us
-		else {
+		} else {
 
 			try {
 
