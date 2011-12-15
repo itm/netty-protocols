@@ -4,7 +4,6 @@ import com.google.common.collect.Lists;
 import de.uniluebeck.itm.netty.handlerstack.discard.DiscardHandler;
 import de.uniluebeck.itm.tr.util.Logging;
 import de.uniluebeck.itm.tr.util.Tuple;
-import org.apache.log4j.Level;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBuffers;
 import org.jboss.netty.channel.*;
@@ -18,7 +17,10 @@ import org.mockito.*;
 
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
-import java.util.*;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static de.uniluebeck.itm.netty.handlerstack.util.ChannelBufferTools.getToByteArray;
@@ -32,7 +34,7 @@ public class FilterPipelineTest {
 	static {
 		Logging.setLoggingDefaults();
 	}
-	
+
 	/**
 	 * Helper interface that allows to create mocks of lifecycle-aware ChannelHandler mocks in unit tests.
 	 */
@@ -62,7 +64,7 @@ public class FilterPipelineTest {
 
 	@Mock
 	private ChannelSink outerChannelSinkMock;
-	
+
 	@Mock
 	private ChannelHandlerContext outerChannelHandlerContextMock;
 
@@ -74,6 +76,18 @@ public class FilterPipelineTest {
 
 	@Spy
 	private PassThroughChannelHandler handler3 = new PassThroughChannelHandler();
+
+	@Spy
+	private SimpleChannelDownstreamHandler downstreamHandler1 = new SimpleChannelDownstreamHandler();
+
+	@Spy
+	private SimpleChannelDownstreamHandler downstreamHandler2 = new SimpleChannelDownstreamHandler();
+
+	@Spy
+	private SimpleChannelUpstreamHandler upstreamHandler1 = new SimpleChannelUpstreamHandler();
+
+	@Spy
+	private SimpleChannelUpstreamHandler upstreamHandler2 = new SimpleChannelUpstreamHandler();
 
 	@Spy
 	private DiscardHandler discardHandler = new DiscardHandler(true, true);
@@ -148,10 +162,11 @@ public class FilterPipelineTest {
 	}
 
 	@Test
-	public void testIfMessageSentUpstreamIsReceivedByThreeHandlersInCorrectOrderForSetChannelPipeline() throws Exception {
+	public void testIfMessageSentUpstreamIsReceivedByThreeHandlersInCorrectOrderForSetChannelPipeline()
+			throws Exception {
 
 		@SuppressWarnings("unchecked")
-		List<Tuple<String,ChannelHandler>> channelPipeline = newArrayList(
+		List<Tuple<String, ChannelHandler>> channelPipeline = newArrayList(
 				new Tuple<String, ChannelHandler>("first", handler1),
 				new Tuple<String, ChannelHandler>("second", handler2),
 				new Tuple<String, ChannelHandler>("third", handler3)
@@ -190,18 +205,33 @@ public class FilterPipelineTest {
 	}
 
 	@Test
-	public void testIfMessageSentDownstreamIsReceivedByThreeHandlersInCorrectOrderForSetChannelPipeline() throws Exception {
+	public void testIfMessageSentDownstreamIsReceivedByThreeHandlersInCorrectOrderForSetChannelPipeline()
+			throws Exception {
 
 		@SuppressWarnings("unchecked")
-		List<Tuple<String,ChannelHandler>> channelPipeline = newArrayList(
+		List<Tuple<String, ChannelHandler>> channelPipeline = newArrayList(
 				new Tuple<String, ChannelHandler>("first", handler1),
 				new Tuple<String, ChannelHandler>("second", handler2),
 				new Tuple<String, ChannelHandler>("third", handler3)
 		);
-		
+
 		pipeline.setChannelPipeline(channelPipeline);
 
 		assertThatMessageSentDownstreamIsReceivedByDownstreamListener(handler3, handler2, handler1);
+	}
+
+	@Test
+	public void testIfOnlyDownstreamHandlersAreCalledWhenMessageIsSentDownstream() throws Exception {
+
+		pipeline.addFirst("fourth", upstreamHandler2);
+		pipeline.addFirst("third", downstreamHandler2);
+		pipeline.addFirst("second", upstreamHandler1);
+		pipeline.addFirst("first", downstreamHandler1);
+
+		assertThatMessageSentDownstreamIsReceivedByDownstreamListener(downstreamHandler2, downstreamHandler1);
+
+		verifyZeroInteractions(upstreamHandler2);
+		verifyZeroInteractions(upstreamHandler1);
 	}
 
 	@Test
@@ -211,9 +241,9 @@ public class FilterPipelineTest {
 		pipeline.addFirst("second", handler2);
 		pipeline.addFirst("first", handler1);
 
-		Map<String,ChannelHandler> map = pipeline.toMap();
+		Map<String, ChannelHandler> map = pipeline.toMap();
 
-		Iterator<Map.Entry<String,ChannelHandler>> entryIterator = map.entrySet().iterator();
+		Iterator<Map.Entry<String, ChannelHandler>> entryIterator = map.entrySet().iterator();
 
 		Map.Entry<String, ChannelHandler> firstEntry = entryIterator.next();
 		assertEquals("first", firstEntry.getKey());
@@ -226,7 +256,7 @@ public class FilterPipelineTest {
 		Map.Entry<String, ChannelHandler> thirdEntry = entryIterator.next();
 		assertEquals("third", thirdEntry.getKey());
 		assertSame(handler3, thirdEntry.getValue());
-		
+
 		assertFalse(entryIterator.hasNext());
 	}
 
@@ -236,7 +266,7 @@ public class FilterPipelineTest {
 		pipeline.addFirst("third", handler3);
 		pipeline.addFirst("second", handler2);
 		pipeline.addFirst("first", handler1);
-		
+
 		assertSame(handler3, pipeline.getLast());
 	}
 
@@ -246,7 +276,7 @@ public class FilterPipelineTest {
 		pipeline.addLast("first", handler1);
 		pipeline.addLast("second", handler2);
 		pipeline.addLast("third", handler3);
-		
+
 		assertSame(handler1, pipeline.getFirst());
 	}
 
@@ -608,7 +638,7 @@ public class FilterPipelineTest {
 		}
 	}
 
-	private void assertThatMessageSentDownstreamIsReceivedByDownstreamListener(PassThroughChannelHandler... mocks)
+	private void assertThatMessageSentDownstreamIsReceivedByDownstreamListener(ChannelDownstreamHandler... mocks)
 			throws Exception {
 
 		setUpPipelineAsAttachedOrHandler();
@@ -624,7 +654,7 @@ public class FilterPipelineTest {
 
 		InOrder inOrder = inOrder(mocks);
 
-		for (PassThroughChannelHandler mock : mocks) {
+		for (ChannelDownstreamHandler mock : mocks) {
 
 			ArgumentCaptor<ChannelEvent> channelEventCaptor = ArgumentCaptor.forClass(ChannelEvent.class);
 

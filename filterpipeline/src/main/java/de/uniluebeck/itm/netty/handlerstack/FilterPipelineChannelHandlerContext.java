@@ -3,6 +3,7 @@ package de.uniluebeck.itm.netty.handlerstack;
 import org.jboss.netty.channel.*;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Throwables.propagate;
@@ -107,7 +108,9 @@ class FilterPipelineChannelHandlerContext implements ChannelHandlerContext {
 	@Override
 	public void sendDownstream(ChannelEvent e) {
 
-		if (lowerContext == null) {
+		FilterPipelineChannelHandlerContext nextDownstreamHandlerContext = getNextDownstreamHandlerContext();
+
+		if (nextDownstreamHandlerContext == null) {
 
 			if (pipeline.getOuterContext() != null) {
 
@@ -117,17 +120,20 @@ class FilterPipelineChannelHandlerContext implements ChannelHandlerContext {
 
 		} else {
 
+			ChannelDownstreamHandler nextDownstreamHandler =
+					(ChannelDownstreamHandler) nextDownstreamHandlerContext.getHandler();
+
 			try {
 
-				((ChannelDownstreamHandler) lowerContext.getHandler()).handleDownstream(lowerContext, e);
+				nextDownstreamHandler.handleDownstream(lowerContext, e);
 
 			} catch (Exception e1) {
 
 				try {
-					((ChannelDownstreamHandler) lowerContext.getHandler()).handleDownstream(
-							lowerContext,
-							new DefaultExceptionEvent(lowerContext.getChannel(), e1)
-					);
+
+					DefaultExceptionEvent exceptionEvent = new DefaultExceptionEvent(lowerContext.getChannel(), e1);
+					nextDownstreamHandler.handleDownstream(lowerContext, exceptionEvent);
+
 				} catch (Exception e2) {
 					throw propagate(e2);
 				}
@@ -138,7 +144,9 @@ class FilterPipelineChannelHandlerContext implements ChannelHandlerContext {
 	@Override
 	public void sendUpstream(ChannelEvent e) {
 
-		if (upperContext == null) {
+		FilterPipelineChannelHandlerContext nextUpstreamHandlerContext = getNextUpstreamHandlerContext();
+
+		if (nextUpstreamHandlerContext == null) {
 
 			if (pipeline.getOuterContext() != null) {
 
@@ -148,22 +156,49 @@ class FilterPipelineChannelHandlerContext implements ChannelHandlerContext {
 
 		} else {
 
+			ChannelUpstreamHandler nextUpstreamHandler =
+					(ChannelUpstreamHandler) nextUpstreamHandlerContext.getHandler();
+
 			try {
 
-				((ChannelUpstreamHandler) upperContext.getHandler()).handleUpstream(upperContext, e);
+				nextUpstreamHandler.handleUpstream(upperContext, e);
 
 			} catch (Exception e1) {
 
 				try {
-					((ChannelUpstreamHandler) upperContext.getHandler()).handleUpstream(
-							upperContext,
-							new DefaultExceptionEvent(upperContext.getChannel(), e1)
-					);
+
+					DefaultExceptionEvent exceptionEvent = new DefaultExceptionEvent(upperContext.getChannel(), e1);
+					nextUpstreamHandler.handleUpstream(upperContext, exceptionEvent);
+
 				} catch (Exception e2) {
 					throw propagate(e2);
 				}
 			}
 		}
+	}
+
+	@Nullable
+	private FilterPipelineChannelHandlerContext getNextDownstreamHandlerContext() {
+		FilterPipelineChannelHandlerContext currentContext = lowerContext;
+		while (currentContext != null) {
+			if (currentContext.canHandleDownstream()) {
+				return currentContext;
+			}
+			currentContext = currentContext.getLowerContext();
+		}
+		return null;
+	}
+
+	@Nullable
+	private FilterPipelineChannelHandlerContext getNextUpstreamHandlerContext() {
+		FilterPipelineChannelHandlerContext currentContext = upperContext;
+		while (currentContext != null) {
+			if (currentContext.canHandleUpstream()) {
+				return currentContext;
+			}
+			currentContext = currentContext.getUpperContext();
+		}
+		return null;
 	}
 
 }

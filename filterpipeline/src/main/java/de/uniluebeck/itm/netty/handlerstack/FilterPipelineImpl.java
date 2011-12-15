@@ -1,5 +1,6 @@
 package de.uniluebeck.itm.netty.handlerstack;
 
+import com.google.common.base.Throwables;
 import de.uniluebeck.itm.tr.util.Tuple;
 import org.jboss.netty.channel.*;
 import org.slf4j.Logger;
@@ -676,8 +677,8 @@ public class FilterPipelineImpl implements FilterPipeline {
 	private void notifyHandlerException(final ChannelEvent e, final Exception e1) {
 		if (e instanceof ExceptionEvent) {
 			log.warn(
-					"An exception was thrown by a user handler while handling an exception event ({}): {}",
-					e1, e
+					"An exception was thrown by a user handler while handling an exception event: {}\nCaused by: {}",
+					Throwables.getStackTraceAsString(e1), Throwables.getStackTraceAsString(((ExceptionEvent) e).getCause())
 			);
 			return;
 		}
