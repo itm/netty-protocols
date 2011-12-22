@@ -25,6 +25,7 @@
 -->
 
 <itm-netty-handlerstack>
-	<handler name="logging-handler" factory="logging-handler"/>
+	<handler name="top-logging-handler" factory="logging-handler"/>
 	<handler name="dlestxetx-framing" factory="dlestxetx-framing" />
+	<handler name="bottom-logging-handler" factory="logging-handler"/>
 </itm-netty-handlerstack>
