@@ -23,6 +23,7 @@
 package de.uniluebeck.itm.netty.handlerstack;
 
 import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import de.uniluebeck.itm.tr.util.Tuple;
 import org.apache.commons.configuration.HierarchicalConfiguration;
@@ -125,7 +126,7 @@ public class HandlerFactoryRegistry {
 	 */
 	public List<Tuple<String, ChannelHandler>> create(final File configFile) throws Exception {
 
-		List<Tuple<String, ChannelHandler>> handlerStack = new LinkedList<Tuple<String, ChannelHandler>>();
+		LinkedList<Tuple<String, ChannelHandler>> handlerStack = new LinkedList<Tuple<String, ChannelHandler>>();
 
 		if (!configFile.exists()) {
 			throw new FileNotFoundException("Configuration file " + configFile + " not found.");
@@ -156,7 +157,9 @@ public class HandlerFactoryRegistry {
 			}
 
 			List<Tuple<String, ChannelHandler>> channelHandlers = create(handlerName, factoryName, options);
-			handlerStack.addAll(channelHandlers);
+			for (Tuple<String, ChannelHandler> channelHandler : channelHandlers) {
+				handlerStack.addFirst(channelHandler);
+			}
 		}
 
 		// Debug output
