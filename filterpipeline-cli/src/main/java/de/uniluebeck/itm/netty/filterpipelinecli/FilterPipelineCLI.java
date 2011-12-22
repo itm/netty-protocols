@@ -11,11 +11,18 @@ import de.uniluebeck.itm.tr.util.Logging;
 import org.apache.commons.cli.*;
 import org.apache.log4j.Level;
 import org.jboss.netty.bootstrap.ClientBootstrap;
+import org.jboss.netty.buffer.ChannelBuffer;
+import org.jboss.netty.buffer.ChannelBuffers;
 import org.jboss.netty.channel.*;
+import org.jboss.netty.util.CharsetUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.charset.Charset;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -62,7 +69,7 @@ public class FilterPipelineCLI {
 		bootstrap.setPipelineFactory(new ChannelPipelineFactory() {
 			@Override
 			public ChannelPipeline getPipeline() throws Exception {
-				return pipeline((ChannelHandler) filterPipeline);
+				return filterPipeline;
 			}
 		}
 		);
@@ -80,6 +87,20 @@ public class FilterPipelineCLI {
 		}, "ShutdownThread"
 		)
 		);
+
+		BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+
+		try {
+			String inputLine;
+			while ((inputLine = reader.readLine()) != null) {
+
+				ChannelBuffer buffer = ChannelBuffers.copiedBuffer(inputLine, Charset.defaultCharset());
+				channel.write(buffer);
+
+			}
+		} catch (IOException e) {
+			log.warn("{}", e);
+		}
 
 	}
 

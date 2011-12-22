@@ -112,10 +112,20 @@ class FilterPipelineChannelHandlerContext implements ChannelHandlerContext {
 
 		if (nextDownstreamHandlerContext == null) {
 
-			if (pipeline.getOuterContext() != null) {
+			if (pipeline.isUsedAsHandler) {
 
 				ChannelHandlerContext outerContext = pipeline.getOuterContext();
 				outerContext.sendDownstream(e);
+
+			} else if (pipeline.isAttached) {
+
+				try {
+					//noinspection ConstantConditions
+					pipeline.getSink().eventSunk(pipeline, e);
+				} catch (Exception e1) {
+					sendUpstream(new DefaultExceptionEvent(pipeline.getChannel(), e1));
+				}
+
 			}
 
 		} else {
@@ -125,14 +135,14 @@ class FilterPipelineChannelHandlerContext implements ChannelHandlerContext {
 
 			try {
 
-				nextDownstreamHandler.handleDownstream(lowerContext, e);
+				nextDownstreamHandler.handleDownstream(nextDownstreamHandlerContext, e);
 
 			} catch (Exception e1) {
 
 				try {
 
-					DefaultExceptionEvent exceptionEvent = new DefaultExceptionEvent(lowerContext.getChannel(), e1);
-					nextDownstreamHandler.handleDownstream(lowerContext, exceptionEvent);
+					DefaultExceptionEvent exceptionEvent = new DefaultExceptionEvent(nextDownstreamHandlerContext.getChannel(), e1);
+					nextDownstreamHandler.handleDownstream(nextDownstreamHandlerContext, exceptionEvent);
 
 				} catch (Exception e2) {
 					throw propagate(e2);
@@ -161,14 +171,14 @@ class FilterPipelineChannelHandlerContext implements ChannelHandlerContext {
 
 			try {
 
-				nextUpstreamHandler.handleUpstream(upperContext, e);
+				nextUpstreamHandler.handleUpstream(nextUpstreamHandlerContext, e);
 
 			} catch (Exception e1) {
 
 				try {
 
-					DefaultExceptionEvent exceptionEvent = new DefaultExceptionEvent(upperContext.getChannel(), e1);
-					nextUpstreamHandler.handleUpstream(upperContext, exceptionEvent);
+					DefaultExceptionEvent exceptionEvent = new DefaultExceptionEvent(nextUpstreamHandlerContext.getChannel(), e1);
+					nextUpstreamHandler.handleUpstream(nextUpstreamHandlerContext, exceptionEvent);
 
 				} catch (Exception e2) {
 					throw propagate(e2);

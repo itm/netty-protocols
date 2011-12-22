@@ -52,9 +52,9 @@ public class FilterPipelineImpl implements FilterPipeline {
 	 */
 	private FilterPipelineChannelHandlerContext topContext;
 
-	private volatile boolean isUsedAsHandler = false;
+	volatile boolean isUsedAsHandler = false;
 
-	private volatile boolean isAttached = false;
+	volatile boolean isAttached = false;
 
 	@Override
 	public void beforeAdd(final ChannelHandlerContext ctx) throws Exception {
@@ -649,6 +649,12 @@ public class FilterPipelineImpl implements FilterPipeline {
 
 			} catch (Exception e1) {
 				notifyHandlerException(e, e1);
+			}
+		} else if (isAttached) {
+			try {
+				outerChannelSink.eventSunk(e.getChannel().getPipeline(), e);
+			} catch (Exception e1) {
+				sendUpstream(new DefaultExceptionEvent(e.getChannel(), e1));
 			}
 		}
 	}
