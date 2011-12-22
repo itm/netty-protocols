@@ -22,65 +22,55 @@
  */
 package de.uniluebeck.netty.handlerstack.logginghandler;
 
+import de.uniluebeck.itm.tr.util.StringUtils;
 import org.jboss.netty.buffer.ChannelBuffer;
-import org.jboss.netty.channel.ChannelEvent;
-import org.jboss.netty.channel.ChannelHandlerContext;
-import org.jboss.netty.channel.ChannelStateEvent;
-import org.jboss.netty.channel.MessageEvent;
-import org.jboss.netty.channel.SimpleChannelHandler;
+import org.jboss.netty.channel.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.uniluebeck.itm.tr.util.StringUtils;
+public class LoggingHandler implements ChannelDownstreamHandler, ChannelUpstreamHandler {
 
-public class LoggingHandler extends SimpleChannelHandler {
+	private final Logger log;
 
-    private final Logger log;
+	public LoggingHandler() {
+		this(null);
+	}
 
-    public LoggingHandler() {
-        this(null);
-    }
-    
-    public LoggingHandler(String instanceName) {
-        log = LoggerFactory.getLogger(instanceName != null ? instanceName : LoggingHandler.class.getName());
-    }
+	public LoggingHandler(String instanceName) {
+		log = LoggerFactory.getLogger(instanceName != null ? instanceName : LoggingHandler.class.getName());
+	}
 
-    @Override
-    public void channelConnected(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
-        log.debug("----LoggingHandler:connected----");
-        super.channelConnected(ctx, e);
-    }
+	@Override
+	public void handleDownstream(final ChannelHandlerContext ctx, final ChannelEvent e) throws Exception {
 
-    @Override
-    public void channelDisconnected(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
-        log.debug("{}", e);
-        super.channelDisconnected(ctx, e);
-    }
+		if (e instanceof DownstreamMessageEvent && ((DownstreamMessageEvent) e).getMessage() instanceof ChannelBuffer) {
+			logChannelBuffer((ChannelBuffer) ((DownstreamMessageEvent) e).getMessage(), true);
+		} else {
+			log.debug("DOWNSTREAM : {}", e);
+		}
 
-    @Override
-    public void handleDownstream(ChannelHandlerContext ctx, ChannelEvent e) throws Exception {
-//        log.debug("{}", e);
-        super.handleDownstream(ctx, e);
-    }
+		ctx.sendDownstream(e);
+	}
 
-    @Override
-    public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) throws Exception {
-        Object msg = e.getMessage();
+	@Override
+	public void handleUpstream(final ChannelHandlerContext ctx, final ChannelEvent e) throws Exception {
+		
+		if (e instanceof UpstreamMessageEvent && ((UpstreamMessageEvent) e).getMessage() instanceof ChannelBuffer) {
+			logChannelBuffer((ChannelBuffer) ((UpstreamMessageEvent) e).getMessage(), false);
+		} else {
+			log.debug("UPSTREAM   : {}", e);
+		}
 
-        if (msg instanceof ChannelBuffer) {
+		ctx.sendUpstream(e);
+	}
 
-            if (log.isDebugEnabled()) {
-                ChannelBuffer b = (ChannelBuffer) msg;
-                log.debug("Received channel buffer: {}",
-                        StringUtils.toHexString(b.array(), b.readerIndex(), b.readableBytes()));
-            }
-
-        } else {
-
-            log.debug("{}", e.getMessage());
-        }
-
-        super.messageReceived(ctx, e);
-    }
+	private void logChannelBuffer(final ChannelBuffer msg, final boolean downstream) {
+		if (log.isDebugEnabled()) {
+			log.debug((downstream ? "DOWNSTREAM" : "UPSTREAM  ") + " : {} | {}",
+					StringUtils.replaceNonPrintableAsciiCharacters(msg.array(), msg.readerIndex(), msg.readableBytes()),
+					StringUtils.toHexString(msg.array(), msg.readerIndex(), msg.readableBytes())
+			);
+		}
+	}
 
 }
