@@ -15,7 +15,7 @@ public abstract class ChannelBufferTools {
 	 */
 	public static byte[] getToByteArray(final ChannelBuffer buffer) {
 		byte[] bytes = new byte[buffer.readableBytes()];
-		buffer.getBytes(0, bytes, 0, buffer.readableBytes());
+		buffer.getBytes(buffer.readerIndex(), bytes, 0, buffer.readableBytes());
 		return bytes;
 	}
 
@@ -54,7 +54,7 @@ public abstract class ChannelBufferTools {
 	 */
 	public static String toPrintableString(final ChannelBuffer buffer, int maxLength) {
 		final byte[] bytes = new byte[buffer.readableBytes() < maxLength ? buffer.readableBytes() : maxLength];
-		buffer.readBytes(bytes);
+		buffer.getBytes(buffer.readerIndex(), bytes, 0, buffer.readableBytes());
 		return StringUtils.replaceNonPrintableAsciiCharacters(new String(bytes));
 	}
 
