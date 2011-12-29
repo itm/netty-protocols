@@ -2,13 +2,13 @@ package de.uniluebeck.itm.netty.filterpipelinecli;
 
 import java.io.File;
 
-public class FilterPipelineCLIConfig {
+public class FilterPipelineCliConfig {
 
 	private final File filterPipelineConfigurationFile;
 	
 	private final String port;
 
-	public FilterPipelineCLIConfig(final String port, final File filterPipelineConfigurationFile) {
+	public FilterPipelineCliConfig(final String port, final File filterPipelineConfigurationFile) {
 		this.port = port;
 		this.filterPipelineConfigurationFile = filterPipelineConfigurationFile;
 	}

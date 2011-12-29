@@ -14,7 +14,6 @@ import org.jboss.netty.bootstrap.ClientBootstrap;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBuffers;
 import org.jboss.netty.channel.*;
-import org.jboss.netty.util.CharsetUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,7 +49,7 @@ public class FilterPipelineCLI {
 	public static void main(String[] args) {
 
 		Options options = createCommandLineOptions();
-		FilterPipelineCLIConfig config = parseCommandLineOptions(options, args);
+		FilterPipelineCliConfig config = parseCommandLineOptions(options, args);
 
 		final HandlerFactoryRegistry factoryRegistry = new HandlerFactoryRegistry();
 		ProtocolCollection.registerProtocols(factoryRegistry);
@@ -104,7 +103,7 @@ public class FilterPipelineCLI {
 
 	}
 
-	private static FilterPipelineCLIConfig parseCommandLineOptions(final Options options, final String[] args) {
+	private static FilterPipelineCliConfig parseCommandLineOptions(final Options options, final String[] args) {
 
 		CommandLineParser parser = new PosixParser();
 
@@ -147,7 +146,7 @@ public class FilterPipelineCLI {
 			printUsageAndExit(FilterPipelineCLI.class, options, EXIT_CODE_INVALID_ARGUMENTS);
 		}
 
-		return new FilterPipelineCLIConfig(port, filterPipelineConfigurationFile);
+		return new FilterPipelineCliConfig(port, filterPipelineConfigurationFile);
 	}
 
 	private static Options createCommandLineOptions() {
