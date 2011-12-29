@@ -125,7 +125,7 @@ public class NodeAPIHandler extends SimpleChannelHandler implements ChannelUpstr
 		} else if (request instanceof SetStartTimeRequest) {
 			return new SetStartTimeCommand(requestID, payload, ((SetStartTimeRequest) request).getTime());
 		} else if (request instanceof SetVirtualIdRequest) {
-			return new SetVirtualIdCommand(requestID, payload, ((SetVirtualIdRequest) request).getVirtualNodeId());
+			return new SetVirtualIDCommand(requestID, payload, ((SetVirtualIdRequest) request).getVirtualNodeId());
 		} else if (request instanceof AreNodesAliveRequest) {
 			return new AreNodesAliveCommand(requestID, payload);
 		} else if (request instanceof GetVersionRequest) {

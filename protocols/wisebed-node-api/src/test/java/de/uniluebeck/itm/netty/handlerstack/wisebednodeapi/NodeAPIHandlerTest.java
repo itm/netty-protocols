@@ -124,7 +124,7 @@ public class NodeAPIHandlerTest {
 			commandResponse = new SetStartTimeCommandResponse(requestID, result, ChannelBuffers.wrappedBuffer(payload));
 		} else if (requestClass.equals(SetVirtualIdRequest.class)) {
 			request = new SetVirtualIdRequest(requestID, payload, virtualNodeId);
-			commandResponse = new SetVirtualIdCommandResponse(requestID, result, ChannelBuffers.wrappedBuffer(payload));
+			commandResponse = new SetVirtualIDCommandResponse(requestID, result, ChannelBuffers.wrappedBuffer(payload));
 		} else if (requestClass.equals(AreNodesAliveRequest.class)) {
 			request = new AreNodesAliveRequest(requestID, payload);
 			commandResponse = new AreNodesAliveCommandResponse(requestID, result, ChannelBuffers.wrappedBuffer(payload));
@@ -283,11 +283,11 @@ public class NodeAPIHandlerTest {
 	@Test
 	public void ifSetVirtualIdRequestReceivedDownstreamSetVirtualIDCommandIsSentDownstream() throws Exception {
 		final Object message = setupActAndVerifyDownstreamMessageEvent(SetVirtualIdRequest.class);
-		assertTrue(message instanceof SetVirtualIdCommand);
-		assertEquals(requestID, ((SetVirtualIdCommand) message).getRequestID());
-		assertEquals(CommandType.NodeControl.SET_VIRTUAL_ID, ((SetVirtualIdCommand) message).getCommandType());
-		assertEquals(virtualNodeId, ((SetVirtualIdCommand) message).getVirtualNodeId());
-		assertEquals(ChannelBuffers.wrappedBuffer(payload), ((SetVirtualIdCommand) message).getPayload());
+		assertTrue(message instanceof SetVirtualIDCommand);
+		assertEquals(requestID, ((SetVirtualIDCommand) message).getRequestID());
+		assertEquals(CommandType.NodeControl.SET_VIRTUAL_ID, ((SetVirtualIDCommand) message).getCommandType());
+		assertEquals(virtualNodeId, ((SetVirtualIDCommand) message).getVirtualNodeId());
+		assertEquals(ChannelBuffers.wrappedBuffer(payload), ((SetVirtualIDCommand) message).getPayload());
 	}
 
 	@Test

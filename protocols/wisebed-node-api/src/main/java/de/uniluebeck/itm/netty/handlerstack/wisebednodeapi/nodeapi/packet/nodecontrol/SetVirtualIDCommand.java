@@ -12,9 +12,9 @@ import org.jboss.netty.buffer.ChannelBuffers;
  * Time: 17:28
  * To change this template use File | Settings | File Templates.
  */
-public class SetVirtualIdCommand extends Command {
+public class SetVirtualIDCommand extends Command {
 	private ChannelBuffer buffer;
-	public SetVirtualIdCommand(byte requestID, ChannelBuffer payload, long virtualNodeId) {
+	public SetVirtualIDCommand(byte requestID, ChannelBuffer payload, long virtualNodeId) {
 		super(CommandType.NodeControl.SET_VIRTUAL_ID, requestID, payload);
 		this.buffer = ChannelBuffers.buffer(8);
 		this.buffer.writeLong(virtualNodeId);
