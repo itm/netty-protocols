@@ -7,7 +7,7 @@
 	<name>Netty Handlerstack :: Parent</name>
 	<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
 	<artifactId>netty-handlerstack-parent</artifactId>
-	<version>1.3</version>
+	<version>1.4-SNAPSHOT</version>
 
 	<packaging>pom</packaging>
 
