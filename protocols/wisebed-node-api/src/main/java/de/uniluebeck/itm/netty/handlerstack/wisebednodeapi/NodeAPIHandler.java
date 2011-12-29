@@ -124,8 +124,8 @@ public class NodeAPIHandler extends SimpleChannelHandler implements ChannelUpstr
 			return new ResetNodeCommand(requestID, payload, ((ResetNodeRequest) request).getTime());
 		} else if (request instanceof SetStartTimeRequest) {
 			return new SetStartTimeCommand(requestID, payload, ((SetStartTimeRequest) request).getTime());
-		} else if (request instanceof SetVirtualIdRequest) {
-			return new SetVirtualIDCommand(requestID, payload, ((SetVirtualIdRequest) request).getVirtualNodeId());
+		} else if (request instanceof SetVirtualIDRequest) {
+			return new SetVirtualIDCommand(requestID, payload, ((SetVirtualIDRequest) request).getVirtualNodeId());
 		} else if (request instanceof AreNodesAliveRequest) {
 			return new AreNodesAliveCommand(requestID, payload);
 		} else if (request instanceof GetVersionRequest) {
@@ -191,8 +191,8 @@ public class NodeAPIHandler extends SimpleChannelHandler implements ChannelUpstr
 			return new ResetNodeResponse((ResetNodeRequest) originalRequestFromRequestCache);
 		} else if (originalRequestFromRequestCache instanceof SetStartTimeRequest) {
 			return new SetStartTimeResponse((SetStartTimeRequest) originalRequestFromRequestCache);
-		} else if (originalRequestFromRequestCache instanceof SetVirtualIdRequest) {
-			return new SetVirtualIdResponse((SetVirtualIdRequest) originalRequestFromRequestCache);
+		} else if (originalRequestFromRequestCache instanceof SetVirtualIDRequest) {
+			return new SetVirtualIDResponse((SetVirtualIDRequest) originalRequestFromRequestCache);
 		} else if (originalRequestFromRequestCache instanceof AreNodesAliveRequest) {
 			return new AreNodesAliveResponse((AreNodesAliveRequest) originalRequestFromRequestCache);
 		} else if (originalRequestFromRequestCache instanceof GetVersionRequest) {

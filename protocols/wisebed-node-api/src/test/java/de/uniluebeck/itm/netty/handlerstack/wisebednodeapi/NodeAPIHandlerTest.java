@@ -122,8 +122,8 @@ public class NodeAPIHandlerTest {
 		} else if (requestClass.equals(SetStartTimeRequest.class)) {
 			request = new SetStartTimeRequest(requestID, payload, time);
 			commandResponse = new SetStartTimeCommandResponse(requestID, result, ChannelBuffers.wrappedBuffer(payload));
-		} else if (requestClass.equals(SetVirtualIdRequest.class)) {
-			request = new SetVirtualIdRequest(requestID, payload, virtualNodeId);
+		} else if (requestClass.equals(SetVirtualIDRequest.class)) {
+			request = new SetVirtualIDRequest(requestID, payload, virtualNodeId);
 			commandResponse = new SetVirtualIDCommandResponse(requestID, result, ChannelBuffers.wrappedBuffer(payload));
 		} else if (requestClass.equals(AreNodesAliveRequest.class)) {
 			request = new AreNodesAliveRequest(requestID, payload);
@@ -282,7 +282,7 @@ public class NodeAPIHandlerTest {
 
 	@Test
 	public void ifSetVirtualIdRequestReceivedDownstreamSetVirtualIDCommandIsSentDownstream() throws Exception {
-		final Object message = setupActAndVerifyDownstreamMessageEvent(SetVirtualIdRequest.class);
+		final Object message = setupActAndVerifyDownstreamMessageEvent(SetVirtualIDRequest.class);
 		assertTrue(message instanceof SetVirtualIDCommand);
 		assertEquals(requestID, ((SetVirtualIDCommand) message).getRequestID());
 		assertEquals(CommandType.NodeControl.SET_VIRTUAL_ID, ((SetVirtualIDCommand) message).getCommandType());
@@ -514,12 +514,12 @@ public class NodeAPIHandlerTest {
 	@Test
 	public void ifExpectedSetVirtualIdCommandResponseReceivedUpstreamSetVirtualIdResponseIsSentUpstream() throws Exception {
 		//set up
-		Request request = createAndReturnRequestAndSetupMessageEvent(SetVirtualIdRequest.class, upstreamMessageEvent);
+		Request request = createAndReturnRequestAndSetupMessageEvent(SetVirtualIDRequest.class, upstreamMessageEvent);
 		final Object message = setupActAndVerifyUpstreamMessageEventForRequest();
 
-		assertTrue(message instanceof SetVirtualIdResponse);
-		assertSame(request, ((SetVirtualIdResponse) message).getRequest());
-		assertEquals(virtualNodeId, ((SetVirtualIdRequest) ((SetVirtualIdResponse) message).getRequest()).getVirtualNodeId());
+		assertTrue(message instanceof SetVirtualIDResponse);
+		assertSame(request, ((SetVirtualIDResponse) message).getRequest());
+		assertEquals(virtualNodeId, ((SetVirtualIDRequest) ((SetVirtualIDResponse) message).getRequest()).getVirtualNodeId());
 	}
 
 	@Test
@@ -764,13 +764,13 @@ public class NodeAPIHandlerTest {
 	@Test
 	public void testTimeOutOccurrenceForSetVirtualIdResponseSentUpstream() throws Exception {
 		// setup
-		Request request = createAndReturnRequestAndSetupMessageEvent(SetVirtualIdRequest.class, upstreamMessageEvent);
+		Request request = createAndReturnRequestAndSetupMessageEvent(SetVirtualIDRequest.class, upstreamMessageEvent);
 		final Object message = setupActAndVerifyUpstreamMessageEventForTimeOut(request);
 
 		assertTrue(message instanceof TimeOutResponse);
 		assertSame(request, (((TimeOutResponse) message).getRequest()));
-		assertTrue(((TimeOutResponse) message).getRequest() instanceof SetVirtualIdRequest);
-		assertEquals(virtualNodeId, ((SetVirtualIdRequest) ((TimeOutResponse) message).getRequest()).getVirtualNodeId());
+		assertTrue(((TimeOutResponse) message).getRequest() instanceof SetVirtualIDRequest);
+		assertEquals(virtualNodeId, ((SetVirtualIDRequest) ((TimeOutResponse) message).getRequest()).getVirtualNodeId());
 	}
 
 	@Test

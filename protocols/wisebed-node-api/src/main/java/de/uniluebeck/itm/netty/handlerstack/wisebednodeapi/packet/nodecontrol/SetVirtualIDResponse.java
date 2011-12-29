@@ -1,6 +1,5 @@
 package de.uniluebeck.itm.netty.handlerstack.wisebednodeapi.packet.nodecontrol;
 
-import de.uniluebeck.itm.netty.handlerstack.wisebednodeapi.packet.Request;
 import de.uniluebeck.itm.netty.handlerstack.wisebednodeapi.packet.Response;
 
 /**
@@ -10,12 +9,12 @@ import de.uniluebeck.itm.netty.handlerstack.wisebednodeapi.packet.Response;
  * Time: 18:33
  * To change this template use File | Settings | File Templates.
  */
-public class SetVirtualIdResponse extends Response{
-	public SetVirtualIdResponse(final SetVirtualIdRequest request) {
+public class SetVirtualIDResponse extends Response{
+	public SetVirtualIDResponse(final SetVirtualIDRequest request) {
 		super(request);
 	}
 
 	public long getVirtualNodeId(){
-		return ((SetVirtualIdRequest) request).getVirtualNodeId();
+		return ((SetVirtualIDRequest) request).getVirtualNodeId();
 	}
 }
