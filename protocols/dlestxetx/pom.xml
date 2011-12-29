@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
 		<artifactId>netty-handlerstack-parent</artifactId>
-		<version>1.3-SNAPSHOT</version>
+		<version>1.3</version>
 		<relativePath>../../</relativePath>
 	</parent>
 
