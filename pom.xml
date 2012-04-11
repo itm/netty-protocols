@@ -23,6 +23,7 @@
 
 		<module>protocols/dlestxetx</module>
 		<module>protocols/discard</module>
+		<module>protocols/hdlctranslatec</module>
 		<module>protocols/isense</module>
 		<module>protocols/isense-otap</module>
 		<module>protocols/iseraerial</module>
