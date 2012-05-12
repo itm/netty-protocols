@@ -19,11 +19,7 @@
 
 		<dependency>
 			<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
-			<artifactId>isense</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
-			<artifactId>iseraerial</artifactId>
+			<artifactId>discard</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
@@ -31,7 +27,15 @@
 		</dependency>
 		<dependency>
 			<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
-			<artifactId>discard</artifactId>
+			<artifactId>hdlctranslatec</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
+			<artifactId>isense</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
+			<artifactId>isense-ishell-interpreter</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
@@ -39,7 +43,7 @@
 		</dependency>
 		<dependency>
 			<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
-			<artifactId>isense-ishell-interpreter</artifactId>
+			<artifactId>iseraerial</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
