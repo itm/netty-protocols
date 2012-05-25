@@ -31,8 +31,12 @@
 		</dependency>
 
 		<dependency>
-			<groupId>de.uniluebeck.itm.netty-rxtx</groupId>
-			<artifactId>netty-rxtx</artifactId>
+			<groupId>de.uniluebeck.itm.netty-iostream</groupId>
+			<artifactId>netty-iostream</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>de.uniluebeck.itm</groupId>
+			<artifactId>wsn-device-drivers-factories</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>de.uniluebeck.itm.itmutils</groupId>

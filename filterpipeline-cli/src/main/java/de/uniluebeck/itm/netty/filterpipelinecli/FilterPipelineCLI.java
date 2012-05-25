@@ -5,28 +5,28 @@ import de.uniluebeck.itm.netty.handlerstack.FilterPipeline;
 import de.uniluebeck.itm.netty.handlerstack.FilterPipelineImpl;
 import de.uniluebeck.itm.netty.handlerstack.HandlerFactoryRegistry;
 import de.uniluebeck.itm.netty.handlerstack.protocolcollection.ProtocolCollection;
-import de.uniluebeck.itm.nettyrxtx.RXTXChannelFactory;
-import de.uniluebeck.itm.nettyrxtx.RXTXDeviceAddress;
 import de.uniluebeck.itm.tr.util.Logging;
+import de.uniluebeck.itm.wsn.drivers.core.Device;
+import de.uniluebeck.itm.wsn.drivers.factories.DeviceFactoryImpl;
+import de.uniluebeck.itm.wsn.drivers.factories.DeviceType;
 import org.apache.commons.cli.*;
 import org.apache.log4j.Level;
 import org.jboss.netty.bootstrap.ClientBootstrap;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBuffers;
-import org.jboss.netty.channel.*;
+import org.jboss.netty.channel.Channel;
+import org.jboss.netty.channel.ChannelFuture;
+import org.jboss.netty.channel.ChannelPipeline;
+import org.jboss.netty.channel.ChannelPipelineFactory;
+import org.jboss.netty.channel.iostream.IOStreamAddress;
+import org.jboss.netty.channel.iostream.IOStreamChannelFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.nio.charset.Charset;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-
-import static com.google.common.collect.Lists.newArrayList;
-import static org.jboss.netty.channel.Channels.pipeline;
 
 public class FilterPipelineCLI {
 
@@ -45,36 +45,50 @@ public class FilterPipelineCLI {
 	private static final int EXIT_CODE_REFERENCE_FILE_IS_DIRECTORY = 4;
 
 	private final static Level[] LOG_LEVELS = {Level.TRACE, Level.DEBUG, Level.INFO, Level.WARN, Level.ERROR};
-	
+
 	public static void main(String[] args) {
 
 		Options options = createCommandLineOptions();
-		FilterPipelineCliConfig config = parseCommandLineOptions(options, args);
+		final FilterPipelineCliConfig config = parseCommandLineOptions(options, args);
 
 		final HandlerFactoryRegistry factoryRegistry = new HandlerFactoryRegistry();
 		ProtocolCollection.registerProtocols(factoryRegistry);
 
 		final ExecutorService executorService = Executors.newCachedThreadPool();
-		final ClientBootstrap bootstrap = new ClientBootstrap(new RXTXChannelFactory(executorService));
-
-		final FilterPipeline filterPipeline = new FilterPipelineImpl();
-		try {
-			filterPipeline.setChannelPipeline(factoryRegistry.create(config.getFilterPipelineConfigurationFile()));
-		} catch (Exception e) {
-			e.printStackTrace();
-			System.exit(1);
-		}
+		final ClientBootstrap bootstrap = new ClientBootstrap(new IOStreamChannelFactory(executorService));
 
 		bootstrap.setPipelineFactory(new ChannelPipelineFactory() {
 			@Override
 			public ChannelPipeline getPipeline() throws Exception {
+				final FilterPipeline filterPipeline = new FilterPipelineImpl();
+				try {
+					filterPipeline.setChannelPipeline(
+							factoryRegistry.create(config.getFilterPipelineConfigurationFile())
+					);
+				} catch (Exception e) {
+					e.printStackTrace();
+					System.exit(1);
+				}
 				return filterPipeline;
 			}
 		}
 		);
 
-		// Create a new connection and wait until the connection is made successfully.
-		ChannelFuture connectFuture = bootstrap.connect(new RXTXDeviceAddress(config.getPort()));
+		final Device device = new DeviceFactoryImpl().create(executorService, config.getDeviceType());
+
+		try {
+			device.connect(config.getPort());
+		} catch (IOException e) {
+			throw new RuntimeException("Connection to device at port \"" + args[1] + "\" could not be established!");
+		}
+		if (!device.isConnected()) {
+			throw new RuntimeException("Connection to device at port \"" + args[1] + "\" could not be established!");
+		}
+
+		final InputStream inputStream = device.getInputStream();
+		final OutputStream outputStream = device.getOutputStream();
+
+		final ChannelFuture connectFuture = bootstrap.connect(new IOStreamAddress(inputStream, outputStream));
 		final Channel channel = connectFuture.awaitUninterruptibly().getChannel();
 
 		Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
@@ -109,6 +123,7 @@ public class FilterPipelineCLI {
 
 		String port = null;
 		File filterPipelineConfigurationFile = null;
+		DeviceType deviceType = null;
 
 		try {
 
@@ -128,6 +143,7 @@ public class FilterPipelineCLI {
 			}
 
 			port = line.getOptionValue('p');
+			deviceType = DeviceType.fromString(line.getOptionValue('t'));
 			filterPipelineConfigurationFile = new File(line.getOptionValue('f'));
 
 			if (!filterPipelineConfigurationFile.exists()) {
@@ -146,7 +162,7 @@ public class FilterPipelineCLI {
 			printUsageAndExit(FilterPipelineCLI.class, options, EXIT_CODE_INVALID_ARGUMENTS);
 		}
 
-		return new FilterPipelineCliConfig(port, filterPipelineConfigurationFile);
+		return new FilterPipelineCliConfig(port, filterPipelineConfigurationFile, deviceType);
 	}
 
 	private static Options createCommandLineOptions() {
@@ -156,6 +172,11 @@ public class FilterPipelineCLI {
 		Option portOption = new Option("p", "port", true, "Serial port to which the device is attached");
 		portOption.setRequired(true);
 		options.addOption(portOption);
+
+		Option typeOption =
+				new Option("t", "type", true, "The device type (" + Joiner.on(",").join(DeviceType.values()) + ")");
+		typeOption.setRequired(true);
+		options.addOption(typeOption);
 
 		Option fileOption = new Option("f", "file", true, "A configuration file for the filter pipeline");
 		fileOption.setRequired(true);

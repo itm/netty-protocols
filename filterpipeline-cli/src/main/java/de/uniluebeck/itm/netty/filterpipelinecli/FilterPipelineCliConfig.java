@@ -1,5 +1,7 @@
 package de.uniluebeck.itm.netty.filterpipelinecli;
 
+import de.uniluebeck.itm.wsn.drivers.factories.DeviceType;
+
 import java.io.File;
 
 public class FilterPipelineCliConfig {
@@ -8,9 +10,12 @@ public class FilterPipelineCliConfig {
 	
 	private final String port;
 
-	public FilterPipelineCliConfig(final String port, final File filterPipelineConfigurationFile) {
+	private final DeviceType deviceType;
+
+	public FilterPipelineCliConfig(final String port, final File filterPipelineConfigurationFile, final DeviceType deviceType) {
 		this.port = port;
 		this.filterPipelineConfigurationFile = filterPipelineConfigurationFile;
+		this.deviceType = deviceType;
 	}
 
 	public String getPort() {
@@ -19,5 +24,9 @@ public class FilterPipelineCliConfig {
 
 	public File getFilterPipelineConfigurationFile() {
 		return filterPipelineConfigurationFile;
+	}
+
+	public DeviceType getDeviceType() {
+		return deviceType;
 	}
 }

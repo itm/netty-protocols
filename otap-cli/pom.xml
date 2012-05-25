@@ -18,6 +18,14 @@
 	<dependencies>
 
 		<dependency>
+			<groupId>de.uniluebeck.itm</groupId>
+			<artifactId>wsn-device-drivers-factories</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>de.uniluebeck.itm.netty-iostream</groupId>
+			<artifactId>netty-iostream</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
 			<artifactId>factory</artifactId>
 		</dependency>
@@ -30,10 +38,6 @@
 			<artifactId>filterpipeline</artifactId>
 		</dependency>
 
-		<dependency>
-			<groupId>de.uniluebeck.itm.netty-rxtx</groupId>
-			<artifactId>netty-rxtx</artifactId>
-		</dependency>
 		<dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
