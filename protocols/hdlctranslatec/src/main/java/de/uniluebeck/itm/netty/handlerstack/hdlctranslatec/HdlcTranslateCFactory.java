@@ -20,7 +20,7 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package de.uniluebeck.itm.netty.handlerstack.dlestxetx;
+package de.uniluebeck.itm.netty.handlerstack.hdlctranslatec;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
@@ -29,17 +29,19 @@ import de.uniluebeck.itm.tr.util.Tuple;
 import org.jboss.netty.channel.ChannelHandler;
 
 import javax.annotation.Nullable;
+import java.util.LinkedList;
 import java.util.List;
 
-import static com.google.common.collect.Lists.newArrayList;
-
-public class HdlcTranslateCEncoderFactory implements HandlerFactory {
+public class HdlcTranslateCFactory implements HandlerFactory {
 
 	@Override
 	public List<Tuple<String, ChannelHandler>> create(@Nullable final String instanceName,
 													  final Multimap<String, String> properties) throws Exception {
 
-		return newArrayList(new Tuple<String, ChannelHandler>(instanceName, new HdlcTranslateCEncoder(instanceName)));
+		List<Tuple<String, ChannelHandler>> handlers = new LinkedList<Tuple<String, ChannelHandler>>();
+		handlers.addAll(new HdlcTranslateCDecoderFactory().create(instanceName + "-decoder", properties));
+		handlers.addAll(new HdlcTranslateCEncoderFactory().create(instanceName + "-encoder", properties));
+		return handlers;
 	}
 
 	@Override
@@ -54,11 +56,11 @@ public class HdlcTranslateCEncoderFactory implements HandlerFactory {
 
 	@Override
 	public String getDescription() {
-		return "Encodes packets using the HdlcTranslateC packet framing. For more details see http://www.tinyos.net/tinyos-2.x/doc/html/tep113.html.";
+		return "Both hdlctranslatec-encoder and hdlctranslatec-decoder. For more details see http://www.tinyos.net/tinyos-2.x/doc/html/tep113.html";
 	}
 
 	@Override
 	public String getName() {
-		return "hdlctranslatec-encoder";
+		return "hdlctranslatec";
 	}
 }

@@ -20,7 +20,7 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package de.uniluebeck.itm.netty.handlerstack.dlestxetx;
+package de.uniluebeck.itm.netty.handlerstack.hdlctranslatec;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
@@ -33,13 +33,13 @@ import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 
-public class DleStxEtxFramingEncoderFactory implements HandlerFactory {
+public class DleStxEtxFramingDecoderFactory implements HandlerFactory {
 
 	@Override
 	public List<Tuple<String, ChannelHandler>> create(@Nullable final String instanceName,
 													  final Multimap<String, String> properties) throws Exception {
 
-		return newArrayList(new Tuple<String, ChannelHandler>(instanceName, new DleStxEtxFramingEncoder(instanceName)));
+		return newArrayList(new Tuple<String, ChannelHandler>(instanceName, new DleStxEtxFramingDecoder(instanceName)));
 	}
 
 	@Override
@@ -54,13 +54,14 @@ public class DleStxEtxFramingEncoderFactory implements HandlerFactory {
 
 	@Override
 	public String getDescription() {
-		return "Wraps an incoming ChannelBuffer with DLE STX (0x10 0x02) and DLE ETX (0x10 0x03) and does byte "
-				+ "stuffing inside the ChannelBuffer (i.e. escape every DLE with another DLE). Also see "
+		return "Unwraps a ChannelBuffer instance that is wrapped with DLE STX (0x10 0x02) and DLE ETX (0x10 0x03) "
+				+ "and does byte unstuffing (i.e. bytes of value DLE that were escaped with another DLE have the "
+				+ "escape character removed. Also See "
 				+ "https://github.com/itm/netty-handlerstack/wiki/DLESTXETX-Framing-Decoder-Encoder.";
 	}
 
-	@Override
-	public String getName() {
-		return "dlestxetx-framing-encoder";
-	}
+    @Override
+    public String getName() {
+        return "dlestxetx-framing-decoder";
+    }
 }

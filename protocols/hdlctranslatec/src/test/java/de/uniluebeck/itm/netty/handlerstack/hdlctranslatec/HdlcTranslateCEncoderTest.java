@@ -20,7 +20,7 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package de.uniluebeck.itm.netty.handlerstack.dlestxetx;
+package de.uniluebeck.itm.netty.handlerstack.hdlctranslatec;
 
 import com.google.common.primitives.Bytes;
 import org.jboss.netty.buffer.ChannelBuffer;
@@ -31,7 +31,7 @@ import org.junit.Test;
 import static junit.framework.Assert.fail;
 import static org.junit.Assert.assertArrayEquals;
 
-public class HdlcTranslateCFramingEncoderTest {
+public class HdlcTranslateCEncoderTest {
 
 	@Test
 	public void testEncoding() {

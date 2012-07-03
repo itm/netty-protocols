@@ -20,16 +20,45 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package de.uniluebeck.itm.netty.handlerstack.dlestxetx;
+package de.uniluebeck.itm.netty.handlerstack.hdlctranslatec;
 
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
+import de.uniluebeck.itm.netty.handlerstack.HandlerFactory;
+import de.uniluebeck.itm.tr.util.Tuple;
+import org.jboss.netty.channel.ChannelHandler;
 
-public class HdlcTranslateCConstants {
+import javax.annotation.Nullable;
+import java.util.List;
 
-	public static final byte FRAME_DELIMITER_BYTE = 0x7e;
+import static com.google.common.collect.Lists.newArrayList;
 
-	public static final byte[] FRAME_DELIMITER_BYTE_ARRAY = new byte[]{FRAME_DELIMITER_BYTE};
+public class HdlcTranslateCDecoderFactory implements HandlerFactory {
 
-	public static final byte ESCAPE_BYTE = 0x7d;
+	@Override
+	public List<Tuple<String, ChannelHandler>> create(@Nullable final String instanceName,
+													  final Multimap<String, String> properties) throws Exception {
 
-	public static final byte[] ESCAPE_BYTE_ARRAY = new byte[]{ESCAPE_BYTE};
+		return newArrayList(new Tuple<String, ChannelHandler>(instanceName, new HdlcTranslateCDecoder(instanceName)));
+	}
+
+	@Override
+	public List<Tuple<String, ChannelHandler>> create(Multimap<String, String> properties) throws Exception {
+		return create(null, properties);
+	}
+
+	@Override
+	public Multimap<String, String> getConfigurationOptions() {
+		return HashMultimap.create();
+	}
+
+	@Override
+	public String getDescription() {
+		return "Decodes packets that are encoded with the HdlcTranslateC packet framing. For more details see http://www.tinyos.net/tinyos-2.x/doc/html/tep113.html.";
+	}
+
+    @Override
+    public String getName() {
+        return "hdlctranslatec-decoder";
+    }
 }

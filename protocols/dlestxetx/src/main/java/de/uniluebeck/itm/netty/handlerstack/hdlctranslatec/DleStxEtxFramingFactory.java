@@ -20,7 +20,7 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package de.uniluebeck.itm.netty.handlerstack.dlestxetx;
+package de.uniluebeck.itm.netty.handlerstack.hdlctranslatec;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
@@ -32,15 +32,15 @@ import javax.annotation.Nullable;
 import java.util.LinkedList;
 import java.util.List;
 
-public class HdlcTranslateCFactory implements HandlerFactory {
+public class DleStxEtxFramingFactory implements HandlerFactory {
 
 	@Override
 	public List<Tuple<String, ChannelHandler>> create(@Nullable final String instanceName,
 													  final Multimap<String, String> properties) throws Exception {
 
 		List<Tuple<String, ChannelHandler>> handlers = new LinkedList<Tuple<String, ChannelHandler>>();
-		handlers.addAll(new HdlcTranslateCDecoderFactory().create(instanceName + "-decoder", properties));
-		handlers.addAll(new HdlcTranslateCEncoderFactory().create(instanceName + "-encoder", properties));
+		handlers.addAll(new DleStxEtxFramingDecoderFactory().create(instanceName + "-decoder", properties));
+		handlers.addAll(new DleStxEtxFramingEncoderFactory().create(instanceName + "-encoder", properties));
 		return handlers;
 	}
 
@@ -56,11 +56,12 @@ public class HdlcTranslateCFactory implements HandlerFactory {
 
 	@Override
 	public String getDescription() {
-		return "Both hdlctranslatec-encoder and hdlctranslatec-decoder. For more details see http://www.tinyos.net/tinyos-2.x/doc/html/tep113.html";
+		return "Both dlestxetx-framing-decoder and dlestxetx-framing-encoder. Also see "
+				+ "https://github.com/itm/netty-handlerstack/wiki/DLESTXETX-Framing-Decoder-Encoder.";
 	}
 
 	@Override
 	public String getName() {
-		return "hdlctranslatec";
+		return "dlestxetx-framing";
 	}
 }

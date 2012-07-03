@@ -20,81 +20,64 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package de.uniluebeck.itm.netty.handlerstack.dlestxetx;
+package de.uniluebeck.itm.netty.handlerstack.hdlctranslatec;
 
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBuffers;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelHandlerContext;
-import org.jboss.netty.handler.codec.frame.FrameDecoder;
+import org.jboss.netty.handler.codec.oneone.OneToOneEncoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.uniluebeck.itm.tr.util.StringUtils;
 
-public class HdlcTranslateCDecoder extends FrameDecoder {
+public class HdlcTranslateCEncoder extends OneToOneEncoder {
 
     private final Logger log;
 
-	private boolean lastByteWasEscapeByte;
-
-    private boolean inPacket;
-
-    private ChannelBuffer packet;
-
-	public HdlcTranslateCDecoder() {
+    public HdlcTranslateCEncoder() {
         this(null);
     }
-
-    public HdlcTranslateCDecoder(String instanceName) {
-        log = LoggerFactory.getLogger(instanceName != null ? instanceName : HdlcTranslateCDecoder.class.getName());
-        resetDecodingState();
+    
+    public HdlcTranslateCEncoder(String instanceName) {
+        log = LoggerFactory.getLogger(instanceName != null ? instanceName : HdlcTranslateCEncoder.class.getName());
     }
 
     @Override
-    protected Object decode(final ChannelHandlerContext ctx, final Channel channel, final ChannelBuffer buffer)
-            throws Exception {
+    protected Object encode(final ChannelHandlerContext ctx, final Channel channel, final Object msg) throws Exception {
 
-        while (buffer.readable()) {
-
-            byte currentByte = buffer.readByte();
-
-			if (!inPacket && currentByte == HdlcTranslateCConstants.FRAME_DELIMITER_BYTE) {
-
-				inPacket = true;
-
-			} else if (inPacket) {
-
-				if (lastByteWasEscapeByte) {
-
-					packet.writeByte(currentByte ^ 0x20);
-					lastByteWasEscapeByte = false;
-
-				} else {
-
-					if (currentByte == HdlcTranslateCConstants.FRAME_DELIMITER_BYTE) {
-						ChannelBuffer packetRead = packet;
-						resetDecodingState();
-						return packetRead;
-					}
-
-					if (currentByte == HdlcTranslateCConstants.ESCAPE_BYTE) {
-						lastByteWasEscapeByte = true;
-					} else {
-						packet.writeByte(currentByte);
-					}
-				}
-			}
+        if (!(msg instanceof ChannelBuffer)) {
+            return msg;
         }
 
-        // decoding is not yet complete, we'll need more bytes until we find the end of the packet
-        return null;
-    }
+        ChannelBuffer buffer = (ChannelBuffer) msg;
+        ChannelBuffer packet = ChannelBuffers.dynamicBuffer(buffer.readableBytes() + 4);
 
-    private void resetDecodingState() {
-		lastByteWasEscapeByte = false;
-        inPacket = false;
-        packet = ChannelBuffers.dynamicBuffer(512);
-    }
+		// start delimiter
+		packet.writeByte(HdlcTranslateCConstants.FRAME_DELIMITER_BYTE);
 
+		for (int i = buffer.readerIndex(); i < (buffer.readerIndex() + buffer.readableBytes()); i++) {
+
+			byte b = buffer.getByte(i);
+
+			// escape bytes if needed
+            if (b == HdlcTranslateCConstants.ESCAPE_BYTE || b == HdlcTranslateCConstants.FRAME_DELIMITER_BYTE) {
+                packet.writeByte(HdlcTranslateCConstants.ESCAPE_BYTE);
+				packet.writeByte(b ^ 0x20);
+			} else {
+				packet.writeByte(b);
+			}
+
+        }
+
+		// end delimiter
+        packet.writeByte(HdlcTranslateCConstants.FRAME_DELIMITER_BYTE);
+
+        if (log.isTraceEnabled()) {
+            log.trace("Encoded buffer: {}", StringUtils.toHexString(packet.toByteBuffer().array()));
+        }
+
+        return packet;
+    }
 }

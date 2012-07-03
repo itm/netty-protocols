@@ -20,45 +20,32 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package de.uniluebeck.itm.netty.handlerstack.dlestxetx;
+package de.uniluebeck.itm.netty.handlerstack.hdlctranslatec;
 
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Multimap;
-import de.uniluebeck.itm.netty.handlerstack.HandlerFactory;
-import de.uniluebeck.itm.tr.util.Tuple;
-import org.jboss.netty.channel.ChannelHandler;
+import com.google.common.primitives.Bytes;
 
-import javax.annotation.Nullable;
-import java.util.List;
+import org.jboss.netty.buffer.ChannelBuffer;
+import org.jboss.netty.buffer.ChannelBuffers;
+import org.jboss.netty.handler.codec.embedder.EncoderEmbedder;
+import org.junit.Test;
 
-import static com.google.common.collect.Lists.newArrayList;
+import static org.junit.Assert.assertArrayEquals;
 
-public class HdlcTranslateCDecoderFactory implements HandlerFactory {
+public class DleStxEtxFramingEncoderTest {
 
-	@Override
-	public List<Tuple<String, ChannelHandler>> create(@Nullable final String instanceName,
-													  final Multimap<String, String> properties) throws Exception {
+	@Test
+	public void testEncoding() {
 
-		return newArrayList(new Tuple<String, ChannelHandler>(instanceName, new HdlcTranslateCDecoder(instanceName)));
+		byte[] payloadBytes = "hello, world".getBytes();
+
+		EncoderEmbedder<ChannelBuffer> embedder = new EncoderEmbedder<ChannelBuffer>(new DleStxEtxFramingEncoder());
+		embedder.offer(ChannelBuffers.wrappedBuffer(payloadBytes));
+
+		ChannelBuffer encodedBuffer = embedder.poll();
+		byte[] encodedBytes = new byte[encodedBuffer.readableBytes()];
+		encodedBuffer.readBytes(encodedBytes);
+
+		assertArrayEquals(Bytes.concat(DleStxEtxConstants.DLE_STX, payloadBytes, DleStxEtxConstants.DLE_ETX), encodedBytes);
 	}
 
-	@Override
-	public List<Tuple<String, ChannelHandler>> create(Multimap<String, String> properties) throws Exception {
-		return create(null, properties);
-	}
-
-	@Override
-	public Multimap<String, String> getConfigurationOptions() {
-		return HashMultimap.create();
-	}
-
-	@Override
-	public String getDescription() {
-		return "Decodes packets that are encoded with the HdlcTranslateC packet framing. For more details see http://www.tinyos.net/tinyos-2.x/doc/html/tep113.html.";
-	}
-
-    @Override
-    public String getName() {
-        return "hdlctranslatec-decoder";
-    }
 }
