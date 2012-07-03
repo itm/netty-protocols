@@ -123,7 +123,7 @@
 			<dependency>
 				<groupId>de.uniluebeck.itm.netty-iostream</groupId>
 				<artifactId>netty-iostream</artifactId>
-				<version>0.5</version>
+				<version>0.6</version>
 			</dependency>
 			<dependency>
 				<groupId>de.uniluebeck.itm.itmutils</groupId>
