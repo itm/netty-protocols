@@ -31,6 +31,7 @@
 		<module>protocols/logging-handler</module>
 		<module>protocols/remote-uart-protocol</module>
 		<module>protocols/swap</module>
+		<module>protocols/serialp</module>
 		<module>protocols/tls-peer-verification</module>
 		<module>protocols/wisebed-node-api</module>
 
