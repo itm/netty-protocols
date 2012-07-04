@@ -11,7 +11,15 @@ import org.slf4j.LoggerFactory;
 
 public class SerialPDecoder extends OneToOneDecoder {
 
-	private static final Logger log = LoggerFactory.getLogger(SerialPDecoder.class);
+	private final Logger log;
+
+	public SerialPDecoder() {
+		this(null);
+	}
+
+	public SerialPDecoder(final String instanceName) {
+		log = LoggerFactory.getLogger(instanceName != null ? instanceName : SerialPDecoder.class.getName());
+	}
 
 	@Override
 	protected Object decode(final ChannelHandlerContext ctx, final Channel channel, final Object msg) throws Exception {

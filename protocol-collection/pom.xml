@@ -53,6 +53,10 @@
 			<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
 			<artifactId>netty-included</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
+			<artifactId>serialp</artifactId>
+		</dependency>
 
 	</dependencies>
 
