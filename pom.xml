@@ -27,7 +27,7 @@
 		<module>protocols/isense-packet</module>
 		<module>protocols/isense-otap</module>
 		<module>protocols/isense-ishell-interpreter</module>
-		<module>protocols/iseraerial</module>
+		<module>protocols/isense-iseraerial</module>
 		<module>protocols/netty-included</module>
 		<module>protocols/logging-handler</module>
 		<module>protocols/remote-uart-protocol</module>
@@ -100,7 +100,7 @@
 			</dependency>
 			<dependency>
 				<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
-				<artifactId>iseraerial</artifactId>
+				<artifactId>isense-iseraerial</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>

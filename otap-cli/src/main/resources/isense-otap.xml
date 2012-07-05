@@ -21,7 +21,7 @@
 
     <handler name="isense-ishell-interpreter" factory="isense-ishell-interpreter"/>
 
-    <handler name="iseraerial" factory="iseraerial-packet"/>
+    <handler name="isense-iseraerial" factory="isense-iseraerial-packet"/>
 
     <handler name="isense-packet" factory="isense-packet"/>
 
