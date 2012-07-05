@@ -56,11 +56,11 @@ public class TinyOsSerialFactory implements HandlerFactory {
 
 	@Override
 	public String getDescription() {
-		return "Both serialp-encoder and serialp-decoder. For more details see http://www.tinyos.net/tinyos-2.x/doc/html/tep113.html";
+		return "Both tinyos-serial-encoder and tinyos-serial-decoder. For more details see http://www.tinyos.net/tinyos-2.x/doc/html/tep113.html";
 	}
 
 	@Override
 	public String getName() {
-		return "serialp";
+		return "tinyos-serial";
 	}
 }

@@ -54,11 +54,11 @@ public class TinyOsSerialDecoderFactory implements HandlerFactory {
 
 	@Override
 	public String getDescription() {
-		return "Decodes packets that are encoded with the SerialP protocol. For more details see http://www.tinyos.net/tinyos-2.x/doc/html/tep113.html.";
+		return "Decodes packets that are encoded with the TinyOS serial protocol (SerialP). For more details see http://www.tinyos.net/tinyos-2.x/doc/html/tep113.html.";
 	}
 
-    @Override
-    public String getName() {
-        return "serialp-decoder";
-    }
+	@Override
+	public String getName() {
+		return "tinyos-serial-decoder";
+	}
 }

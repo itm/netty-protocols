@@ -1,5 +1,5 @@
-This implementation of the SerialP protocol used in TinyOS uses the class net.tinyos.util.Crc distributed with TinyOS.
-Below is a copy of the license:
+This implementation of the TinyOS serial protocol (SerialP) used in TinyOS uses the class net.tinyos.util.Crc
+distributed with TinyOS. Below is a copy of the license:
 
 /* Copyright (c) 2000-2003 The Regents of the University  of California.
  * All rights reserved.
