@@ -24,17 +24,18 @@ package de.uniluebeck.itm.netty.handlerstack.protocolcollection;
 
 import com.coalesenses.isense.ishell.interpreter.IShellInterpreterHandlerFactory;
 import de.uniluebeck.itm.netty.handlerstack.HandlerFactoryRegistry;
+import de.uniluebeck.itm.netty.handlerstack.contiki.ContikiFactory;
 import de.uniluebeck.itm.netty.handlerstack.discard.DiscardMessagesHandlerFactory;
 import de.uniluebeck.itm.netty.handlerstack.dlestxetx.DleStxEtxFramingDecoderFactory;
 import de.uniluebeck.itm.netty.handlerstack.dlestxetx.DleStxEtxFramingEncoderFactory;
 import de.uniluebeck.itm.netty.handlerstack.dlestxetx.DleStxEtxFramingFactory;
-import de.uniluebeck.itm.netty.handlerstack.tinyos.*;
 import de.uniluebeck.itm.netty.handlerstack.isense.*;
 import de.uniluebeck.itm.netty.handlerstack.isenseotap.ISenseOtapFactory;
 import de.uniluebeck.itm.netty.handlerstack.iseraerial.ISerAerialPacketDecoderFactory;
 import de.uniluebeck.itm.netty.handlerstack.iseraerial.ISerAerialPacketEncoderFactory;
 import de.uniluebeck.itm.netty.handlerstack.iseraerial.ISerAerialPacketFactory;
 import de.uniluebeck.itm.netty.handlerstack.nettyincluded.*;
+import de.uniluebeck.itm.netty.handlerstack.tinyos.*;
 import de.uniluebeck.netty.handlerstack.logginghandler.LoggingHandlerFactory;
 
 public class ProtocolCollection {
@@ -45,6 +46,9 @@ public class ProtocolCollection {
 	public static void registerProtocols(HandlerFactoryRegistry registry) {
 
 		try {
+
+			registry.register(new ContikiFactory());
+
 			registry.register(new DiscardMessagesHandlerFactory());
 
 			registry.register(new HdlcTranslateDecoderFactory());

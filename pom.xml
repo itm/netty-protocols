@@ -20,6 +20,7 @@
 		<module>filterpipeline-cli</module>
 		<module>util</module>
 
+		<module>protocols/contiki</module>
 		<module>protocols/dlestxetx</module>
 		<module>protocols/discard</module>
 		<module>protocols/isense</module>
@@ -44,6 +45,11 @@
 			<dependency>
 				<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
 				<artifactId>factory</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
+				<artifactId>contiki</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>

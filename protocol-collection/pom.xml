@@ -16,7 +16,10 @@
 	<packaging>jar</packaging>
 
 	<dependencies>
-
+		<dependency>
+			<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
+			<artifactId>contiki</artifactId>
+		</dependency>
 		<dependency>
 			<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
 			<artifactId>discard</artifactId>
@@ -61,7 +64,6 @@
 			<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
 			<artifactId>tinyos</artifactId>
 		</dependency>
-
 	</dependencies>
 
 </project>
