@@ -27,6 +27,7 @@ import org.jboss.netty.buffer.ChannelBuffers;
 import org.jboss.netty.handler.codec.embedder.DecoderEmbedder;
 import org.junit.Test;
 
+import static junit.framework.Assert.assertNull;
 import static junit.framework.Assert.fail;
 import static org.junit.Assert.assertArrayEquals;
 
@@ -280,6 +281,34 @@ public class HdlcTranslateCDecoderTest {
 		);
 
 		testDecoding(encodedBuffer, expectedPayload);
+	}
+
+	@Test
+	public void testIfDecoderResynchronizes() throws Exception {
+
+		byte[] encodedPayload = new byte[]{
+				0x01,
+				0x02,
+				0x03,
+				HdlcTranslateCConstants.FRAME_DELIMITER_BYTE,
+				HdlcTranslateCConstants.FRAME_DELIMITER_BYTE,
+				0x01,
+				0x02,
+				0x03,
+				0x04,
+				0x05,
+				HdlcTranslateCConstants.FRAME_DELIMITER_BYTE
+		};
+
+		byte[] expectedPayloadAfterSync = new byte[]{
+				0x01,
+				0x02,
+				0x03,
+				0x04,
+				0x05
+		};
+
+		testDecoding(ChannelBuffers.wrappedBuffer(encodedPayload), expectedPayloadAfterSync);
 	}
 
 	private void testDecoding(ChannelBuffer encodedBuffer, byte[] expectedPayload) {

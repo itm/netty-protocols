@@ -32,30 +32,30 @@ import org.slf4j.LoggerFactory;
 
 public class HdlcTranslateCDecoder extends FrameDecoder {
 
-    private final Logger log;
+	private final Logger log;
 
 	private boolean lastByteWasEscapeByte;
 
-    private boolean inPacket;
+	private boolean inPacket;
 
-    private ChannelBuffer packet;
+	private ChannelBuffer packet;
 
 	public HdlcTranslateCDecoder() {
-        this(null);
-    }
+		this(null);
+	}
 
-    public HdlcTranslateCDecoder(String instanceName) {
-        log = LoggerFactory.getLogger(instanceName != null ? instanceName : HdlcTranslateCDecoder.class.getName());
-        resetDecodingState();
-    }
+	public HdlcTranslateCDecoder(String instanceName) {
+		log = LoggerFactory.getLogger(instanceName != null ? instanceName : HdlcTranslateCDecoder.class.getName());
+		resetDecodingState();
+	}
 
-    @Override
-    protected Object decode(final ChannelHandlerContext ctx, final Channel channel, final ChannelBuffer buffer)
-            throws Exception {
+	@Override
+	protected Object decode(final ChannelHandlerContext ctx, final Channel channel, final ChannelBuffer buffer)
+			throws Exception {
 
-        while (buffer.readable()) {
+		while (buffer.readable()) {
 
-            byte currentByte = buffer.readByte();
+			byte currentByte = buffer.readByte();
 
 			if (!inPacket && currentByte == HdlcTranslateCConstants.FRAME_DELIMITER_BYTE) {
 
@@ -67,6 +67,10 @@ public class HdlcTranslateCDecoder extends FrameDecoder {
 
 					packet.writeByte(currentByte ^ 0x20);
 					lastByteWasEscapeByte = false;
+
+				} else if (currentByte == HdlcTranslateCConstants.FRAME_DELIMITER_BYTE && packet.readableBytes() == 0) {
+					// we're out of sync
+					return null;
 
 				} else {
 
@@ -83,16 +87,16 @@ public class HdlcTranslateCDecoder extends FrameDecoder {
 					}
 				}
 			}
-        }
+		}
 
-        // decoding is not yet complete, we'll need more bytes until we find the end of the packet
-        return null;
-    }
+		// decoding is not yet complete, we'll need more bytes until we find the end of the packet
+		return null;
+	}
 
-    private void resetDecodingState() {
+	private void resetDecodingState() {
 		lastByteWasEscapeByte = false;
-        inPacket = false;
-        packet = ChannelBuffers.dynamicBuffer(512);
-    }
+		inPacket = false;
+		packet = ChannelBuffers.dynamicBuffer(512);
+	}
 
 }
