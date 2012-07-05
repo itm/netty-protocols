@@ -13,8 +13,6 @@ public class SerialPEncoder extends OneToOneEncoder {
 
 	private static final int PACKET_TYPE = 0x45 & 0xFF;
 
-	private static final int FIRST_BYTE = 0x00;
-
 	private final Logger log;
 
 	public SerialPEncoder() {
@@ -30,22 +28,23 @@ public class SerialPEncoder extends OneToOneEncoder {
 
 		final ChannelBuffer decoded = (ChannelBuffer) msg;
 		final int decodedLength = decoded.readableBytes();
-		final ChannelBuffer encoded = ChannelBuffers.buffer(decodedLength + 4);
+		final ChannelBuffer encoded = ChannelBuffers.buffer(decodedLength + 3);
 
 		int crc = 0;
 
 		encoded.writeByte(PACKET_TYPE);
-		encoded.writeByte(FIRST_BYTE);
+
+		final byte firstByte = decoded.readByte();
+		encoded.writeByte(firstByte);
 
 		crc = Crc.calcByte(crc, PACKET_TYPE);
-		crc = Crc.calcByte(crc, FIRST_BYTE);
+		crc = Crc.calcByte(crc, firstByte);
 
 		byte currentByte;
-		final int decodedReaderIndex = decoded.readerIndex();
 
-		for (int i = 0; i < decodedLength; i++) {
+		for (int i = 1; i < decodedLength; i++) {
 
-			currentByte = decoded.getByte(decodedReaderIndex + i);
+			currentByte = decoded.readByte();
 			encoded.writeByte(currentByte);
 			crc = Crc.calcByte(crc, currentByte);
 		}

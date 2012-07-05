@@ -34,7 +34,9 @@ public class SerialPDecoder extends OneToOneDecoder {
 		final byte packetType = encoded.getByte(0);
 		final byte firstByte = encoded.getByte(1);
 
-		final ChannelBuffer decoded = ChannelBuffers.buffer(encodedBufferLength - 4);
+		final ChannelBuffer decoded = ChannelBuffers.buffer(encodedBufferLength - 3);
+
+		decoded.writeByte(firstByte);
 
 		int crcCalculated = 0;
 
