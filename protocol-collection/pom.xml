@@ -27,7 +27,7 @@
 		</dependency>
 		<dependency>
 			<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
-			<artifactId>hdlctranslatec</artifactId>
+			<artifactId>tinyos-hdlctranslate</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>

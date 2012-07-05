@@ -22,7 +22,6 @@
 
 		<module>protocols/dlestxetx</module>
 		<module>protocols/discard</module>
-		<module>protocols/hdlctranslatec</module>
 		<module>protocols/isense</module>
 		<module>protocols/isense-otap</module>
 		<module>protocols/iseraerial</module>
@@ -31,6 +30,7 @@
 		<module>protocols/logging-handler</module>
 		<module>protocols/remote-uart-protocol</module>
 		<module>protocols/swap</module>
+		<module>protocols/tinyos-hdlctranslate</module>
 		<module>protocols/tinyos-serial</module>
 		<module>protocols/tls-peer-verification</module>
 		<module>protocols/wisebed-node-api</module>
@@ -47,7 +47,7 @@
 			</dependency>
 			<dependency>
 				<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
-				<artifactId>hdlctranslatec</artifactId>
+				<artifactId>tinyos-hdlctranslate</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>

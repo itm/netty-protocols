@@ -20,10 +20,10 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package de.uniluebeck.itm.netty.handlerstack.hdlctranslatec;
+package de.uniluebeck.itm.netty.handlerstack.tinyos;
 
 
-public class HdlcTranslateCConstants {
+public class HdlcTranslateConstants {
 
 	public static final byte FRAME_DELIMITER_BYTE = 0x7e;
 

@@ -28,9 +28,9 @@ import de.uniluebeck.itm.netty.handlerstack.discard.DiscardMessagesHandlerFactor
 import de.uniluebeck.itm.netty.handlerstack.dlestxetx.DleStxEtxFramingDecoderFactory;
 import de.uniluebeck.itm.netty.handlerstack.dlestxetx.DleStxEtxFramingEncoderFactory;
 import de.uniluebeck.itm.netty.handlerstack.dlestxetx.DleStxEtxFramingFactory;
-import de.uniluebeck.itm.netty.handlerstack.hdlctranslatec.HdlcTranslateCDecoderFactory;
-import de.uniluebeck.itm.netty.handlerstack.hdlctranslatec.HdlcTranslateCEncoderFactory;
-import de.uniluebeck.itm.netty.handlerstack.hdlctranslatec.HdlcTranslateCFactory;
+import de.uniluebeck.itm.netty.handlerstack.tinyos.HdlcTranslateDecoderFactory;
+import de.uniluebeck.itm.netty.handlerstack.tinyos.HdlcTranslateEncoderFactory;
+import de.uniluebeck.itm.netty.handlerstack.tinyos.HdlcTranslateFactory;
 import de.uniluebeck.itm.netty.handlerstack.isense.*;
 import de.uniluebeck.itm.netty.handlerstack.isenseotap.ISenseOtapFactory;
 import de.uniluebeck.itm.netty.handlerstack.iseraerial.ISerAerialPacketDecoderFactory;
@@ -52,9 +52,9 @@ public class ProtocolCollection {
 		try {
 			registry.register(new DiscardMessagesHandlerFactory());
 
-			registry.register(new HdlcTranslateCDecoderFactory());
-			registry.register(new HdlcTranslateCEncoderFactory());
-			registry.register(new HdlcTranslateCFactory());
+			registry.register(new HdlcTranslateDecoderFactory());
+			registry.register(new HdlcTranslateEncoderFactory());
+			registry.register(new HdlcTranslateFactory());
 
 			registry.register(new SerialPDecoderFactory());
 			registry.register(new SerialPEncoderFactory());

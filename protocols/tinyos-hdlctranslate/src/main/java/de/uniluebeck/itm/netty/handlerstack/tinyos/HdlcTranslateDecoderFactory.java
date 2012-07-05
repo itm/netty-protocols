@@ -20,7 +20,7 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package de.uniluebeck.itm.netty.handlerstack.hdlctranslatec;
+package de.uniluebeck.itm.netty.handlerstack.tinyos;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
@@ -29,19 +29,17 @@ import de.uniluebeck.itm.tr.util.Tuple;
 import org.jboss.netty.channel.ChannelHandler;
 
 import javax.annotation.Nullable;
-import java.util.LinkedList;
 import java.util.List;
 
-public class HdlcTranslateCFactory implements HandlerFactory {
+import static com.google.common.collect.Lists.newArrayList;
+
+public class HdlcTranslateDecoderFactory implements HandlerFactory {
 
 	@Override
 	public List<Tuple<String, ChannelHandler>> create(@Nullable final String instanceName,
 													  final Multimap<String, String> properties) throws Exception {
 
-		List<Tuple<String, ChannelHandler>> handlers = new LinkedList<Tuple<String, ChannelHandler>>();
-		handlers.addAll(new HdlcTranslateCDecoderFactory().create(instanceName + "-decoder", properties));
-		handlers.addAll(new HdlcTranslateCEncoderFactory().create(instanceName + "-encoder", properties));
-		return handlers;
+		return newArrayList(new Tuple<String, ChannelHandler>(instanceName, new HdlcTranslateDecoder(instanceName)));
 	}
 
 	@Override
@@ -56,11 +54,11 @@ public class HdlcTranslateCFactory implements HandlerFactory {
 
 	@Override
 	public String getDescription() {
-		return "Both hdlctranslatec-encoder and hdlctranslatec-decoder. For more details see http://www.tinyos.net/tinyos-2.x/doc/html/tep113.html";
+		return "Decodes packets that are encoded with the HdlcTranslateC packet framing. For more details see http://www.tinyos.net/tinyos-2.x/doc/html/tep113.html.";
 	}
 
-	@Override
-	public String getName() {
-		return "hdlctranslatec";
-	}
+    @Override
+    public String getName() {
+        return "hdlctranslatec-decoder";
+    }
 }

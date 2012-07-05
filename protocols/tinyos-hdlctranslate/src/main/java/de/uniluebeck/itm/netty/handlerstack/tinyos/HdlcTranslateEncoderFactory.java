@@ -20,7 +20,7 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package de.uniluebeck.itm.netty.handlerstack.hdlctranslatec;
+package de.uniluebeck.itm.netty.handlerstack.tinyos;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
@@ -33,13 +33,13 @@ import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 
-public class HdlcTranslateCDecoderFactory implements HandlerFactory {
+public class HdlcTranslateEncoderFactory implements HandlerFactory {
 
 	@Override
 	public List<Tuple<String, ChannelHandler>> create(@Nullable final String instanceName,
 													  final Multimap<String, String> properties) throws Exception {
 
-		return newArrayList(new Tuple<String, ChannelHandler>(instanceName, new HdlcTranslateCDecoder(instanceName)));
+		return newArrayList(new Tuple<String, ChannelHandler>(instanceName, new HdlcTranslateEncoder(instanceName)));
 	}
 
 	@Override
@@ -54,11 +54,11 @@ public class HdlcTranslateCDecoderFactory implements HandlerFactory {
 
 	@Override
 	public String getDescription() {
-		return "Decodes packets that are encoded with the HdlcTranslateC packet framing. For more details see http://www.tinyos.net/tinyos-2.x/doc/html/tep113.html.";
+		return "Encodes packets using the HdlcTranslateC packet framing. For more details see http://www.tinyos.net/tinyos-2.x/doc/html/tep113.html.";
 	}
 
-    @Override
-    public String getName() {
-        return "hdlctranslatec-decoder";
-    }
+	@Override
+	public String getName() {
+		return "hdlctranslatec-encoder";
+	}
 }

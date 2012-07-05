@@ -20,7 +20,7 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package de.uniluebeck.itm.netty.handlerstack.hdlctranslatec;
+package de.uniluebeck.itm.netty.handlerstack.tinyos;
 
 import com.google.common.primitives.Bytes;
 import org.jboss.netty.buffer.ChannelBuffer;
@@ -31,7 +31,7 @@ import org.junit.Test;
 import static junit.framework.Assert.fail;
 import static org.junit.Assert.assertArrayEquals;
 
-public class HdlcTranslateCEncoderTest {
+public class HdlcTranslateEncoderTest {
 
 	@Test
 	public void testEncoding() {
@@ -41,9 +41,9 @@ public class HdlcTranslateCEncoderTest {
 		byte[] encodedBytes = encode(payloadBytes);
 
 		byte[] expectedBytes = Bytes.concat(
-				HdlcTranslateCConstants.FRAME_DELIMITER_BYTE_ARRAY,
+				HdlcTranslateConstants.FRAME_DELIMITER_BYTE_ARRAY,
 				payloadBytes,
-				HdlcTranslateCConstants.FRAME_DELIMITER_BYTE_ARRAY
+				HdlcTranslateConstants.FRAME_DELIMITER_BYTE_ARRAY
 		);
 
 		assertArrayEquals(expectedBytes, encodedBytes);
@@ -55,20 +55,20 @@ public class HdlcTranslateCEncoderTest {
 		byte[] decodedPayload = new byte[]{
 				0x01,
 				0x02,
-				HdlcTranslateCConstants.FRAME_DELIMITER_BYTE,
+				HdlcTranslateConstants.FRAME_DELIMITER_BYTE,
 				0x03,
 				0x04
 		};
 
 		byte[] expectedEncodedPayload = new byte[]{
-				HdlcTranslateCConstants.FRAME_DELIMITER_BYTE,
+				HdlcTranslateConstants.FRAME_DELIMITER_BYTE,
 				0x01,
 				0x02,
-				HdlcTranslateCConstants.ESCAPE_BYTE,
-				(HdlcTranslateCConstants.FRAME_DELIMITER_BYTE ^ 0x20),
+				HdlcTranslateConstants.ESCAPE_BYTE,
+				(HdlcTranslateConstants.FRAME_DELIMITER_BYTE ^ 0x20),
 				0x03,
 				0x04,
-				HdlcTranslateCConstants.FRAME_DELIMITER_BYTE
+				HdlcTranslateConstants.FRAME_DELIMITER_BYTE
 		};
 
 		byte[] actualEncodedPayload = encode(decodedPayload);
@@ -82,23 +82,23 @@ public class HdlcTranslateCEncoderTest {
 		byte[] decodedPayload = new byte[]{
 				0x01,
 				0x02,
-				HdlcTranslateCConstants.FRAME_DELIMITER_BYTE,
+				HdlcTranslateConstants.FRAME_DELIMITER_BYTE,
 				0x03,
-				HdlcTranslateCConstants.FRAME_DELIMITER_BYTE,
+				HdlcTranslateConstants.FRAME_DELIMITER_BYTE,
 				0x04
 		};
 
 		byte[] expectedEncodedPayload = new byte[]{
-				HdlcTranslateCConstants.FRAME_DELIMITER_BYTE,
+				HdlcTranslateConstants.FRAME_DELIMITER_BYTE,
 				0x01,
 				0x02,
-				HdlcTranslateCConstants.ESCAPE_BYTE,
-				(HdlcTranslateCConstants.FRAME_DELIMITER_BYTE ^ 0x20),
+				HdlcTranslateConstants.ESCAPE_BYTE,
+				(HdlcTranslateConstants.FRAME_DELIMITER_BYTE ^ 0x20),
 				0x03,
-				HdlcTranslateCConstants.ESCAPE_BYTE,
-				(HdlcTranslateCConstants.FRAME_DELIMITER_BYTE ^ 0x20),
+				HdlcTranslateConstants.ESCAPE_BYTE,
+				(HdlcTranslateConstants.FRAME_DELIMITER_BYTE ^ 0x20),
 				0x04,
-				HdlcTranslateCConstants.FRAME_DELIMITER_BYTE
+				HdlcTranslateConstants.FRAME_DELIMITER_BYTE
 		};
 
 		byte[] actualEncodedPayload = encode(decodedPayload);
@@ -112,20 +112,20 @@ public class HdlcTranslateCEncoderTest {
 		byte[] decodedPayload = new byte[]{
 				0x01,
 				0x02,
-				HdlcTranslateCConstants.ESCAPE_BYTE,
+				HdlcTranslateConstants.ESCAPE_BYTE,
 				0x03,
 				0x04
 		};
 
 		byte[] expectedEncodedPayload = new byte[]{
-				HdlcTranslateCConstants.FRAME_DELIMITER_BYTE,
+				HdlcTranslateConstants.FRAME_DELIMITER_BYTE,
 				0x01,
 				0x02,
-				HdlcTranslateCConstants.ESCAPE_BYTE,
-				(HdlcTranslateCConstants.ESCAPE_BYTE ^ 0x20),
+				HdlcTranslateConstants.ESCAPE_BYTE,
+				(HdlcTranslateConstants.ESCAPE_BYTE ^ 0x20),
 				0x03,
 				0x04,
-				HdlcTranslateCConstants.FRAME_DELIMITER_BYTE
+				HdlcTranslateConstants.FRAME_DELIMITER_BYTE
 		};
 
 		byte[] actualEncodedPayload = encode(decodedPayload);
@@ -139,23 +139,23 @@ public class HdlcTranslateCEncoderTest {
 		byte[] decodedPayload = new byte[]{
 				0x01,
 				0x02,
-				HdlcTranslateCConstants.ESCAPE_BYTE,
+				HdlcTranslateConstants.ESCAPE_BYTE,
 				0x03,
-				HdlcTranslateCConstants.ESCAPE_BYTE,
+				HdlcTranslateConstants.ESCAPE_BYTE,
 				0x04
 		};
 
 		byte[] expectedEncodedPayload = new byte[]{
-				HdlcTranslateCConstants.FRAME_DELIMITER_BYTE,
+				HdlcTranslateConstants.FRAME_DELIMITER_BYTE,
 				0x01,
 				0x02,
-				HdlcTranslateCConstants.ESCAPE_BYTE,
-				(HdlcTranslateCConstants.ESCAPE_BYTE ^ 0x20),
+				HdlcTranslateConstants.ESCAPE_BYTE,
+				(HdlcTranslateConstants.ESCAPE_BYTE ^ 0x20),
 				0x03,
-				HdlcTranslateCConstants.ESCAPE_BYTE,
-				(HdlcTranslateCConstants.ESCAPE_BYTE ^ 0x20),
+				HdlcTranslateConstants.ESCAPE_BYTE,
+				(HdlcTranslateConstants.ESCAPE_BYTE ^ 0x20),
 				0x04,
-				HdlcTranslateCConstants.FRAME_DELIMITER_BYTE
+				HdlcTranslateConstants.FRAME_DELIMITER_BYTE
 		};
 
 		byte[] actualEncodedPayload = encode(decodedPayload);
@@ -169,23 +169,23 @@ public class HdlcTranslateCEncoderTest {
 		byte[] decodedPayload = new byte[]{
 				0x01,
 				0x02,
-				HdlcTranslateCConstants.ESCAPE_BYTE,
-				HdlcTranslateCConstants.FRAME_DELIMITER_BYTE,
+				HdlcTranslateConstants.ESCAPE_BYTE,
+				HdlcTranslateConstants.FRAME_DELIMITER_BYTE,
 				0x03,
 				0x04
 		};
 
 		byte[] expectedEncodedPayload = new byte[]{
-				HdlcTranslateCConstants.FRAME_DELIMITER_BYTE,
+				HdlcTranslateConstants.FRAME_DELIMITER_BYTE,
 				0x01,
 				0x02,
-				HdlcTranslateCConstants.ESCAPE_BYTE,
-				(HdlcTranslateCConstants.ESCAPE_BYTE ^ 0x20),
-				HdlcTranslateCConstants.ESCAPE_BYTE,
-				(HdlcTranslateCConstants.FRAME_DELIMITER_BYTE ^ 0x20),
+				HdlcTranslateConstants.ESCAPE_BYTE,
+				(HdlcTranslateConstants.ESCAPE_BYTE ^ 0x20),
+				HdlcTranslateConstants.ESCAPE_BYTE,
+				(HdlcTranslateConstants.FRAME_DELIMITER_BYTE ^ 0x20),
 				0x03,
 				0x04,
-				HdlcTranslateCConstants.FRAME_DELIMITER_BYTE
+				HdlcTranslateConstants.FRAME_DELIMITER_BYTE
 		};
 
 		byte[] actualEncodedPayload = encode(decodedPayload);
@@ -199,23 +199,23 @@ public class HdlcTranslateCEncoderTest {
 		byte[] decodedPayload = new byte[]{
 				0x01,
 				0x02,
-				HdlcTranslateCConstants.ESCAPE_BYTE,
+				HdlcTranslateConstants.ESCAPE_BYTE,
 				0x03,
-				HdlcTranslateCConstants.FRAME_DELIMITER_BYTE,
+				HdlcTranslateConstants.FRAME_DELIMITER_BYTE,
 				0x04
 		};
 
 		byte[] expectedEncodedPayload = new byte[]{
-				HdlcTranslateCConstants.FRAME_DELIMITER_BYTE,
+				HdlcTranslateConstants.FRAME_DELIMITER_BYTE,
 				0x01,
 				0x02,
-				HdlcTranslateCConstants.ESCAPE_BYTE,
-				(HdlcTranslateCConstants.ESCAPE_BYTE ^ 0x20),
+				HdlcTranslateConstants.ESCAPE_BYTE,
+				(HdlcTranslateConstants.ESCAPE_BYTE ^ 0x20),
 				0x03,
-				HdlcTranslateCConstants.ESCAPE_BYTE,
-				(HdlcTranslateCConstants.FRAME_DELIMITER_BYTE ^ 0x20),
+				HdlcTranslateConstants.ESCAPE_BYTE,
+				(HdlcTranslateConstants.FRAME_DELIMITER_BYTE ^ 0x20),
 				0x04,
-				HdlcTranslateCConstants.FRAME_DELIMITER_BYTE
+				HdlcTranslateConstants.FRAME_DELIMITER_BYTE
 		};
 
 		byte[] actualEncodedPayload = encode(decodedPayload);
@@ -224,7 +224,7 @@ public class HdlcTranslateCEncoderTest {
 	}
 
 	private byte[] encode(final byte[] payloadBytes) {
-		EncoderEmbedder<ChannelBuffer> embedder = new EncoderEmbedder<ChannelBuffer>(new HdlcTranslateCEncoder());
+		EncoderEmbedder<ChannelBuffer> embedder = new EncoderEmbedder<ChannelBuffer>(new HdlcTranslateEncoder());
 		embedder.offer(ChannelBuffers.wrappedBuffer(payloadBytes));
 
 		ChannelBuffer encodedBuffer = embedder.poll();
