@@ -32,6 +32,7 @@
 		<module>protocols/swap</module>
 		<module>protocols/tinyos-hdlctranslate</module>
 		<module>protocols/tinyos-serial</module>
+		<module>protocols/tinyos</module>
 		<module>protocols/tls-peer-verification</module>
 		<module>protocols/wisebed-node-api</module>
 
@@ -48,6 +49,16 @@
 			<dependency>
 				<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
 				<artifactId>tinyos-hdlctranslate</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
+				<artifactId>tinyos-serial</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
+				<artifactId>tinyos</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
@@ -113,11 +124,6 @@
 			<dependency>
 				<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
 				<artifactId>filterpipeline</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
-				<artifactId>tinyos-serial</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 

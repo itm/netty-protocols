@@ -27,10 +27,6 @@
 		</dependency>
 		<dependency>
 			<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
-			<artifactId>tinyos-hdlctranslate</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
 			<artifactId>isense</artifactId>
 		</dependency>
 		<dependency>
@@ -55,7 +51,15 @@
 		</dependency>
 		<dependency>
 			<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
+			<artifactId>tinyos-hdlctranslate</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
 			<artifactId>tinyos-serial</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
+			<artifactId>tinyos</artifactId>
 		</dependency>
 
 	</dependencies>
