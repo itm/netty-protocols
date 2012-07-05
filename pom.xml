@@ -23,10 +23,11 @@
 		<module>protocols/contiki</module>
 		<module>protocols/dlestxetx</module>
 		<module>protocols/discard</module>
+		<module>protocols/isense</module>
 		<module>protocols/isense-packet</module>
 		<module>protocols/isense-otap</module>
-		<module>protocols/iseraerial</module>
 		<module>protocols/isense-ishell-interpreter</module>
+		<module>protocols/iseraerial</module>
 		<module>protocols/netty-included</module>
 		<module>protocols/logging-handler</module>
 		<module>protocols/remote-uart-protocol</module>
@@ -50,6 +51,11 @@
 			<dependency>
 				<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
 				<artifactId>contiki</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
+				<artifactId>isense</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>

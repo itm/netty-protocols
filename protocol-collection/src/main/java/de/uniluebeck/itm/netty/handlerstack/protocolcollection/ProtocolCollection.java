@@ -71,6 +71,8 @@ public class ProtocolCollection {
 			registry.register(new ISensePacketUpstreamEncoderFactory());
 			registry.register(new ISensePacketFactory());
 
+			registry.register(new ISenseFactory());
+
 			registry.register(new DleStxEtxFramingDecoderFactory());
 			registry.register(new DleStxEtxFramingEncoderFactory());
 			registry.register(new DleStxEtxFramingFactory());

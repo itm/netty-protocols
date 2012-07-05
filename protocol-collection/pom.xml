@@ -30,6 +30,10 @@
 		</dependency>
 		<dependency>
 			<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
+			<artifactId>isense</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
 			<artifactId>isense-packet</artifactId>
 		</dependency>
 		<dependency>
