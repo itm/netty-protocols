@@ -20,7 +20,7 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package de.uniluebeck.itm.netty.handlerstack.serialp;
+package de.uniluebeck.itm.netty.handlerstack.tinyos;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
@@ -33,13 +33,13 @@ import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 
-public class SerialPEncoderFactory implements HandlerFactory {
+public class TinyOsSerialDecoderFactory implements HandlerFactory {
 
 	@Override
 	public List<Tuple<String, ChannelHandler>> create(@Nullable final String instanceName,
 													  final Multimap<String, String> properties) throws Exception {
 
-		return newArrayList(new Tuple<String, ChannelHandler>(instanceName, new SerialPEncoder(instanceName)));
+		return newArrayList(new Tuple<String, ChannelHandler>(instanceName, new TinyOsSerialDecoder(instanceName)));
 	}
 
 	@Override
@@ -54,11 +54,11 @@ public class SerialPEncoderFactory implements HandlerFactory {
 
 	@Override
 	public String getDescription() {
-		return "Encodes packets using the SerialP packet framing. For more details see http://www.tinyos.net/tinyos-2.x/doc/html/tep113.html.";
+		return "Decodes packets that are encoded with the SerialP protocol. For more details see http://www.tinyos.net/tinyos-2.x/doc/html/tep113.html.";
 	}
 
-	@Override
-	public String getName() {
-		return "serialp-encoder";
-	}
+    @Override
+    public String getName() {
+        return "serialp-decoder";
+    }
 }

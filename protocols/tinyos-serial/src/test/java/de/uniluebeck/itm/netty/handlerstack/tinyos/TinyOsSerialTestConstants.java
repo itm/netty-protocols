@@ -1,11 +1,11 @@
-package de.uniluebeck.itm.netty.handlerstack.serialp;
+package de.uniluebeck.itm.netty.handlerstack.tinyos;
 
 import org.jboss.netty.buffer.ChannelBuffer;
 
 import static de.uniluebeck.itm.tr.util.StringUtils.fromStringToByteArray;
 import static org.jboss.netty.buffer.ChannelBuffers.wrappedBuffer;
 
-public interface SerialPTestConstants {
+public interface TinyOsSerialTestConstants {
 
 	final String PACKET_1_PAYLOAD_STRING = "0x0 0xff 0xff 0x0 0x0 0x2 0x0 0x89 0x2 0xf7";
 

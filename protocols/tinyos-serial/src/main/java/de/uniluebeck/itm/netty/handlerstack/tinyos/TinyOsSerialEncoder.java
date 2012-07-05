@@ -1,4 +1,4 @@
-package de.uniluebeck.itm.netty.handlerstack.serialp;
+package de.uniluebeck.itm.netty.handlerstack.tinyos;
 
 import net.tinyos.util.Crc;
 import org.jboss.netty.buffer.ChannelBuffer;
@@ -9,18 +9,18 @@ import org.jboss.netty.handler.codec.oneone.OneToOneEncoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SerialPEncoder extends OneToOneEncoder {
+public class TinyOsSerialEncoder extends OneToOneEncoder {
 
 	private static final int PACKET_TYPE = 0x45 & 0xFF;
 
 	private final Logger log;
 
-	public SerialPEncoder() {
+	public TinyOsSerialEncoder() {
 		this(null);
 	}
 
-	public SerialPEncoder(final String instanceName) {
-		log = LoggerFactory.getLogger(instanceName != null ? instanceName : SerialPEncoder.class.getName());
+	public TinyOsSerialEncoder(final String instanceName) {
+		log = LoggerFactory.getLogger(instanceName != null ? instanceName : TinyOsSerialEncoder.class.getName());
 	}
 
 	@Override

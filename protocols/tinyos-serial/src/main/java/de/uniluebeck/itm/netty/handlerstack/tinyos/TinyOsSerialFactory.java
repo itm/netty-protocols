@@ -20,7 +20,7 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package de.uniluebeck.itm.netty.handlerstack.serialp;
+package de.uniluebeck.itm.netty.handlerstack.tinyos;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
@@ -32,15 +32,15 @@ import javax.annotation.Nullable;
 import java.util.LinkedList;
 import java.util.List;
 
-public class SerialPFactory implements HandlerFactory {
+public class TinyOsSerialFactory implements HandlerFactory {
 
 	@Override
 	public List<Tuple<String, ChannelHandler>> create(@Nullable final String instanceName,
 													  final Multimap<String, String> properties) throws Exception {
 
 		List<Tuple<String, ChannelHandler>> handlers = new LinkedList<Tuple<String, ChannelHandler>>();
-		handlers.addAll(new SerialPDecoderFactory().create(instanceName + "-decoder", properties));
-		handlers.addAll(new SerialPEncoderFactory().create(instanceName + "-encoder", properties));
+		handlers.addAll(new TinyOsSerialDecoderFactory().create(instanceName + "-decoder", properties));
+		handlers.addAll(new TinyOsSerialEncoderFactory().create(instanceName + "-encoder", properties));
 		return handlers;
 	}
 

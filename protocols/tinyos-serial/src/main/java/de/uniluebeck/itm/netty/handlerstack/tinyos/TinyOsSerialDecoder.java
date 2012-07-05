@@ -1,4 +1,4 @@
-package de.uniluebeck.itm.netty.handlerstack.serialp;
+package de.uniluebeck.itm.netty.handlerstack.tinyos;
 
 import net.tinyos.util.Crc;
 import org.jboss.netty.buffer.ChannelBuffer;
@@ -9,16 +9,16 @@ import org.jboss.netty.handler.codec.oneone.OneToOneDecoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SerialPDecoder extends OneToOneDecoder {
+public class TinyOsSerialDecoder extends OneToOneDecoder {
 
 	private final Logger log;
 
-	public SerialPDecoder() {
+	public TinyOsSerialDecoder() {
 		this(null);
 	}
 
-	public SerialPDecoder(final String instanceName) {
-		log = LoggerFactory.getLogger(instanceName != null ? instanceName : SerialPDecoder.class.getName());
+	public TinyOsSerialDecoder(final String instanceName) {
+		log = LoggerFactory.getLogger(instanceName != null ? instanceName : TinyOsSerialDecoder.class.getName());
 	}
 
 	@Override

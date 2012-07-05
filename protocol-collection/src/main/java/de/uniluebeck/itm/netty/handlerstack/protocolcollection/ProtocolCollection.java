@@ -28,6 +28,9 @@ import de.uniluebeck.itm.netty.handlerstack.discard.DiscardMessagesHandlerFactor
 import de.uniluebeck.itm.netty.handlerstack.dlestxetx.DleStxEtxFramingDecoderFactory;
 import de.uniluebeck.itm.netty.handlerstack.dlestxetx.DleStxEtxFramingEncoderFactory;
 import de.uniluebeck.itm.netty.handlerstack.dlestxetx.DleStxEtxFramingFactory;
+import de.uniluebeck.itm.netty.handlerstack.tinyos.TinyOsSerialDecoderFactory;
+import de.uniluebeck.itm.netty.handlerstack.tinyos.TinyOsSerialEncoderFactory;
+import de.uniluebeck.itm.netty.handlerstack.tinyos.TinyOsSerialFactory;
 import de.uniluebeck.itm.netty.handlerstack.tinyos.HdlcTranslateDecoderFactory;
 import de.uniluebeck.itm.netty.handlerstack.tinyos.HdlcTranslateEncoderFactory;
 import de.uniluebeck.itm.netty.handlerstack.tinyos.HdlcTranslateFactory;
@@ -37,9 +40,6 @@ import de.uniluebeck.itm.netty.handlerstack.iseraerial.ISerAerialPacketDecoderFa
 import de.uniluebeck.itm.netty.handlerstack.iseraerial.ISerAerialPacketEncoderFactory;
 import de.uniluebeck.itm.netty.handlerstack.iseraerial.ISerAerialPacketFactory;
 import de.uniluebeck.itm.netty.handlerstack.nettyincluded.*;
-import de.uniluebeck.itm.netty.handlerstack.serialp.SerialPDecoderFactory;
-import de.uniluebeck.itm.netty.handlerstack.serialp.SerialPEncoderFactory;
-import de.uniluebeck.itm.netty.handlerstack.serialp.SerialPFactory;
 import de.uniluebeck.netty.handlerstack.logginghandler.LoggingHandlerFactory;
 
 public class ProtocolCollection {
@@ -56,9 +56,9 @@ public class ProtocolCollection {
 			registry.register(new HdlcTranslateEncoderFactory());
 			registry.register(new HdlcTranslateFactory());
 
-			registry.register(new SerialPDecoderFactory());
-			registry.register(new SerialPEncoderFactory());
-			registry.register(new SerialPFactory());
+			registry.register(new TinyOsSerialDecoderFactory());
+			registry.register(new TinyOsSerialEncoderFactory());
+			registry.register(new TinyOsSerialFactory());
 
 			registry.register(new ISerAerialPacketDecoderFactory());
 			registry.register(new ISerAerialPacketEncoderFactory());
