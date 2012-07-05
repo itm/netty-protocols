@@ -54,11 +54,11 @@ public class HdlcTranslateEncoderFactory implements HandlerFactory {
 
 	@Override
 	public String getDescription() {
-		return "Encodes packets using the HdlcTranslateC packet framing. For more details see http://www.tinyos.net/tinyos-2.x/doc/html/tep113.html.";
+		return "Encodes packets using the TinyOS HdlcTranslate packet framing. For more details see http://www.tinyos.net/tinyos-2.x/doc/html/tep113.html.";
 	}
 
 	@Override
 	public String getName() {
-		return "hdlctranslatec-encoder";
+		return "tinyos-hdlctranslate-encoder";
 	}
 }

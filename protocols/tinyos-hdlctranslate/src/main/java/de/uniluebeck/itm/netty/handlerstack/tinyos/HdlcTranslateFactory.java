@@ -56,11 +56,11 @@ public class HdlcTranslateFactory implements HandlerFactory {
 
 	@Override
 	public String getDescription() {
-		return "Both hdlctranslatec-encoder and hdlctranslatec-decoder. For more details see http://www.tinyos.net/tinyos-2.x/doc/html/tep113.html";
+		return "Both tinyos-hdlctranslate-encoder and tinyos-hdlctranslate-decoder. For more details see http://www.tinyos.net/tinyos-2.x/doc/html/tep113.html";
 	}
 
 	@Override
 	public String getName() {
-		return "hdlctranslatec";
+		return "tinyos-hdlctranslate";
 	}
 }
