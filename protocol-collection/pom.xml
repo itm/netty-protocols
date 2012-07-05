@@ -55,7 +55,7 @@
 		</dependency>
 		<dependency>
 			<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
-			<artifactId>serialp</artifactId>
+			<artifactId>tinyos-serial</artifactId>
 		</dependency>
 
 	</dependencies>

@@ -31,7 +31,7 @@
 		<module>protocols/logging-handler</module>
 		<module>protocols/remote-uart-protocol</module>
 		<module>protocols/swap</module>
-		<module>protocols/serialp</module>
+		<module>protocols/tinyos-serial</module>
 		<module>protocols/tls-peer-verification</module>
 		<module>protocols/wisebed-node-api</module>
 
@@ -117,7 +117,7 @@
 			</dependency>
 			<dependency>
 				<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
-				<artifactId>serialp</artifactId>
+				<artifactId>tinyos-serial</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 
