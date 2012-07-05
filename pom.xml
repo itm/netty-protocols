@@ -23,7 +23,7 @@
 		<module>protocols/contiki</module>
 		<module>protocols/dlestxetx</module>
 		<module>protocols/discard</module>
-		<module>protocols/isense</module>
+		<module>protocols/isense-packet</module>
 		<module>protocols/isense-otap</module>
 		<module>protocols/iseraerial</module>
 		<module>protocols/isense-ishell-interpreter</module>
@@ -79,7 +79,7 @@
 			</dependency>
 			<dependency>
 				<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
-				<artifactId>isense</artifactId>
+				<artifactId>isense-packet</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>

@@ -19,7 +19,7 @@
 
 		<dependency>
 			<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
-			<artifactId>isense</artifactId>
+			<artifactId>isense-packet</artifactId>
 		</dependency>
 
 		<dependency>

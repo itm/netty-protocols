@@ -10,7 +10,7 @@
 		<relativePath>../../</relativePath>
 	</parent>
 
-	<artifactId>isense</artifactId>
+	<artifactId>isense-packet</artifactId>
 	<name>Netty Handlerstack :: coalesenses iSense Packet Decoder/Encoder</name>
 	<packaging>jar</packaging>
 
