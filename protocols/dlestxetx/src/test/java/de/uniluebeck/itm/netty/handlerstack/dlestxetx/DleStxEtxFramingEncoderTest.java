@@ -20,53 +20,32 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package de.uniluebeck.itm.netty.handlerstack.hdlctranslatec;
+package de.uniluebeck.itm.netty.handlerstack.dlestxetx;
+
+import com.google.common.primitives.Bytes;
 
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBuffers;
-import org.jboss.netty.channel.Channel;
-import org.jboss.netty.channel.ChannelHandlerContext;
-import org.jboss.netty.handler.codec.oneone.OneToOneEncoder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.jboss.netty.handler.codec.embedder.EncoderEmbedder;
+import org.junit.Test;
 
-import de.uniluebeck.itm.tr.util.StringUtils;
+import static org.junit.Assert.assertArrayEquals;
 
-public class DleStxEtxFramingEncoder extends OneToOneEncoder {
+public class DleStxEtxFramingEncoderTest {
 
-    private final Logger log;
+	@Test
+	public void testEncoding() {
 
-    public DleStxEtxFramingEncoder() {
-        this(null);
-    }
-    
-    public DleStxEtxFramingEncoder(String instanceName) {
-        log = LoggerFactory.getLogger(instanceName != null ? instanceName : DleStxEtxFramingEncoder.class.getName());
-    }
+		byte[] payloadBytes = "hello, world".getBytes();
 
-    @Override
-    protected Object encode(final ChannelHandlerContext ctx, final Channel channel, final Object msg) throws Exception {
+		EncoderEmbedder<ChannelBuffer> embedder = new EncoderEmbedder<ChannelBuffer>(new DleStxEtxFramingEncoder());
+		embedder.offer(ChannelBuffers.wrappedBuffer(payloadBytes));
 
-        if (!(msg instanceof ChannelBuffer)) {
-            return msg;
-        }
+		ChannelBuffer encodedBuffer = embedder.poll();
+		byte[] encodedBytes = new byte[encodedBuffer.readableBytes()];
+		encodedBuffer.readBytes(encodedBytes);
 
-        ChannelBuffer buffer = (ChannelBuffer) msg;
-        ChannelBuffer packet = ChannelBuffers.dynamicBuffer(buffer.readableBytes() + 4);
-        packet.writeBytes(DleStxEtxConstants.DLE_STX);
-        for (int i = buffer.readerIndex(); i < (buffer.readerIndex() + buffer.readableBytes()); i++) {
-            byte b = buffer.getByte(i);
-            if (b == DleStxEtxConstants.DLE) {
-                packet.writeByte(DleStxEtxConstants.DLE);
-            }
-            packet.writeByte(b);
-        }
-        packet.writeBytes(DleStxEtxConstants.DLE_ETX);
+		assertArrayEquals(Bytes.concat(DleStxEtxConstants.DLE_STX, payloadBytes, DleStxEtxConstants.DLE_ETX), encodedBytes);
+	}
 
-        if (log.isTraceEnabled()) {
-            log.trace("Encoded buffer: {}", StringUtils.toHexString(packet.toByteBuffer().array()));
-        }
-
-        return packet;
-    }
 }

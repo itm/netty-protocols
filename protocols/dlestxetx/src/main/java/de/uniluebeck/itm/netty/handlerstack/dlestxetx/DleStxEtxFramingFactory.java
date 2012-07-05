@@ -20,7 +20,7 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package de.uniluebeck.itm.netty.handlerstack.hdlctranslatec;
+package de.uniluebeck.itm.netty.handlerstack.dlestxetx;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
@@ -29,17 +29,19 @@ import de.uniluebeck.itm.tr.util.Tuple;
 import org.jboss.netty.channel.ChannelHandler;
 
 import javax.annotation.Nullable;
+import java.util.LinkedList;
 import java.util.List;
 
-import static com.google.common.collect.Lists.newArrayList;
-
-public class DleStxEtxFramingEncoderFactory implements HandlerFactory {
+public class DleStxEtxFramingFactory implements HandlerFactory {
 
 	@Override
 	public List<Tuple<String, ChannelHandler>> create(@Nullable final String instanceName,
 													  final Multimap<String, String> properties) throws Exception {
 
-		return newArrayList(new Tuple<String, ChannelHandler>(instanceName, new DleStxEtxFramingEncoder(instanceName)));
+		List<Tuple<String, ChannelHandler>> handlers = new LinkedList<Tuple<String, ChannelHandler>>();
+		handlers.addAll(new DleStxEtxFramingDecoderFactory().create(instanceName + "-decoder", properties));
+		handlers.addAll(new DleStxEtxFramingEncoderFactory().create(instanceName + "-encoder", properties));
+		return handlers;
 	}
 
 	@Override
@@ -54,13 +56,12 @@ public class DleStxEtxFramingEncoderFactory implements HandlerFactory {
 
 	@Override
 	public String getDescription() {
-		return "Wraps an incoming ChannelBuffer with DLE STX (0x10 0x02) and DLE ETX (0x10 0x03) and does byte "
-				+ "stuffing inside the ChannelBuffer (i.e. escape every DLE with another DLE). Also see "
+		return "Both dlestxetx-framing-decoder and dlestxetx-framing-encoder. Also see "
 				+ "https://github.com/itm/netty-handlerstack/wiki/DLESTXETX-Framing-Decoder-Encoder.";
 	}
 
 	@Override
 	public String getName() {
-		return "dlestxetx-framing-encoder";
+		return "dlestxetx-framing";
 	}
 }

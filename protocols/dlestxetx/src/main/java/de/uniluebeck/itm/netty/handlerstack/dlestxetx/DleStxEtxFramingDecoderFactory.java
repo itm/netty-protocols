@@ -20,32 +20,48 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package de.uniluebeck.itm.netty.handlerstack.hdlctranslatec;
+package de.uniluebeck.itm.netty.handlerstack.dlestxetx;
 
-import com.google.common.primitives.Bytes;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
+import de.uniluebeck.itm.netty.handlerstack.HandlerFactory;
+import de.uniluebeck.itm.tr.util.Tuple;
+import org.jboss.netty.channel.ChannelHandler;
 
-import org.jboss.netty.buffer.ChannelBuffer;
-import org.jboss.netty.buffer.ChannelBuffers;
-import org.jboss.netty.handler.codec.embedder.EncoderEmbedder;
-import org.junit.Test;
+import javax.annotation.Nullable;
+import java.util.List;
 
-import static org.junit.Assert.assertArrayEquals;
+import static com.google.common.collect.Lists.newArrayList;
 
-public class DleStxEtxFramingEncoderTest {
+public class DleStxEtxFramingDecoderFactory implements HandlerFactory {
 
-	@Test
-	public void testEncoding() {
+	@Override
+	public List<Tuple<String, ChannelHandler>> create(@Nullable final String instanceName,
+													  final Multimap<String, String> properties) throws Exception {
 
-		byte[] payloadBytes = "hello, world".getBytes();
-
-		EncoderEmbedder<ChannelBuffer> embedder = new EncoderEmbedder<ChannelBuffer>(new DleStxEtxFramingEncoder());
-		embedder.offer(ChannelBuffers.wrappedBuffer(payloadBytes));
-
-		ChannelBuffer encodedBuffer = embedder.poll();
-		byte[] encodedBytes = new byte[encodedBuffer.readableBytes()];
-		encodedBuffer.readBytes(encodedBytes);
-
-		assertArrayEquals(Bytes.concat(DleStxEtxConstants.DLE_STX, payloadBytes, DleStxEtxConstants.DLE_ETX), encodedBytes);
+		return newArrayList(new Tuple<String, ChannelHandler>(instanceName, new DleStxEtxFramingDecoder(instanceName)));
 	}
 
+	@Override
+	public List<Tuple<String, ChannelHandler>> create(Multimap<String, String> properties) throws Exception {
+		return create(null, properties);
+	}
+
+	@Override
+	public Multimap<String, String> getConfigurationOptions() {
+		return HashMultimap.create();
+	}
+
+	@Override
+	public String getDescription() {
+		return "Unwraps a ChannelBuffer instance that is wrapped with DLE STX (0x10 0x02) and DLE ETX (0x10 0x03) "
+				+ "and does byte unstuffing (i.e. bytes of value DLE that were escaped with another DLE have the "
+				+ "escape character removed. Also See "
+				+ "https://github.com/itm/netty-handlerstack/wiki/DLESTXETX-Framing-Decoder-Encoder.";
+	}
+
+    @Override
+    public String getName() {
+        return "dlestxetx-framing-decoder";
+    }
 }
