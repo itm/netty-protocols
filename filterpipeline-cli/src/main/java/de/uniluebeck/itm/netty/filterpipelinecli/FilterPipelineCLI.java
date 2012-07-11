@@ -1,13 +1,15 @@
 package de.uniluebeck.itm.netty.filterpipelinecli;
 
 import com.google.common.base.Joiner;
+import com.google.inject.Guice;
 import de.uniluebeck.itm.netty.handlerstack.FilterPipeline;
 import de.uniluebeck.itm.netty.handlerstack.FilterPipelineImpl;
 import de.uniluebeck.itm.netty.handlerstack.HandlerFactoryRegistry;
 import de.uniluebeck.itm.netty.handlerstack.protocolcollection.ProtocolCollection;
 import de.uniluebeck.itm.tr.util.Logging;
 import de.uniluebeck.itm.wsn.drivers.core.Device;
-import de.uniluebeck.itm.wsn.drivers.factories.DeviceFactoryImpl;
+import de.uniluebeck.itm.wsn.drivers.factories.DeviceFactory;
+import de.uniluebeck.itm.wsn.drivers.factories.DeviceFactoryModule;
 import de.uniluebeck.itm.wsn.drivers.factories.DeviceType;
 import org.apache.commons.cli.*;
 import org.apache.log4j.Level;
@@ -74,7 +76,11 @@ public class FilterPipelineCLI {
 		}
 		);
 
-		final Device device = new DeviceFactoryImpl().create(executorService, config.getDeviceType());
+		final DeviceFactory deviceFactory = Guice
+				.createInjector(new DeviceFactoryModule())
+				.getInstance(DeviceFactory.class);
+
+		final Device device = deviceFactory.create(executorService, config.getDeviceType());
 
 		try {
 			device.connect(config.getPort());

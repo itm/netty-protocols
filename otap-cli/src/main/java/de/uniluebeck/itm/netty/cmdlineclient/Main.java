@@ -25,6 +25,7 @@ package de.uniluebeck.itm.netty.cmdlineclient;
 import com.coalesenses.isense.ishell.interpreter.IShellInterpreterPacketTypes;
 import com.google.common.collect.Sets;
 import com.google.common.io.Files;
+import com.google.inject.Guice;
 import de.uniluebeck.itm.netty.handlerstack.FilterPipeline;
 import de.uniluebeck.itm.netty.handlerstack.FilterPipelineImpl;
 import de.uniluebeck.itm.netty.handlerstack.HandlerFactoryRegistry;
@@ -35,7 +36,8 @@ import de.uniluebeck.itm.netty.handlerstack.protocolcollection.ProtocolCollectio
 import de.uniluebeck.itm.netty.handlerstack.util.HandlerTools;
 import de.uniluebeck.itm.netty.handlerstack.util.HeaderAndJavaBeansXMLDecoderEncoder;
 import de.uniluebeck.itm.wsn.drivers.core.Device;
-import de.uniluebeck.itm.wsn.drivers.factories.DeviceFactoryImpl;
+import de.uniluebeck.itm.wsn.drivers.factories.DeviceFactory;
+import de.uniluebeck.itm.wsn.drivers.factories.DeviceFactoryModule;
 import de.uniluebeck.itm.wsn.drivers.factories.DeviceType;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
@@ -272,7 +274,11 @@ public class Main {
 			System.exit(1);
 		}
 
-		final Device device = new DeviceFactoryImpl().create(executorService, DeviceType.ISENSE);
+		final DeviceFactory deviceFactory = Guice
+				.createInjector(new DeviceFactoryModule())
+				.getInstance(DeviceFactory.class);
+
+		final Device device = deviceFactory.create(executorService, DeviceType.ISENSE);
 
 		try {
 			device.connect(deviceAddress);
