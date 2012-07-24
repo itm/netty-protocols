@@ -162,7 +162,7 @@
 			<dependency>
 				<groupId>com.coalesenses</groupId>
 				<artifactId>isense-binary-image</artifactId>
-				<version>0.5-SNAPSHOT</version>
+				<version>0.5</version>
 			</dependency>
 
 			<dependency>
