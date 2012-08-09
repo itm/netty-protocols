@@ -29,50 +29,24 @@ import de.uniluebeck.itm.tr.util.TimeDiff;
 /**
  * @author Dennis Pfisterer
  */
-public class ISenseOtapPacket implements Comparable<OtapPacket> {
+public class ISenseOtapPacket implements Comparable<ISenseOtapPacket> {
 
-	/**
-	 *
-	 */
 	private byte[] content = null;
 
-	/**
-	 *
-	 */
 	private int chunkNumber = 0;
 
-	/**
-	 *
-	 */
 	private int overallPacketNumber = 0;
 
-	/**
-	 *
-	 */
 	private int index = 0;
 
-	/**
-	 *
-	 */
 	private TimeDiff transmissionTime = new TimeDiff();
 
-	/**
-	 * @param startAddress
-	 * @param content
-	 * @param offset
-	 * @param length
-	 */
 	ISenseOtapPacket(int startAddress, byte[] content, int offset, int length) {
 		this.overallPacketNumber = startAddress / 64;
 		setContent(content, offset, length);
 	}
 
-	/**
-	 * @param o
-	 *
-	 * @return
-	 */
-	public int compareTo(OtapPacket o) {
+	public int compareTo(ISenseOtapPacket o) {
 
 		if (o == null) {
 			return 1;
@@ -88,81 +62,47 @@ public class ISenseOtapPacket implements Comparable<OtapPacket> {
 	@Override
 	public String toString() {
 		int bytes = content != null ? content.length : 0;
-
 		return "Packet: chunkNumber " + chunkNumber + ", overallPacketNumber: " + overallPacketNumber + ", index " + index + ", " + bytes + " bytes";
 	}
 
-	/**
-	 *
-	 */
 	public void setTransmissionTime() {
 		this.transmissionTime.touch();
 	}
 
-	/**
-	 * @return
-	 */
 	public TimeDiff getTransmissionTime() {
 		return transmissionTime;
 	}
 
-	/**
-	 * @return
-	 */
 	public int getChunkNumber() {
 		return chunkNumber;
 	}
 
-	/**
-	 * @param chunkNumber
-	 */
 	public void setChunkNumber(int chunkNumber) {
 		this.chunkNumber = chunkNumber;
 	}
 
-	/**
-	 * @return
-	 */
 	public byte[] getContent() {
 		return content;
 	}
 
-	/**
-	 * @param content
-	 * @param offset
-	 * @param length
-	 */
 	public void setContent(byte[] content, int offset, int length) {
 		this.content = new byte[length];
 		System.arraycopy(content, offset, this.content, 0, length);
 	}
 
-	/**
-	 * @return
-	 */
 	public int getIndex() {
 		return index;
 	}
 
-	/**
-	 * @param index
-	 */
 	public void setIndex(int index) {
 		this.index = index;
 	}
 
-	/**
-	 * @return
-	 */
 	public int getOverallPacketNumber() {
 		return overallPacketNumber;
 	}
 
-	/**
-	 * @param overallPacketNumber
-	 */
 	public void setOverallPacketNumber(int overallPacketNumber) {
 		this.overallPacketNumber = overallPacketNumber;
 	}
-
 }

@@ -22,7 +22,6 @@
  */
 package de.uniluebeck.itm.netty.handlerstack.isenseotap;
 
-import com.coalesenses.binaryimage.BinaryImage;
 import com.coalesenses.tools.iSenseAes128BitKey;
 import com.google.common.collect.Sets;
 import de.uniluebeck.itm.netty.handlerstack.isenseotap.init.ISenseOtapInitResult;
@@ -51,8 +50,6 @@ public class ISenseOtapAutomatedProgrammingHandler extends SimpleChannelHandler 
     private enum State {
         IDLE, PRESENCE_DETECT, OTAP_INIT, OTAP_PROGRAM
     }
-
-    ;
 
     private ChannelHandlerContext context;
     private State state = State.IDLE;
@@ -152,19 +149,19 @@ public class ISenseOtapAutomatedProgrammingHandler extends SimpleChannelHandler 
 
         Set<Integer> detectedDevices = message.getDetectedDevices();
         StringBuilder builder = new StringBuilder();
-        for (Integer deviceid : detectedDevices) {
+
+        for (Integer deviceId : detectedDevices) {
             builder.append("0x");
-            builder.append(Integer.toHexString(deviceid));
+            builder.append(Integer.toHexString(deviceId));
             builder.append(",");
         }
-
 
         log.info("Detected devices: {}", builder.toString());
 
         Set<Integer> detectedDevicesToProgram =
                 Sets.intersection(detectedDevices, programRequest.getDevicesToProgram());
 
-        BinaryImage program = new BinaryImage(programRequest.getOtapProgram());
+        ISenseOtapImage program = new ISenseOtapImage(programRequest.getOtapProgram());
 
         ISenseOtapInitStartCommand command =
                 new ISenseOtapInitStartCommand(detectedDevicesToProgram, programRequest.getOtapInitTimeoutAsDurationPlusUnit(),

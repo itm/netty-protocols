@@ -22,10 +22,10 @@
  */
 package de.uniluebeck.itm.netty.handlerstack.isenseotap.program;
 
-import com.coalesenses.binaryimage.BinaryImage;
-import com.coalesenses.binaryimage.OtapChunk;
-import com.coalesenses.binaryimage.OtapPacket;
+import de.uniluebeck.itm.netty.handlerstack.isenseotap.ISenseOtapChunk;
 import de.uniluebeck.itm.netty.handlerstack.isenseotap.ISenseOtapDevice;
+import de.uniluebeck.itm.netty.handlerstack.isenseotap.ISenseOtapImage;
+import de.uniluebeck.itm.netty.handlerstack.isenseotap.ISenseOtapPacket;
 import de.uniluebeck.itm.netty.handlerstack.isenseotap.generatedmessages.OtapProgramReply;
 import de.uniluebeck.itm.netty.handlerstack.isenseotap.generatedmessages.OtapProgramRequest;
 import de.uniluebeck.itm.netty.handlerstack.util.HandlerTools;
@@ -45,318 +45,334 @@ import java.util.concurrent.TimeUnit;
 import static com.google.common.base.Preconditions.checkState;
 
 public class ISenseOtapProgramHandler extends SimpleChannelHandler implements LifeCycleAwareChannelHandler {
-    private final Logger log;
-
-    private final ScheduledExecutorService executorService;
-    private final long otapProgramInterval = 27; // TODO correct values
-    private final TimeUnit otapProgramIntervalTimeUnit = TimeUnit.MILLISECONDS; // TODO correct values
 
-    private final short settingMaxRerequests;
-    private final short settingTimeoutMultiplier;
+	private final Logger log;
 
-    private ChannelHandlerContext context;
+	private final ScheduledExecutorService executorService;
 
-    private ISenseOtapProgramResult programStatus;
+	private final long otapProgramInterval = 27; // TODO correct values
 
-    private TimeDiff chunkTimeout = new TimeDiff();
+	private final TimeUnit otapProgramIntervalTimeUnit = TimeUnit.MILLISECONDS; // TODO correct values
 
-    /**
-     * The actual set of devices that are reprogrammed
-     */
-    private final Map<Integer, ISenseOtapDevice> devicesToProgram = new HashMap<Integer, ISenseOtapDevice>();
+	private final short settingMaxReRequests;
 
-    private OtapChunk chunk = null;
-    private BinaryImage programImage = null;
+	private final short settingTimeoutMultiplier;
 
-    /**
-     * The remaining packets in the current chunk. These have not been received by all devices yet.
-     */
-    private Set<OtapPacket> remainingPacketsInChunk = new TreeSet<OtapPacket>();
+	private ChannelHandlerContext context;
 
-    private ScheduledFuture<?> sendOtapProgramRequestsSchedule;
-    private final Runnable sendOtapProgramRequestsRunnable = new Runnable() {
-        @Override
-        public void run() {
-            if (context == null)
-                return;
+	private ISenseOtapProgramResult programStatus;
 
-            if (programImage == null) {
-                log.warn("Not in programming state");
-                return;
-            }
+	private TimeDiff chunkTimeout = new TimeDiff();
 
-            // Check if skip to next chunk or if we are done
-            checkLeapToNextChunk();
+	/**
+	 * The actual set of devices that are reprogrammed
+	 */
+	private final Map<Integer, ISenseOtapDevice> devicesToProgram = new HashMap<Integer, ISenseOtapDevice>();
 
-            // Send the remaining packets
-            if (remainingPacketsInChunk.size() > 0) {
-                // Get the next remaining packet and remove it (until somebody re-requests it)
-                OtapPacket packet = remainingPacketsInChunk.iterator().next();
-                remainingPacketsInChunk.remove(packet);
+	private ISenseOtapChunk chunk = null;
 
-                // Prepare the request using Fabric
-                OtapProgramRequest req = new OtapProgramRequest();
+	private ISenseOtapImage programImage = null;
 
-                req.chunk_no = chunk.getChunkNumber();
-                req.index = (short) packet.getIndex();
-                req.packets_in_chunk = (byte) chunk.getPacketCount();
-                req.overall_packet_no = packet.getOverallPacketNumber();
-                req.remaining = (short) remainingPacketsInChunk.size();
+	/**
+	 * The remaining packets in the current chunk. These have not been received by all devices yet.
+	 */
+	private Set<ISenseOtapPacket> remainingPacketsInChunk = new TreeSet<ISenseOtapPacket>();
 
-                byte[] code = packet.getContent();
-                req.code.count = (short) code.length;
-                for (int i = 0; i < req.code.value.length; i++) {
-                    req.code.value[i] = (byte) 0xFF;
-                }
-                System.arraycopy(code, 0, req.code.value, 0, req.code.count);
+	private ScheduledFuture<?> sendOtapProgramRequestsSchedule;
 
-                log.debug("Sending packet with " + req.code.count + " bytes. Chunk[" + req.chunk_no + "], Index["
-                        + req.index + "], PacketsInChunk[" + req.packets_in_chunk + "], OverallPacketNo["
-                        + req.overall_packet_no + "], Remaining[" + req.remaining + "], RevisionNo[" + "]");
+	private final Runnable sendOtapProgramRequestsRunnable = new Runnable() {
+		@Override
+		public void run() {
+			if (context == null) {
+				return;
+			}
 
-                // Send the packet
-                HandlerTools.sendDownstream(req, context);
-            }
+			if (programImage == null) {
+				log.warn("Not in programming state");
+				return;
+			}
 
-        }
-    };
+			// Check if skip to next chunk or if we are done
+			checkLeapToNextChunk();
 
-    public ISenseOtapProgramHandler(final String instanceName, final ScheduledExecutorService executorService,
-                                    short settingMaxRerequests, short settingTimeoutMultiplier) {
+			// Send the remaining packets
+			if (remainingPacketsInChunk.size() > 0) {
+				// Get the next remaining packet and remove it (until somebody re-requests it)
+				ISenseOtapPacket packet = remainingPacketsInChunk.iterator().next();
+				remainingPacketsInChunk.remove(packet);
 
-        log = LoggerFactory.getLogger((instanceName != null) ? instanceName : ISenseOtapProgramHandler.class.getName());
-        this.executorService = executorService;
-        this.settingMaxRerequests = settingMaxRerequests;
-        this.settingTimeoutMultiplier = settingTimeoutMultiplier;
+				// Prepare the request using Fabric
+				OtapProgramRequest req = new OtapProgramRequest();
 
-    }
+				req.chunk_no = chunk.getChunkNumber();
+				req.index = (short) packet.getIndex();
+				req.packets_in_chunk = (byte) chunk.getPacketCount();
+				req.overall_packet_no = packet.getOverallPacketNumber();
+				req.remaining = (short) remainingPacketsInChunk.size();
 
-    @Override
-    public void writeRequested(ChannelHandlerContext ctx, MessageEvent e) throws Exception {
-        Object message = e.getMessage();
+				byte[] code = packet.getContent();
+				req.code.count = (short) code.length;
+				for (int i = 0; i < req.code.value.length; i++) {
+					req.code.value[i] = (byte) 0xFF;
+				}
+				System.arraycopy(code, 0, req.code.value, 0, req.code.count);
 
-        if (message instanceof ISenseOtapProgramRequest) {
-            startProgramming((ISenseOtapProgramRequest) message);
-        } else {
-            super.writeRequested(ctx, e);
-        }
-
-    }
-
-    @Override
-    public void messageReceived(final ChannelHandlerContext ctx, final MessageEvent e) throws Exception {
-        Object message = e.getMessage();
-
-        if (message instanceof OtapProgramReply) {
-            OtapProgramReply reply = (OtapProgramReply) message;
+				log.debug("Sending packet with " + req.code.count + " bytes. Chunk[" + req.chunk_no + "], Index["
+						+ req.index + "], PacketsInChunk[" + req.packets_in_chunk + "], OverallPacketNo["
+						+ req.overall_packet_no + "], Remaining[" + req.remaining + "], RevisionNo[" + "]"
+				);
 
-            if (programImage != null) {
-
-                ISenseOtapDevice device = devicesToProgram.get(reply.device_id);
-                if (device != null) {
-                    handleOtapProgramReply(device, reply);
-                } else {
-                    log.debug("Ignoring otap program reply from unknown device {}", reply.device_id);
-                }
-
-            } else {
-                log.debug("Ignoring otap program reply in wrong state");
-            }
-
-        } else {
-            super.messageReceived(ctx, e);
-        }
-
-    }
-
-    public void startProgramming(ISenseOtapProgramRequest programRequest) {
-        stopProgramming();
-
-        log.info("Received programming request {}. Starting to program...", programRequest);
-
-        this.programStatus = new ISenseOtapProgramResult(programRequest.getDevicesToProgram());
-
-        for (Integer deviceId : programRequest.getDevicesToProgram())
-            devicesToProgram.put(deviceId, new ISenseOtapDevice(deviceId));
-
-        programImage = new BinaryImage(programRequest.getOtapProgram());
-
-        // Calculate chunk timeout
-        {
-            int maxPacketsPerChunk = 0;
-            for (int i = 0; i < programImage.getChunkCount(); ++i)
-                maxPacketsPerChunk = Math.max(maxPacketsPerChunk, programImage.getPacketCount(i, i));
-
-            int magicTimeoutMillis = settingMaxRerequests * maxPacketsPerChunk * settingTimeoutMultiplier + 10000;
-            chunkTimeout.setTimeOutMillis(magicTimeoutMillis);
-            log.debug("Setting chunk timeout to {} ms.", magicTimeoutMillis);
-
-            // Prepare the first chunk transmission
-            prepareChunk(0);
-        }
-
-        // Schedule the runnable to send program requests
-        sendOtapProgramRequestsSchedule =
-                executorService.scheduleWithFixedDelay(sendOtapProgramRequestsRunnable, 0, otapProgramInterval,
-                        otapProgramIntervalTimeUnit);
-    }
-
-    public void stopProgramming() {
-        if (sendOtapProgramRequestsSchedule != null)
-            sendOtapProgramRequestsSchedule.cancel(false);
-
-        sendOtapProgramRequestsSchedule = null;
-        programImage = null;
-        devicesToProgram.clear();
-    }
-
-    private void handleOtapProgramReply(ISenseOtapDevice device, OtapProgramReply reply) {
-        // Only react to matching replies, discard old ones
-        if (chunk.getChunkNumber() != reply.chunk_no) {
-            log.trace("Ignoring old message from {} with chunk {}.", reply.device_id, reply.chunk_no);
-            return;
-        }
-
-        // Ignore replies for devices that have completed the current chunk
-        if (device.getChunkNo() == reply.chunk_no && device.isChunkComplete()) {
-            log.trace("Ignoring message from {}, chunk {} is complete on this device.", reply.device_id, reply.chunk_no);
-            return;
-        }
-
-        // Update the device to the current chunk
-        device.setChunkNo(reply.chunk_no);
-
-        if (reply.missing_indices.count > 0) {
-            Set<Integer> missingIndices = new HashSet<Integer>();
-
-            // Add the missing packets to the set of remaining packets in this chunk
-            for (int i = 0; i < reply.missing_indices.count; ++i) {
-                int packetIndex = reply.missing_indices.value[i];
-                OtapPacket packet = chunk.getPacketByIndex(packetIndex);
-
-                if (packet != null) {
-                    missingIndices.add(packetIndex);
-                    remainingPacketsInChunk.add(packet);
-                } else {
-                    log.warn("Requested packet index {} not found in chunk {}", packetIndex, reply.chunk_no);
-                }
-            }
-
-            if (log.isDebugEnabled())
-                log.debug("Device {} misses packets {}", reply.device_id, Arrays.toString(missingIndices.toArray()));
-
-        } else {
-            log.debug("No missing indices at {}, chunk {}", Integer.toHexString(reply.device_id), reply.chunk_no);
-            device.setChunkComplete(true);
-
-            if (isDeviceFullyProgrammed(device)) {
-                programStatus.addDoneDevice(device.getId());
-                log.info("Device {} is fully programmed. Now got {} done devices.", Integer.toHexString(device.getId()), programStatus
-                        .getDoneDevices().size());
-            }
-        }
-
-    }
-
-    private boolean isDeviceFullyProgrammed(ISenseOtapDevice device) {
-        if (device.getChunkNo() + 1 == programImage.getChunkCount() && device.isChunkComplete())
-            return true;
-        return false;
-    }
-
-    /**
-     *
-     */
-    private synchronized void prepareChunk(int number) {
-        chunk = programImage.getChunk(number);
-        remainingPacketsInChunk.clear();
-        chunkTimeout.touch();
-
-        if (chunk != null) {
-            log.info("Preparing chunk {} out of {}", number, programImage.getChunkCount());
-
-            // Reset the chunk-complete flag on all devices
-            for (ISenseOtapDevice d : devicesToProgram.values()) {
-                d.setChunkComplete(false);
-            }
-
-            // Set the remaining packets to all packets in this chunk
-            remainingPacketsInChunk.addAll(chunk.getPackets());
-            log.debug("New chunk #{}, got " + remainingPacketsInChunk.size() + " packets to transmit", number);
-
-        } else {
-            log.info("No more chunks available. Stopping OTAP. Done.");
-            HandlerTools.sendUpstream(programStatus, context);
-            stopProgramming();
-        }
-
-    }
-
-    /**
-     *
-     */
-    private synchronized void checkLeapToNextChunk() {
-        // Remove failed devices
-        List<ISenseOtapDevice> failedDevicesToRemove = new LinkedList<ISenseOtapDevice>();
-
-        for (ISenseOtapDevice device : devicesToProgram.values()) {
-            if (device.getChunkNo() + 1 < chunk.getChunkNumber()) {
-                failedDevicesToRemove.add(device);
-            }
-        }
-
-
-        for (ISenseOtapDevice device : failedDevicesToRemove) {
-            log.warn("Device {} failed (still in chunk {}, current is {}. Removing it.",
-                    new Object[]{Integer.toHexString(device.getId()), device.getChunkNo(), chunk.getChunkNumber()});
-
-            programStatus.addFailedDevice(device.getId());
-            devicesToProgram.remove(device.getId());
-        }
-
-        if (chunkTimeout.isTimeout() || isAllDevicesReceivedAllPacketsInChunk()) {
-            log.info("Leaping to next chunk. Still remaining packets [" + remainingPacketsInChunk.size() + "]");
-            prepareChunk(chunk.getChunkNumber() + 1);
-        }
-    }
-
-    /**
-     *
-     */
-    private boolean isAllDevicesReceivedAllPacketsInChunk() {
-        boolean allPacketsAtAllDevicesRX = true;
-
-        for (ISenseOtapDevice d : devicesToProgram.values()) {
-            if (!d.isChunkComplete()) {
-                allPacketsAtAllDevicesRX = false;
-            }
-        }
-
-        if (allPacketsAtAllDevicesRX)
-            log.debug("All {} devices received all packets in chunk", devicesToProgram.size());
-
-        return allPacketsAtAllDevicesRX;
-    }
-
-    @Override
-    public void afterAdd(ChannelHandlerContext ctx) throws Exception {
+				// Send the packet
+				HandlerTools.sendDownstream(req, context);
+			}
+
+		}
+	};
+
+	public ISenseOtapProgramHandler(final String instanceName, final ScheduledExecutorService executorService,
+									short settingMaxReRequests, short settingTimeoutMultiplier) {
+
+		log = LoggerFactory.getLogger((instanceName != null) ? instanceName : ISenseOtapProgramHandler.class.getName());
+		this.executorService = executorService;
+		this.settingMaxReRequests = settingMaxReRequests;
+		this.settingTimeoutMultiplier = settingTimeoutMultiplier;
+
+	}
+
+	@Override
+	public void writeRequested(ChannelHandlerContext ctx, MessageEvent e) throws Exception {
+		Object message = e.getMessage();
+
+		if (message instanceof ISenseOtapProgramRequest) {
+			startProgramming((ISenseOtapProgramRequest) message);
+		} else {
+			super.writeRequested(ctx, e);
+		}
+
+	}
+
+	@Override
+	public void messageReceived(final ChannelHandlerContext ctx, final MessageEvent e) throws Exception {
+		Object message = e.getMessage();
+
+		if (message instanceof OtapProgramReply) {
+			OtapProgramReply reply = (OtapProgramReply) message;
+
+			if (programImage != null) {
+
+				ISenseOtapDevice device = devicesToProgram.get(reply.device_id);
+				if (device != null) {
+					handleOtapProgramReply(device, reply);
+				} else {
+					log.debug("Ignoring otap program reply from unknown device {}", reply.device_id);
+				}
+
+			} else {
+				log.debug("Ignoring otap program reply in wrong state");
+			}
+
+		} else {
+			super.messageReceived(ctx, e);
+		}
+
+	}
+
+	public void startProgramming(ISenseOtapProgramRequest programRequest) {
+		stopProgramming();
+
+		log.info("Received programming request {}. Starting to program...", programRequest);
+
+		this.programStatus = new ISenseOtapProgramResult(programRequest.getDevicesToProgram());
+
+		for (Integer deviceId : programRequest.getDevicesToProgram()) {
+			devicesToProgram.put(deviceId, new ISenseOtapDevice(deviceId));
+		}
+
+		programImage = new ISenseOtapImage(programRequest.getOtapProgram());
+
+		// Calculate chunk timeout
+		{
+			int maxPacketsPerChunk = 0;
+			for (int i = 0; i < programImage.getChunkCount(); ++i) {
+				maxPacketsPerChunk = Math.max(maxPacketsPerChunk, programImage.getPacketCount(i, i));
+			}
+
+			int magicTimeoutMillis = settingMaxReRequests * maxPacketsPerChunk * settingTimeoutMultiplier + 10000;
+			chunkTimeout.setTimeOutMillis(magicTimeoutMillis);
+			log.debug("Setting chunk timeout to {} ms.", magicTimeoutMillis);
+
+			// Prepare the first chunk transmission
+			prepareChunk(0);
+		}
+
+		// Schedule the runnable to send program requests
+		sendOtapProgramRequestsSchedule =
+				executorService.scheduleWithFixedDelay(sendOtapProgramRequestsRunnable, 0, otapProgramInterval,
+						otapProgramIntervalTimeUnit
+				);
+	}
+
+	public void stopProgramming() {
+		if (sendOtapProgramRequestsSchedule != null) {
+			sendOtapProgramRequestsSchedule.cancel(false);
+		}
+
+		sendOtapProgramRequestsSchedule = null;
+		programImage = null;
+		devicesToProgram.clear();
+	}
+
+	private void handleOtapProgramReply(ISenseOtapDevice device, OtapProgramReply reply) {
+		// Only react to matching replies, discard old ones
+		if (chunk.getChunkNumber() != reply.chunk_no) {
+			log.trace("Ignoring old message from {} with chunk {}.", reply.device_id, reply.chunk_no);
+			return;
+		}
+
+		// Ignore replies for devices that have completed the current chunk
+		if (device.getChunkNo() == reply.chunk_no && device.isChunkComplete()) {
+			log.trace("Ignoring message from {}, chunk {} is complete on this device.", reply.device_id, reply.chunk_no
+			);
+			return;
+		}
+
+		// Update the device to the current chunk
+		device.setChunkNo(reply.chunk_no);
+
+		if (reply.missing_indices.count > 0) {
+			Set<Integer> missingIndices = new HashSet<Integer>();
+
+			// Add the missing packets to the set of remaining packets in this chunk
+			for (int i = 0; i < reply.missing_indices.count; ++i) {
+				int packetIndex = reply.missing_indices.value[i];
+				ISenseOtapPacket packet = chunk.getPacketByIndex(packetIndex);
+
+				if (packet != null) {
+					missingIndices.add(packetIndex);
+					remainingPacketsInChunk.add(packet);
+				} else {
+					log.warn("Requested packet index {} not found in chunk {}", packetIndex, reply.chunk_no);
+				}
+			}
+
+			if (log.isDebugEnabled()) {
+				log.debug("Device {} misses packets {}", reply.device_id, Arrays.toString(missingIndices.toArray()));
+			}
+
+		} else {
+			log.debug("No missing indices at {}, chunk {}", Integer.toHexString(reply.device_id), reply.chunk_no);
+			device.setChunkComplete(true);
+
+			if (isDeviceFullyProgrammed(device)) {
+				programStatus.addDoneDevice(device.getId());
+				log.info("Device {} is fully programmed. Now got {} done devices.", Integer.toHexString(device.getId()),
+						programStatus
+								.getDoneDevices().size()
+				);
+			}
+		}
+
+	}
+
+	private boolean isDeviceFullyProgrammed(ISenseOtapDevice device) {
+		return device.getChunkNo() + 1 == programImage.getChunkCount() && device.isChunkComplete();
+	}
+
+	/**
+	 *
+	 */
+	private synchronized void prepareChunk(int number) {
+		chunk = programImage.getChunk(number);
+		remainingPacketsInChunk.clear();
+		chunkTimeout.touch();
+
+		if (chunk != null) {
+			log.info("Preparing chunk {} out of {}", number, programImage.getChunkCount());
+
+			// Reset the chunk-complete flag on all devices
+			for (ISenseOtapDevice d : devicesToProgram.values()) {
+				d.setChunkComplete(false);
+			}
+
+			// Set the remaining packets to all packets in this chunk
+			remainingPacketsInChunk.addAll(chunk.getPackets());
+			log.debug("New chunk #{}, got " + remainingPacketsInChunk.size() + " packets to transmit", number);
+
+		} else {
+			log.info("No more chunks available. Stopping OTAP. Done.");
+			HandlerTools.sendUpstream(programStatus, context);
+			stopProgramming();
+		}
+
+	}
+
+	/**
+	 *
+	 */
+	private synchronized void checkLeapToNextChunk() {
+		// Remove failed devices
+		List<ISenseOtapDevice> failedDevicesToRemove = new LinkedList<ISenseOtapDevice>();
+
+		for (ISenseOtapDevice device : devicesToProgram.values()) {
+			if (device.getChunkNo() + 1 < chunk.getChunkNumber()) {
+				failedDevicesToRemove.add(device);
+			}
+		}
+
+
+		for (ISenseOtapDevice device : failedDevicesToRemove) {
+			log.warn("Device {} failed (still in chunk {}, current is {}. Removing it.",
+					new Object[]{Integer.toHexString(device.getId()), device.getChunkNo(), chunk.getChunkNumber()}
+			);
+
+			programStatus.addFailedDevice(device.getId());
+			devicesToProgram.remove(device.getId());
+		}
+
+		if (chunkTimeout.isTimeout() || isAllDevicesReceivedAllPacketsInChunk()) {
+			log.info("Leaping to next chunk. Still remaining packets [" + remainingPacketsInChunk.size() + "]");
+			prepareChunk(chunk.getChunkNumber() + 1);
+		}
+	}
+
+	/**
+	 *
+	 */
+	private boolean isAllDevicesReceivedAllPacketsInChunk() {
+		boolean allPacketsAtAllDevicesRX = true;
+
+		for (ISenseOtapDevice d : devicesToProgram.values()) {
+			if (!d.isChunkComplete()) {
+				allPacketsAtAllDevicesRX = false;
+			}
+		}
+
+		if (allPacketsAtAllDevicesRX) {
+			log.debug("All {} devices received all packets in chunk", devicesToProgram.size());
+		}
+
+		return allPacketsAtAllDevicesRX;
+	}
+
+	@Override
+	public void afterAdd(ChannelHandlerContext ctx) throws Exception {
 		checkState(context == null);
 		this.context = ctx;
 	}
 
-    @Override
-    public void afterRemove(ChannelHandlerContext ctx) throws Exception {
-        this.context = null;
-    }
+	@Override
+	public void afterRemove(ChannelHandlerContext ctx) throws Exception {
+		this.context = null;
+	}
 
-    @Override
-    public void beforeAdd(ChannelHandlerContext ctx) throws Exception {
-        // Nothing to do
-    }
+	@Override
+	public void beforeAdd(ChannelHandlerContext ctx) throws Exception {
+		// Nothing to do
+	}
 
-    @Override
-    public void beforeRemove(ChannelHandlerContext ctx) throws Exception {
-        // Nothing to do
-    }
+	@Override
+	public void beforeRemove(ChannelHandlerContext ctx) throws Exception {
+		// Nothing to do
+	}
 
 }

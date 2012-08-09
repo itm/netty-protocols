@@ -37,10 +37,6 @@
 			<groupId>com.coalesenses</groupId>
 			<artifactId>ieee-802.15.4-aes</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>com.coalesenses</groupId>
-			<artifactId>isense-binary-image</artifactId>
-		</dependency>
 
 		<dependency>
 			<groupId>org.jboss.netty</groupId>

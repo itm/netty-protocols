@@ -24,7 +24,6 @@
 package de.uniluebeck.itm.netty.handlerstack.isenseotap;
 
 import de.uniluebeck.itm.tr.util.FileUtils;
-import de.uniluebeck.itm.wsn.drivers.core.ChipType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,12 +38,12 @@ public class ISenseOtapImage {
     /**
      * Number of OtapPackets in one chunk
      */
-    private static int MAX_CHUNK_SIZE = 64;
+    private static final int MAX_CHUNK_SIZE = 64;
 
     /**
      * Number of payload bytes in one OtapPacket
      */
-    private static int MAX_PACKET_CODE_SIZE = 64;
+    private static final int MAX_PACKET_CODE_SIZE = 64;
 
     private Set<ISenseOtapChunk> chunks = new TreeSet<ISenseOtapChunk>();
 
@@ -52,15 +51,13 @@ public class ISenseOtapImage {
 
     private byte[] bytes = null;
 
-    public ISenseOtapImage(File binfile) throws FileNotFoundException, IOException {
-        // this(new FileInputStream(binfile), revisionNumber);
-        this(new FileInputStream(binfile));
+    public ISenseOtapImage(File imageFile) throws FileNotFoundException, IOException {
+        this(new FileInputStream(imageFile));
     }
 
-    public ISenseOtapImage(InputStream binfile) throws IOException {
-        // Read from the stream into a byte array
+    public ISenseOtapImage(InputStream imageStream) throws IOException {
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-        FileUtils.copy(binfile, buffer);
+        FileUtils.copy(imageStream, buffer);
         init(buffer.toByteArray());
     }
 
@@ -75,7 +72,7 @@ public class ISenseOtapImage {
         chipType = determineFileType(getBytes());
 
         byte[] packet = new byte[MAX_PACKET_CODE_SIZE];
-        int packetLen = -1;
+        int packetLen;
         int address = 0;
 
         ISenseOtapChunk currentChunk = new ISenseOtapChunk((short) 0);
@@ -167,11 +164,11 @@ public class ISenseOtapImage {
                     log.trace("No OAD Section found -> not a JN513XR1");
                 }
 
-                // MAC Adress
+                // MAC address
                 if (ok) {
                     start += count;
                     count = 32;
-                    ok = ok && hasRepeatedPattern(bytes, start, count, (byte) 0xFF);
+                    ok = hasRepeatedPattern(bytes, start, count, (byte) 0xFF);
 
                     if (ok) {
                         log.trace("MAC Section found (32 x 0xFF)");

@@ -34,36 +34,18 @@ import java.util.TreeSet;
  */
 public class ISenseOtapChunk implements Comparable<ISenseOtapChunk> {
 
-	/**
-	 *
-	 */
 	private static final Logger log = LoggerFactory.getLogger(ISenseOtapChunk.class);
 
-	/**
-	 *
-	 */
 	private short chunkNumber = 0;
 
-	/**
-	 *
-	 */
 	private short chunkIndex = 0;
 
-	/**
-	 *
-	 */
-	private TreeSet<OtapPacket> packets = new TreeSet<OtapPacket>();
+	private TreeSet<ISenseOtapPacket> packets = new TreeSet<ISenseOtapPacket>();
 
-	/**
-	 *
-	 */
 	ISenseOtapChunk(short chunkNumber) {
 		this.chunkNumber = chunkNumber;
 	}
 
-	/**
-	 *
-	 */
 	public int compareTo(ISenseOtapChunk other) {
 		if (other == null) {
 			return 1;
@@ -76,10 +58,7 @@ public class ISenseOtapChunk implements Comparable<ISenseOtapChunk> {
 		return this.getChunkNumber() - other.getChunkNumber();
 	}
 
-	/**
-	 *
-	 */
-	public boolean addPacket(OtapPacket p) {
+	public boolean addPacket(ISenseOtapPacket p) {
 		if (packets.contains(p)) {
 			log.warn("Skipping already contained packet " + p);
 			return false;
@@ -92,11 +71,8 @@ public class ISenseOtapChunk implements Comparable<ISenseOtapChunk> {
 		return true;
 	}
 
-	/**
-	 *
-	 */
-	public OtapPacket getPacketByIndex(int index) {
-		for (OtapPacket p : packets) {
+	public ISenseOtapPacket getPacketByIndex(int index) {
+		for (ISenseOtapPacket p : packets) {
 			if (p.getIndex() == index) {
 				return p;
 			}
@@ -104,23 +80,14 @@ public class ISenseOtapChunk implements Comparable<ISenseOtapChunk> {
 		return null;
 	}
 
-	/**
-	 *
-	 */
 	public short getChunkNumber() {
 		return chunkNumber;
 	}
 
-	/**
-	 *
-	 */
-	public Collection<OtapPacket> getPackets() {
+	public Collection<ISenseOtapPacket> getPackets() {
 		return packets;
 	}
 
-	/**
-	 *
-	 */
 	public int getPacketCount() {
 		return packets.size();
 	}

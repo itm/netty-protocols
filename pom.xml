@@ -152,17 +152,12 @@
 			<dependency>
 				<groupId>de.uniluebeck.itm.itmutils</groupId>
 				<artifactId>itmutils</artifactId>
-				<version>0.4</version>
+				<version>0.4.1-SNAPSHOT</version>
 			</dependency>
 			<dependency>
 				<groupId>com.coalesenses</groupId>
 				<artifactId>ieee-802.15.4-aes</artifactId>
-				<version>0.3</version>
-			</dependency>
-			<dependency>
-				<groupId>com.coalesenses</groupId>
-				<artifactId>isense-binary-image</artifactId>
-				<version>0.5</version>
+				<version>0.4</version>
 			</dependency>
 
 			<dependency>
