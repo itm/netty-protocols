@@ -92,8 +92,10 @@ public enum ChipType {
 	/**
 	 * Constructor.
 	 *
-	 * @param name The name of the chip.
-	 * @param type The short representation of the chip.
+	 * @param name
+	 * 		The name of the chip.
+	 * @param type
+	 * 		The short representation of the chip.
 	 */
 	private ChipType(final String name, final int type) {
 		this(name, type, -1, -1, -1);
@@ -102,11 +104,16 @@ public enum ChipType {
 	/**
 	 * Constructor.
 	 *
-	 * @param name The name of the chip.
-	 * @param type The short representation of the chip.
-	 * @param headerStart Offset of the header start.
-	 * @param headerLength Length of the header.
+	 * @param name
+	 * 		The name of the chip.
+	 * @param type
+	 * 		The short representation of the chip.
+	 * @param headerStart
+	 * 		Offset of the header start.
+	 * @param headerLength
+	 * 		Length of the header.
 	 * @param macInFlashStart
+	 * 		The start address of the MAC address.
 	 */
 	private ChipType(String name, int type, int headerStart, int headerLength, int macInFlashStart) {
 		this.name = name;
@@ -169,16 +176,17 @@ public enum ChipType {
 	/**
 	 * Returns the ChipType for a given short.
 	 *
-	 * @param type Short of the ChipType that has to be returned.
+	 * @param type
+	 * 		Short of the ChipType that has to be returned.
+	 *
 	 * @return ChipType associated with the given type.
 	 */
-	public static de.uniluebeck.itm.wsn.drivers.core.ISenseChipType getChipType(final short type) {
-		for (de.uniluebeck.itm.wsn.drivers.core.ISenseChipType chipType : de.uniluebeck.itm.wsn.drivers.core
-				.ISenseChipType.values()) {
+	public static ChipType getChipType(final short type) {
+		for (ChipType chipType : ChipType.values()) {
 			if (chipType.getType() == type) {
 				return chipType;
 			}
 		}
-		return de.uniluebeck.itm.wsn.drivers.core.ISenseChipType.UNKNOWN;
+		return ChipType.UNKNOWN;
 	}
 }

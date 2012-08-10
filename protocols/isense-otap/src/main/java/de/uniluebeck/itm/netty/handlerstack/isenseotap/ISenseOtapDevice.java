@@ -23,173 +23,185 @@
 package de.uniluebeck.itm.netty.handlerstack.isenseotap;
 
 import de.uniluebeck.itm.tr.util.TimeDiff;
-import de.uniluebeck.itm.wsn.drivers.core.ChipType;
 
 /**
  * @author Dennis Pfisterer
  */
 public class ISenseOtapDevice {
 
-    private int id;
-    private ChipType chipType = ChipType.UNKNOWN;
-    private int lqi;
-    private TimeDiff lastReception = new TimeDiff();
-    private TimeDiff lastMessageTransmitted = new TimeDiff();
-    private boolean chunkComplete = false;
-    private int chunkNo = -1;
-    private long applicationID = 0;
-    private int softwareRevision = 0;
-    private int protocolVersion = 0;
+	private int id;
 
-    public ISenseOtapDevice() {
-    }
+	private ChipType chipType = ChipType.UNKNOWN;
 
-    public ISenseOtapDevice(int id) {
-        this.id = id;
-    }
+	private int lqi;
 
-    public int getId() {
-        return id;
-    }
+	private TimeDiff lastReception = new TimeDiff();
 
-    public void setId(int id) {
-        this.id = id;
-    }
+	private TimeDiff lastMessageTransmitted = new TimeDiff();
 
-    public TimeDiff getLastReception() {
-        return lastReception;
-    }
+	private boolean chunkComplete = false;
 
-    public TimeDiff getLastMessageTransmitted() {
-        return lastMessageTransmitted;
-    }
+	private int chunkNo = -1;
 
-    public void setLastReception() {
-        this.lastReception.touch();
-    }
+	private long applicationID = 0;
 
-    public void setLastMessageTransmitted() {
-        this.lastMessageTransmitted.touch();
-    }
+	private int softwareRevision = 0;
 
-    public int getLqi() {
-        return lqi;
-    }
+	private int protocolVersion = 0;
 
-    public void setLqi(int lqi) {
-        this.lqi = lqi;
-    }
+	public ISenseOtapDevice() {
+	}
 
-    public boolean isChunkComplete() {
-        return chunkComplete;
-    }
+	public ISenseOtapDevice(int id) {
+		this.id = id;
+	}
 
-    public void setChunkComplete(boolean chunkComplete) {
-        this.chunkComplete = chunkComplete;
-    }
+	public int getId() {
+		return id;
+	}
 
-    public ChipType getChipType() {
-        return chipType;
-    }
+	public void setId(int id) {
+		this.id = id;
+	}
 
-    public void setChipType(ChipType chipType) {
-        this.chipType = chipType;
-    }
+	public TimeDiff getLastReception() {
+		return lastReception;
+	}
 
-    public int getChunkNo() {
-        return chunkNo;
-    }
+	public TimeDiff getLastMessageTransmitted() {
+		return lastMessageTransmitted;
+	}
 
-    public void setChunkNo(int chunkNo) {
-        this.chunkNo = chunkNo;
-    }
+	public void setLastReception() {
+		this.lastReception.touch();
+	}
 
-    public long getApplicationID() {
-        return applicationID;
-    }
+	public void setLastMessageTransmitted() {
+		this.lastMessageTransmitted.touch();
+	}
 
-    public void setApplicationID(long applicationID) {
-        this.applicationID = applicationID;
-    }
+	public int getLqi() {
+		return lqi;
+	}
 
-    public int getSoftwareRevision() {
-        return softwareRevision;
-    }
+	public void setLqi(int lqi) {
+		this.lqi = lqi;
+	}
 
-    public void setSoftwareRevision(int softwareRevision) {
-        this.softwareRevision = softwareRevision;
-    }
+	public boolean isChunkComplete() {
+		return chunkComplete;
+	}
 
-    public void setProtocolVersion(int protocolVersion) {
-        this.protocolVersion = protocolVersion;
-    }
+	public void setChunkComplete(boolean chunkComplete) {
+		this.chunkComplete = chunkComplete;
+	}
 
-    public int getProtocolVersion() {
-        return protocolVersion;
-    }
+	public ChipType getChipType() {
+		return chipType;
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.lang.Object#toString()
-     */
-    @Override
-    public String toString() {
-        StringBuilder builder = new StringBuilder();
-        builder.append("ISenseOtapDevice [id=");
-        builder.append(id);
-        builder.append(", chipType=");
-        builder.append(chipType);
-        builder.append(", lqi=");
-        builder.append(lqi);
-        builder.append(", lastReception=");
-        builder.append(lastReception);
-        builder.append(", lastMessageTransmitted=");
-        builder.append(lastMessageTransmitted);
-        builder.append(", chunkComplete=");
-        builder.append(chunkComplete);
-        builder.append(", chunkNo=");
-        builder.append(chunkNo);
-        builder.append(", applicationID=");
-        builder.append(applicationID);
-        builder.append(", softwareRevision=");
-        builder.append(softwareRevision);
-        builder.append(", protocolVersion=");
-        builder.append(protocolVersion);
-        builder.append("]");
-        return builder.toString();
-    }
+	public void setChipType(ChipType chipType) {
+		this.chipType = chipType;
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.lang.Object#hashCode()
-     */
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + id;
-        return result;
-    }
+	public int getChunkNo() {
+		return chunkNo;
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.lang.Object#equals(java.lang.Object)
-     */
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
-        ISenseOtapDevice other = (ISenseOtapDevice) obj;
-        if (id != other.id)
-            return false;
-        return true;
-    }
+	public void setChunkNo(int chunkNo) {
+		this.chunkNo = chunkNo;
+	}
+
+	public long getApplicationID() {
+		return applicationID;
+	}
+
+	public void setApplicationID(long applicationID) {
+		this.applicationID = applicationID;
+	}
+
+	public int getSoftwareRevision() {
+		return softwareRevision;
+	}
+
+	public void setSoftwareRevision(int softwareRevision) {
+		this.softwareRevision = softwareRevision;
+	}
+
+	public void setProtocolVersion(int protocolVersion) {
+		this.protocolVersion = protocolVersion;
+	}
+
+	public int getProtocolVersion() {
+		return protocolVersion;
+	}
+
+	/*
+		 * (non-Javadoc)
+		 *
+		 * @see java.lang.Object#toString()
+		 */
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("ISenseOtapDevice [id=");
+		builder.append(id);
+		builder.append(", chipType=");
+		builder.append(chipType);
+		builder.append(", lqi=");
+		builder.append(lqi);
+		builder.append(", lastReception=");
+		builder.append(lastReception);
+		builder.append(", lastMessageTransmitted=");
+		builder.append(lastMessageTransmitted);
+		builder.append(", chunkComplete=");
+		builder.append(chunkComplete);
+		builder.append(", chunkNo=");
+		builder.append(chunkNo);
+		builder.append(", applicationID=");
+		builder.append(applicationID);
+		builder.append(", softwareRevision=");
+		builder.append(softwareRevision);
+		builder.append(", protocolVersion=");
+		builder.append(protocolVersion);
+		builder.append("]");
+		return builder.toString();
+	}
+
+	/*
+		 * (non-Javadoc)
+		 *
+		 * @see java.lang.Object#hashCode()
+		 */
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + id;
+		return result;
+	}
+
+	/*
+		 * (non-Javadoc)
+		 *
+		 * @see java.lang.Object#equals(java.lang.Object)
+		 */
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+		ISenseOtapDevice other = (ISenseOtapDevice) obj;
+		if (id != other.id) {
+			return false;
+		}
+		return true;
+	}
 
 }

@@ -22,12 +22,12 @@
  */
 package de.uniluebeck.itm.netty.handlerstack.isenseotap.presencedetect;
 
+import de.uniluebeck.itm.netty.handlerstack.isenseotap.ChipType;
 import de.uniluebeck.itm.netty.handlerstack.isenseotap.ISenseOtapDevice;
 import de.uniluebeck.itm.netty.handlerstack.isenseotap.generatedmessages.PresenceDetectReply;
 import de.uniluebeck.itm.netty.handlerstack.isenseotap.generatedmessages.PresenceDetectRequest;
 import de.uniluebeck.itm.netty.handlerstack.util.HandlerTools;
 import de.uniluebeck.itm.tr.util.TimedCache;
-import de.uniluebeck.itm.wsn.drivers.core.ChipType;
 import org.jboss.netty.channel.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
