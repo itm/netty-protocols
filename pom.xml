@@ -152,7 +152,7 @@
 			<dependency>
 				<groupId>de.uniluebeck.itm.itmutils</groupId>
 				<artifactId>itmutils</artifactId>
-				<version>0.4.1-SNAPSHOT</version>
+				<version>0.4.1</version>
 			</dependency>
 			<dependency>
 				<groupId>com.coalesenses</groupId>
