@@ -17,9 +17,9 @@ public class CompatibleObjectDecoderFactory implements HandlerFactory {
 	private static final String RESET_INTERVAL = "resetInterval";
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public List<Tuple<String, ChannelHandler>> create(@Nullable final String instanceName,
 													  final Multimap<String, String> properties) throws Exception {
-
 		return newArrayList(new Tuple<String, ChannelHandler>(instanceName, new CompatibleObjectDecoder()));
 	}
 

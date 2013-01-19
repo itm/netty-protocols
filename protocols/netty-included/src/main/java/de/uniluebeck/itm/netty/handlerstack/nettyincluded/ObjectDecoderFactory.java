@@ -18,6 +18,7 @@ public class ObjectDecoderFactory implements HandlerFactory {
 	private static final String MAX_OBJECT_SIZE = "maxObjectSize";
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public List<Tuple<String, ChannelHandler>> create(@Nullable final String instanceName,
 													  final Multimap<String, String> properties) throws Exception {
 
