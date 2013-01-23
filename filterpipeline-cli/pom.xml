@@ -4,29 +4,29 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
-		<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
-		<artifactId>netty-handlerstack-parent</artifactId>
+		<groupId>de.uniluebeck.itm.netty-protocols</groupId>
+		<artifactId>netty-protocols-parent</artifactId>
 		<version>1.7-SNAPSHOT</version>
 		<relativePath>../</relativePath>
 	</parent>
 
 	<artifactId>filterpipeline-cli</artifactId>
-	<name>Netty Handlerstack :: FilterPipeline CLI</name>
+	<name>Netty Protocols :: FilterPipeline CLI</name>
 
 	<packaging>jar</packaging>
 
 	<dependencies>
 
 		<dependency>
-			<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
+			<groupId>de.uniluebeck.itm.netty-protocols</groupId>
 			<artifactId>factory</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
+			<groupId>de.uniluebeck.itm.netty-protocols</groupId>
 			<artifactId>protocol-collection</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
+			<groupId>de.uniluebeck.itm.netty-protocols</groupId>
 			<artifactId>filterpipeline</artifactId>
 		</dependency>
 

@@ -4,14 +4,14 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
-		<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
-		<artifactId>netty-handlerstack-parent</artifactId>
+		<groupId>de.uniluebeck.itm.netty-protocols</groupId>
+		<artifactId>netty-protocols-parent</artifactId>
 		<version>1.7-SNAPSHOT</version>
 		<relativePath>../</relativePath>
 	</parent>
 
 	<artifactId>util</artifactId>
-	<name>Netty Handlerstack :: Utils</name>
+	<name>Netty Protocols :: Utils</name>
 
 	<packaging>jar</packaging>
 

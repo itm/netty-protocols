@@ -4,14 +4,14 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
-		<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
-		<artifactId>netty-handlerstack-parent</artifactId>
+		<groupId>de.uniluebeck.itm.netty-protocols</groupId>
+		<artifactId>netty-protocols-parent</artifactId>
 		<version>1.7-SNAPSHOT</version>
 		<relativePath>../</relativePath>
 	</parent>
 
 	<artifactId>otap-cli</artifactId>
-	<name>Netty Handlerstack :: OTAP CLI</name>
+	<name>Netty Protocols :: OTAP CLI</name>
 
 	<packaging>jar</packaging>
 
@@ -26,15 +26,15 @@
 			<artifactId>netty-iostream</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
+			<groupId>de.uniluebeck.itm.netty-protocols</groupId>
 			<artifactId>factory</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
+			<groupId>de.uniluebeck.itm.netty-protocols</groupId>
 			<artifactId>protocol-collection</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
+			<groupId>de.uniluebeck.itm.netty-protocols</groupId>
 			<artifactId>filterpipeline</artifactId>
 		</dependency>
 

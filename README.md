@@ -1,12 +1,12 @@
-Netty Handlerstack
-==================
+Netty Protocols
+===============
 
 Installation / Building
 -----------------------
-No installation is required. To build Netty HandlerStack, you need Java 6 and 
+No installation is required. To build Netty Protocols, you need Java 6 and 
 Maven (http://maven.apache.org/).
 
-To build, run `mvn install`, this will build Netty HandlerStack and place the 
+To build, run `mvn install`, this will build Netty Protocols and place the 
 generated jar files in the various modules target/ subdirectories and in your
 local Maven repository.  
 

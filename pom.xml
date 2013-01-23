@@ -4,9 +4,9 @@
 
 	<modelVersion>4.0.0</modelVersion>
 
-	<name>Netty Handlerstack :: Parent</name>
-	<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
-	<artifactId>netty-handlerstack-parent</artifactId>
+	<name>Netty Protocols :: Parent</name>
+	<groupId>de.uniluebeck.itm.netty-protocols</groupId>
+	<artifactId>netty-protocols-parent</artifactId>
 	<version>1.7-SNAPSHOT</version>
 
 	<packaging>pom</packaging>
@@ -44,97 +44,97 @@
 		<dependencies>
 
 			<dependency>
-				<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
+				<groupId>de.uniluebeck.itm.netty-protocols</groupId>
 				<artifactId>factory</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
+				<groupId>de.uniluebeck.itm.netty-protocols</groupId>
 				<artifactId>contiki</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
+				<groupId>de.uniluebeck.itm.netty-protocols</groupId>
 				<artifactId>isense</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
+				<groupId>de.uniluebeck.itm.netty-protocols</groupId>
 				<artifactId>tinyos-hdlctranslate</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
+				<groupId>de.uniluebeck.itm.netty-protocols</groupId>
 				<artifactId>tinyos-serial</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
+				<groupId>de.uniluebeck.itm.netty-protocols</groupId>
 				<artifactId>tinyos</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
+				<groupId>de.uniluebeck.itm.netty-protocols</groupId>
 				<artifactId>util</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
+				<groupId>de.uniluebeck.itm.netty-protocols</groupId>
 				<artifactId>dlestxetx</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
+				<groupId>de.uniluebeck.itm.netty-protocols</groupId>
 				<artifactId>isense-packet</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
+				<groupId>de.uniluebeck.itm.netty-protocols</groupId>
 				<artifactId>protocol-collection</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
+				<groupId>de.uniluebeck.itm.netty-protocols</groupId>
 				<artifactId>remote-uart-protocol</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
+				<groupId>de.uniluebeck.itm.netty-protocols</groupId>
 				<artifactId>isense-iseraerial</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
+				<groupId>de.uniluebeck.itm.netty-protocols</groupId>
 				<artifactId>logging-handler</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
+				<groupId>de.uniluebeck.itm.netty-protocols</groupId>
 				<artifactId>isense-otap</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
+				<groupId>de.uniluebeck.itm.netty-protocols</groupId>
 				<artifactId>isense-ishell-interpreter</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
+				<groupId>de.uniluebeck.itm.netty-protocols</groupId>
 				<artifactId>tls-peer-verification</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
+				<groupId>de.uniluebeck.itm.netty-protocols</groupId>
 				<artifactId>netty-included</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
+				<groupId>de.uniluebeck.itm.netty-protocols</groupId>
 				<artifactId>discard</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
+				<groupId>de.uniluebeck.itm.netty-protocols</groupId>
 				<artifactId>filterpipeline</artifactId>
 				<version>${project.version}</version>
 			</dependency>
@@ -382,7 +382,7 @@
 	</distributionManagement>
 
 	<scm>
-		<connection>scm:git:git@github.com:itm/netty-handlerstack.git</connection>
+		<connection>scm:git:git@github.com:itm/netty-protocols.git</connection>
 	</scm>
 
 	<properties>

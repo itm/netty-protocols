@@ -4,20 +4,20 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
-		<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
-		<artifactId>netty-handlerstack-parent</artifactId>
+		<groupId>de.uniluebeck.itm.netty-protocols</groupId>
+		<artifactId>netty-protocols-parent</artifactId>
 		<version>1.7-SNAPSHOT</version>
 		<relativePath>../../</relativePath>
 	</parent>
 
 	<artifactId>wisebed-node-api</artifactId>
-	<name>Netty Handlerstack :: WISEBED Node API</name>
+	<name>Netty Protocols :: WISEBED Node API</name>
 	<packaging>jar</packaging>
 
 	<dependencies>
 
 		<dependency>
-			<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
+			<groupId>de.uniluebeck.itm.netty-protocols</groupId>
 			<artifactId>factory</artifactId>
 		</dependency>
 

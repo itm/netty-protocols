@@ -4,68 +4,68 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
-		<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
-		<artifactId>netty-handlerstack-parent</artifactId>
+		<groupId>de.uniluebeck.itm.netty-protocols</groupId>
+		<artifactId>netty-protocols-parent</artifactId>
 		<version>1.7-SNAPSHOT</version>
 		<relativePath>../</relativePath>
 	</parent>
 
 	<artifactId>protocol-collection</artifactId>
-	<name>Netty Handlerstack :: Protocol Collection</name>
+	<name>Netty Protocols :: Protocol Collection</name>
 
 	<packaging>jar</packaging>
 
 	<dependencies>
 		<dependency>
-			<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
+			<groupId>de.uniluebeck.itm.netty-protocols</groupId>
 			<artifactId>contiki</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
+			<groupId>de.uniluebeck.itm.netty-protocols</groupId>
 			<artifactId>discard</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
+			<groupId>de.uniluebeck.itm.netty-protocols</groupId>
 			<artifactId>dlestxetx</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
+			<groupId>de.uniluebeck.itm.netty-protocols</groupId>
 			<artifactId>isense</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
+			<groupId>de.uniluebeck.itm.netty-protocols</groupId>
 			<artifactId>isense-packet</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
+			<groupId>de.uniluebeck.itm.netty-protocols</groupId>
 			<artifactId>isense-ishell-interpreter</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
+			<groupId>de.uniluebeck.itm.netty-protocols</groupId>
 			<artifactId>isense-otap</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
+			<groupId>de.uniluebeck.itm.netty-protocols</groupId>
 			<artifactId>isense-iseraerial</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
+			<groupId>de.uniluebeck.itm.netty-protocols</groupId>
 			<artifactId>logging-handler</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
+			<groupId>de.uniluebeck.itm.netty-protocols</groupId>
 			<artifactId>netty-included</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
+			<groupId>de.uniluebeck.itm.netty-protocols</groupId>
 			<artifactId>tinyos-hdlctranslate</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
+			<groupId>de.uniluebeck.itm.netty-protocols</groupId>
 			<artifactId>tinyos-serial</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>de.uniluebeck.itm.netty.handlerstack</groupId>
+			<groupId>de.uniluebeck.itm.netty-protocols</groupId>
 			<artifactId>tinyos</artifactId>
 		</dependency>
 	</dependencies>
