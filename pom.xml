@@ -15,9 +15,6 @@
 
 		<module>factory</module>
 		<module>protocol-collection</module>
-		<module>otap-cli</module>
-		<module>filterpipeline</module>
-		<module>filterpipeline-cli</module>
 		<module>util</module>
 
 		<module>protocols/contiki</module>
@@ -131,11 +128,6 @@
 			<dependency>
 				<groupId>de.uniluebeck.itm.netty-protocols</groupId>
 				<artifactId>discard</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>de.uniluebeck.itm.netty-protocols</groupId>
-				<artifactId>filterpipeline</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 
