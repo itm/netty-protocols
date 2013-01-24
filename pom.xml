@@ -12,29 +12,7 @@
 	<packaging>pom</packaging>
 
 	<modules>
-
 		<module>factory</module>
-		<module>protocol-collection</module>
-		<module>util</module>
-
-		<module>protocols/contiki</module>
-		<module>protocols/dlestxetx</module>
-		<module>protocols/discard</module>
-		<module>protocols/isense</module>
-		<module>protocols/isense-packet</module>
-		<module>protocols/isense-otap</module>
-		<module>protocols/isense-ishell-interpreter</module>
-		<module>protocols/isense-iseraerial</module>
-		<module>protocols/netty-included</module>
-		<module>protocols/logging-handler</module>
-		<module>protocols/remote-uart-protocol</module>
-		<module>protocols/swap</module>
-		<module>protocols/tinyos-hdlctranslate</module>
-		<module>protocols/tinyos-serial</module>
-		<module>protocols/tinyos</module>
-		<module>protocols/tls-peer-verification</module>
-		<module>protocols/wisebed-node-api</module>
-
 	</modules>
 
 	<dependencyManagement>
@@ -43,91 +21,6 @@
 			<dependency>
 				<groupId>de.uniluebeck.itm.netty-protocols</groupId>
 				<artifactId>factory</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>de.uniluebeck.itm.netty-protocols</groupId>
-				<artifactId>contiki</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>de.uniluebeck.itm.netty-protocols</groupId>
-				<artifactId>isense</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>de.uniluebeck.itm.netty-protocols</groupId>
-				<artifactId>tinyos-hdlctranslate</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>de.uniluebeck.itm.netty-protocols</groupId>
-				<artifactId>tinyos-serial</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>de.uniluebeck.itm.netty-protocols</groupId>
-				<artifactId>tinyos</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>de.uniluebeck.itm.netty-protocols</groupId>
-				<artifactId>util</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>de.uniluebeck.itm.netty-protocols</groupId>
-				<artifactId>dlestxetx</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>de.uniluebeck.itm.netty-protocols</groupId>
-				<artifactId>isense-packet</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>de.uniluebeck.itm.netty-protocols</groupId>
-				<artifactId>protocol-collection</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>de.uniluebeck.itm.netty-protocols</groupId>
-				<artifactId>remote-uart-protocol</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>de.uniluebeck.itm.netty-protocols</groupId>
-				<artifactId>isense-iseraerial</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>de.uniluebeck.itm.netty-protocols</groupId>
-				<artifactId>logging-handler</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>de.uniluebeck.itm.netty-protocols</groupId>
-				<artifactId>isense-otap</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>de.uniluebeck.itm.netty-protocols</groupId>
-				<artifactId>isense-ishell-interpreter</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>de.uniluebeck.itm.netty-protocols</groupId>
-				<artifactId>tls-peer-verification</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>de.uniluebeck.itm.netty-protocols</groupId>
-				<artifactId>netty-included</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>de.uniluebeck.itm.netty-protocols</groupId>
-				<artifactId>discard</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 
@@ -215,26 +108,6 @@
 	</dependencyManagement>
 
 	<build>
-		<pluginManagement>
-			<plugins>
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-checkstyle-plugin</artifactId>
-					<version>2.6</version>
-					<dependencies>
-						<dependency>
-							<groupId>de.uniluebeck.itm</groupId>
-							<artifactId>itm-build-tools</artifactId>
-							<version>1.0</version>
-						</dependency>
-					</dependencies>
-					<configuration>
-						<configLocation>itm_checks.xml</configLocation>
-						<enableRulesSummary>false</enableRulesSummary>
-					</configuration>
-				</plugin>
-			</plugins>
-		</pluginManagement>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -279,30 +152,7 @@
 		</plugins>
 	</build>
 
-	<reporting>
-		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-checkstyle-plugin</artifactId>
-				<version>2.6</version>
-			</plugin>
-		</plugins>
-	</reporting>
-
 	<repositories>
-
-		<repository>
-			<id>google-maven-repository</id>
-			<name>Google Maven Repository</name>
-			<url>http://google-maven-repository.googlecode.com/svn/repository/</url>
-			<releases>
-				<enabled>true</enabled>
-			</releases>
-			<snapshots>
-				<enabled>false</enabled>
-			</snapshots>
-		</repository>
-
 		<repository>
 			<id>itm-maven-repository-releases</id>
 			<url>http://www.itm.uni-luebeck.de/projects/maven/releases/</url>
@@ -313,7 +163,6 @@
 				<enabled>false</enabled>
 			</snapshots>
 		</repository>
-
 		<repository>
 			<id>itm-maven-repository-snapshots</id>
 			<url>http://www.itm.uni-luebeck.de/projects/maven/snapshots/</url>
@@ -324,41 +173,7 @@
 				<enabled>true</enabled>
 			</snapshots>
 		</repository>
-
-		<repository>
-			<id>repository.tu-bs.de</id>
-			<url>http://www.ibr.cs.tu-bs.de/maven/</url>
-			<snapshots>
-				<enabled>true</enabled>
-			</snapshots>
-			<layout>default</layout>
-		</repository>
-
-		<repository>
-			<id>repository.jboss.org</id>
-			<url>http://repository.jboss.org/nexus/content/groups/public/</url>
-			<snapshots>
-				<enabled>false</enabled>
-			</snapshots>
-		</repository>
-
-		<repository>
-			<id>maven2-repository.dev.java.net</id>
-			<name>Java.net Repository for Maven 2</name>
-			<url>http://download.java.net/maven/2/</url>
-		</repository>
-
 	</repositories>
-
-	<pluginRepositories>
-
-		<pluginRepository>
-			<id>itm-maven-plugin-repository-releases</id>
-			<url>http://www.itm.uni-luebeck.de/projects/maven/releases/</url>
-		</pluginRepository>
-
-	</pluginRepositories>
-
 
 	<distributionManagement>
 		<repository>
