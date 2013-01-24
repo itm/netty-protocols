@@ -6,24 +6,12 @@
 
 	<name>Netty Protocols :: Parent</name>
 	<groupId>de.uniluebeck.itm.netty-protocols</groupId>
-	<artifactId>netty-protocols-parent</artifactId>
+	<artifactId>netty-protocols</artifactId>
 	<version>1.7-SNAPSHOT</version>
 
-	<packaging>pom</packaging>
+	<packaging>jar</packaging>
 
-	<modules>
-		<module>factory</module>
-	</modules>
-
-	<dependencyManagement>
 		<dependencies>
-
-			<dependency>
-				<groupId>de.uniluebeck.itm.netty-protocols</groupId>
-				<artifactId>factory</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-
 			<dependency>
 				<groupId>de.uniluebeck.itm</groupId>
 				<artifactId>wsn-device-drivers-factories</artifactId>
@@ -44,7 +32,6 @@
 				<artifactId>ieee-802.15.4-aes</artifactId>
 				<version>0.4</version>
 			</dependency>
-
 			<dependency>
 				<groupId>org.slf4j</groupId>
 				<artifactId>slf4j-api</artifactId>
@@ -90,7 +77,6 @@
 				<artifactId>jsr305</artifactId>
 				<version>1.3.9</version>
 			</dependency>
-
 			<dependency>
 				<groupId>junit</groupId>
 				<artifactId>junit</artifactId>
@@ -103,9 +89,7 @@
 				<version>1.9.0</version>
 				<scope>test</scope>
 			</dependency>
-
 		</dependencies>
-	</dependencyManagement>
 
 	<build>
 		<plugins>
