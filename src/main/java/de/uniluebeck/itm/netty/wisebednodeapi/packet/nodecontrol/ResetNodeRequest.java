@@ -11,6 +11,7 @@ import de.uniluebeck.itm.netty.wisebednodeapi.packet.Request;
  * To change this template use File | Settings | File Templates.
  */
 public class ResetNodeRequest extends Request {
+
 	private final short time;
 
 	public ResetNodeRequest(final byte requestID, final byte[] payload, final short time) {

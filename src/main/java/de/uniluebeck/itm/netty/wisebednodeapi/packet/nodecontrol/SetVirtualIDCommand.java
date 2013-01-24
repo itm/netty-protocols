@@ -13,14 +13,16 @@ import org.jboss.netty.buffer.ChannelBuffers;
  * To change this template use File | Settings | File Templates.
  */
 public class SetVirtualIDCommand extends Command {
+
 	private ChannelBuffer buffer;
+
 	public SetVirtualIDCommand(byte requestID, ChannelBuffer payload, long virtualNodeId) {
 		super(CommandType.NodeControl.SET_VIRTUAL_ID, requestID, payload);
 		this.buffer = ChannelBuffers.buffer(8);
 		this.buffer.writeLong(virtualNodeId);
 	}
 
-	public long getVirtualNodeId(){
+	public long getVirtualNodeId() {
 		return this.buffer.getLong(0);
 	}
 

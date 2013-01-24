@@ -10,11 +10,12 @@ import de.uniluebeck.itm.netty.wisebednodeapi.packet.Response;
  * To change this template use File | Settings | File Templates.
  */
 public class SetStartTimeResponse extends Response {
+
 	public SetStartTimeResponse(final SetStartTimeRequest request) {
 		super(request);
 	}
 
-	public short getTime(){
+	public short getTime() {
 		return ((SetStartTimeRequest) request).getTime();
 	}
 }

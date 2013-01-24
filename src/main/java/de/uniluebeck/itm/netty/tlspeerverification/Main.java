@@ -28,126 +28,143 @@ import java.util.concurrent.Executors;
 
 public class Main {
 
-    static class PipelineFactory implements ChannelPipelineFactory {
-        private final boolean clientMode;
-        public char[] certificatePassword;
-        public TlsPeerVerificationKeyStore keyStore;
+	static class PipelineFactory implements ChannelPipelineFactory {
 
-        public PipelineFactory(boolean clientMode, char[] certificatePassword, TlsPeerVerificationKeyStore keyStore) {
-            super();
-            this.clientMode = clientMode;
-            this.certificatePassword = certificatePassword;
-            this.keyStore = keyStore;
-        }
+		private final boolean clientMode;
 
-        @Override
-        public ChannelPipeline getPipeline() throws Exception {
-            ChannelPipeline pipeline = Channels.pipeline();
+		public char[] certificatePassword;
 
-            // Add SSL handler first to encrypt and decrypt everything.
-            SSLEngine engine =
-                    TlsPeerVerificationSslContextFactory.getContext(keyStore, certificatePassword, clientMode)
-                            .createSSLEngine();
+		public TlsPeerVerificationKeyStore keyStore;
 
-            SSLContext sslContext = SSLContext.getInstance("TLS");
-            sslContext.init(null, new TrustManager[] { new X509TrustManager() {
-                @Override
-                public X509Certificate[] getAcceptedIssuers() {
-                    return new X509Certificate[0];
-                }
+		public PipelineFactory(boolean clientMode, char[] certificatePassword, TlsPeerVerificationKeyStore keyStore) {
+			super();
+			this.clientMode = clientMode;
+			this.certificatePassword = certificatePassword;
+			this.keyStore = keyStore;
+		}
 
-                @Override
-                public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException {
-                    // Always trust - it is an example.
-                    // You should do something in the real world.
-                    // You will reach here only if you enabled client certificate auth,
-                    // as described in SecureChatSslContextFactory.
-                    System.err.println("UNKNOWN CLIENT CERTIFICATE: " + chain[0].getSubjectDN());
-                }
+		@Override
+		public ChannelPipeline getPipeline() throws Exception {
+			ChannelPipeline pipeline = Channels.pipeline();
 
-                @Override
-                public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {
-                    // Always trust - it is an example.
-                    // You should do something in the real world.
-                    System.err.println("UNKNOWN SERVER CERTIFICATE: " + chain[0].getSubjectDN());
-                }
-            } }, null);
+			// Add SSL handler first to encrypt and decrypt everything.
+			SSLEngine engine =
+					TlsPeerVerificationSslContextFactory.getContext(keyStore, certificatePassword, clientMode)
+							.createSSLEngine();
 
-            engine.setUseClientMode(clientMode);
+			SSLContext sslContext = SSLContext.getInstance("TLS");
+			sslContext.init(null, new TrustManager[]{
+					new X509TrustManager() {
+						@Override
+						public X509Certificate[] getAcceptedIssuers() {
+							return new X509Certificate[0];
+						}
 
-            pipeline.addLast("ssl", new SslHandler(engine));
-            pipeline.addLast("tls-peer-verification", new TlsPeerVerificationHandler());
+						@Override
+						public void checkClientTrusted(X509Certificate[] chain, String authType)
+								throws CertificateException {
+							// Always trust - it is an example.
+							// You should do something in the real world.
+							// You will reach here only if you enabled client certificate auth,
+							// as described in SecureChatSslContextFactory.
+							System.err.println("UNKNOWN CLIENT CERTIFICATE: " + chain[0].getSubjectDN());
+						}
 
-            // On top of the SSL handler, add the text line codec.
-            pipeline.addLast("framer", new DelimiterBasedFrameDecoder(8192, Delimiters.lineDelimiter()));
-            pipeline.addLast("decoder", new StringDecoder());
-            pipeline.addLast("encoder", new StringEncoder());
+						@Override
+						public void checkServerTrusted(X509Certificate[] chain, String authType)
+								throws CertificateException {
+							// Always trust - it is an example.
+							// You should do something in the real world.
+							System.err.println("UNKNOWN SERVER CERTIFICATE: " + chain[0].getSubjectDN());
+						}
+					}
+			}, null
+			);
 
-            pipeline.addLast("handler", new LoggingHandler("logger"));
+			engine.setUseClientMode(clientMode);
 
-            return pipeline;
-        }
+			pipeline.addLast("ssl", new SslHandler(engine));
+			pipeline.addLast("tls-peer-verification", new TlsPeerVerificationHandler());
 
-    }
+			// On top of the SSL handler, add the text line codec.
+			pipeline.addLast("framer", new DelimiterBasedFrameDecoder(8192, Delimiters.lineDelimiter()));
+			pipeline.addLast("decoder", new StringDecoder());
+			pipeline.addLast("encoder", new StringEncoder());
 
-    public static void startServer(ServerBootstrap serverBootstrap, int port) {
-        serverBootstrap.bind(new InetSocketAddress(port));
-    }
+			pipeline.addLast("handler", new LoggingHandler("logger"));
 
-    public static Channel startClient(ClientBootstrap clientBootstrap, String host, int port) {
-        ChannelFuture future = clientBootstrap.connect(new InetSocketAddress(host, port));
-        return future.awaitUninterruptibly().getChannel();
-    }
+			return pipeline;
+		}
 
-    private static void configureLoggingDefaults() {
-        PatternLayout patternLayout = new PatternLayout("%-13d{HH:mm:ss,SSS} | %-25.25c{2} | %-5p | %m%n");
+	}
 
-        final Appender appender = new ConsoleAppender(patternLayout);
-        Logger.getRootLogger().removeAllAppenders();
-        Logger.getRootLogger().addAppender(appender);
-        Logger.getRootLogger().setLevel(Level.DEBUG);
-    }
+	public static void startServer(ServerBootstrap serverBootstrap, int port) {
+		serverBootstrap.bind(new InetSocketAddress(port));
+	}
 
-    /**
-     * @param args
-     * @throws Exception
-     * @throws CertificateException
-     */
-    public static void main(String[] args) throws CertificateException, Exception {
-        configureLoggingDefaults();
-        ChannelGroup allChannels = new DefaultChannelGroup();
+	public static Channel startClient(ClientBootstrap clientBootstrap, String host, int port) {
+		ChannelFuture future = clientBootstrap.connect(new InetSocketAddress(host, port));
+		return future.awaitUninterruptibly().getChannel();
+	}
 
-        ClientBootstrap clientBootstrap =
-                new ClientBootstrap(new NioClientSocketChannelFactory(Executors.newCachedThreadPool(),
-                        Executors.newCachedThreadPool()));
+	private static void configureLoggingDefaults() {
+		PatternLayout patternLayout = new PatternLayout("%-13d{HH:mm:ss,SSS} | %-25.25c{2} | %-5p | %m%n");
 
-        clientBootstrap.setPipelineFactory(new PipelineFactory(true, "secret".toCharArray(), null));
+		final Appender appender = new ConsoleAppender(patternLayout);
+		Logger.getRootLogger().removeAllAppenders();
+		Logger.getRootLogger().addAppender(appender);
+		Logger.getRootLogger().setLevel(Level.DEBUG);
+	}
 
-        ServerBootstrap serverBootstrap =
-                new ServerBootstrap(new NioServerSocketChannelFactory(Executors.newCachedThreadPool(),
-                        Executors.newCachedThreadPool()));
+	/**
+	 * @param args
+	 *
+	 * @throws Exception
+	 * @throws CertificateException
+	 */
+	public static void main(String[] args) throws CertificateException, Exception {
+		configureLoggingDefaults();
+		ChannelGroup allChannels = new DefaultChannelGroup();
 
-        serverBootstrap.setPipelineFactory(new PipelineFactory(false, "secret".toCharArray(), null));
+		ClientBootstrap clientBootstrap =
+				new ClientBootstrap(new NioClientSocketChannelFactory(Executors.newCachedThreadPool(),
+						Executors.newCachedThreadPool()
+				)
+				);
 
-        int serverPorts[] = new int[] { 9999 };
+		clientBootstrap.setPipelineFactory(new PipelineFactory(true, "secret".toCharArray(), null));
 
-        // if ("server".equals(args[0]))
-        for (int port : serverPorts)
-            startServer(serverBootstrap, port);
+		ServerBootstrap serverBootstrap =
+				new ServerBootstrap(new NioServerSocketChannelFactory(Executors.newCachedThreadPool(),
+						Executors.newCachedThreadPool()
+				)
+				);
 
-        // if ("client".equals(args[0]))
-        for (int port : serverPorts)
-            allChannels.add(startClient(clientBootstrap, "localhost", port));
+		serverBootstrap.setPipelineFactory(new PipelineFactory(false, "secret".toCharArray(), null));
 
-        // Read commands from the stdin.
-        for (BufferedReader in = new BufferedReader(new InputStreamReader(System.in)); !"exit".equals(in.readLine());)
-            System.out.println("Please enter exit to quit.");
+		int serverPorts[] = new int[]{9999};
 
-        // Shut down all thread pools to exit.
-        System.out.println("Shuting down.");
-        allChannels.close().awaitUninterruptibly();
-        serverBootstrap.releaseExternalResources();
-        clientBootstrap.releaseExternalResources();
-        System.exit(1);
-    }
+		// if ("server".equals(args[0]))
+		for (int port : serverPorts) {
+			startServer(serverBootstrap, port);
+		}
+
+		// if ("client".equals(args[0]))
+		for (int port : serverPorts) {
+			allChannels.add(startClient(clientBootstrap, "localhost", port));
+		}
+
+		// Read commands from the stdin.
+		for (BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+			 !"exit".equals(in.readLine()); ) {
+			System.out.println("Please enter exit to quit.");
+		}
+
+		// Shut down all thread pools to exit.
+		System.out.println("Shuting down.");
+		allChannels.close().awaitUninterruptibly();
+		serverBootstrap.releaseExternalResources();
+		clientBootstrap.releaseExternalResources();
+		System.exit(1);
+	}
 }

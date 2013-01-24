@@ -61,9 +61,9 @@ public class ISensePacketEncoderFactory implements HandlerFactory {
 				+ "https://github.com/itm/netty-handlerstack/wiki/ISense-Framing-Decoder-Encoder.";
 	}
 
-    @Override
-    public String getName() {
-        return "isense-packet-encoder";
-    }
+	@Override
+	public String getName() {
+		return "isense-packet-encoder";
+	}
 
 }

@@ -12,6 +12,7 @@ import org.jboss.netty.buffer.ChannelBuffer;
  * To change this template use File | Settings | File Templates.
  */
 public class DestroyVirtualLinkCommandResponse extends CommandResponse {
+
 	public DestroyVirtualLinkCommandResponse(byte requestID, byte result, ChannelBuffer payload) {
 		super(CommandType.LinkControl.DESTROY_VIRTUAL_LINK, requestID, result, payload);
 	}

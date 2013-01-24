@@ -11,6 +11,7 @@ import de.uniluebeck.itm.netty.wisebednodeapi.packet.Request;
  * To change this template use File | Settings | File Templates.
  */
 public class GetPropertyValueRequest extends Request {
+
 	private final byte property;
 
 	public GetPropertyValueRequest(final byte requestID, final byte[] payload, final byte property) {

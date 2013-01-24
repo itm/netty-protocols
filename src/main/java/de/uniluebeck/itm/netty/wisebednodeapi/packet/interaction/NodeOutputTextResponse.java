@@ -10,11 +10,12 @@ import de.uniluebeck.itm.netty.wisebednodeapi.packet.Response;
  * To change this template use File | Settings | File Templates.
  */
 public class NodeOutputTextResponse extends Response {
+
 	public NodeOutputTextResponse(final NodeOutputTextRequest request) {
 		super(request);
 	}
 
-	public byte getMessageLevel(){
+	public byte getMessageLevel() {
 		return ((NodeOutputTextRequest) request).getMessageLevel();
 	}
 }

@@ -11,21 +11,21 @@ import org.jboss.netty.channel.ChannelHandlerContext;
  * used in a downstream filter pipeline which receives programming requests. The serialized object must contain the
  * String {@link this#header} and then immediately afterwards the XML-serialized object (using
  * {@link java.beans.XMLEncoder}).
- * 
  */
 public class ISenseOtapAutomatedProgrammingRequestDownstreamDecoder extends OneToOneDownstreamDecoder {
 
-    @Override
-    protected Object decode(ChannelHandlerContext ctx, Channel channel, Object msg) throws Exception {
+	@Override
+	protected Object decode(ChannelHandlerContext ctx, Channel channel, Object msg) throws Exception {
 
-        if (!(msg instanceof ChannelBuffer))
-            return msg;
+		if (!(msg instanceof ChannelBuffer)) {
+			return msg;
+		}
 
-        ISenseOtapAutomatedProgrammingRequest result =
-                HeaderAndJavaBeansXMLDecoderEncoder.decode(ISenseOtapAutomatedProgrammingRequest.SERIALIZATION_HEADER,
+		ISenseOtapAutomatedProgrammingRequest result =
+				HeaderAndJavaBeansXMLDecoderEncoder.decode(ISenseOtapAutomatedProgrammingRequest.SERIALIZATION_HEADER,
 						ISenseOtapAutomatedProgrammingRequest.class, (ChannelBuffer) msg
 				);
-        
-        return result != null ? result : msg;
-    }
+
+		return result != null ? result : msg;
+	}
 }

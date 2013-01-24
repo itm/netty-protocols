@@ -11,6 +11,7 @@ import de.uniluebeck.itm.netty.wisebednodeapi.packet.Request;
  * To change this template use File | Settings | File Templates.
  */
 public class SetVirtualIDRequest extends Request {
+
 	private final long virtualNodeId;
 
 	public SetVirtualIDRequest(final byte requestID, final byte[] payload, final long virtualNodeId) {

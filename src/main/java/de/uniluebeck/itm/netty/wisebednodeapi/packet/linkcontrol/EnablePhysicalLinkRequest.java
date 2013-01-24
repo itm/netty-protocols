@@ -11,6 +11,7 @@ import de.uniluebeck.itm.netty.wisebednodeapi.packet.Request;
  * To change this template use File | Settings | File Templates.
  */
 public class EnablePhysicalLinkRequest extends Request {
+
 	private final long nodeB;
 
 	public EnablePhysicalLinkRequest(final byte requestID, final byte[] payload, final long nodeB) {

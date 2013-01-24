@@ -8,17 +8,18 @@ import org.jboss.netty.handler.codec.oneone.OneToOneDecoder;
 
 public class ISenseOtapProgramResultUpstreamDecoder extends OneToOneDecoder {
 
-    @Override
-    protected Object decode(ChannelHandlerContext ctx, Channel channel, Object msg) throws Exception {
-        if (!(msg instanceof ChannelBuffer))
-            return msg;
+	@Override
+	protected Object decode(ChannelHandlerContext ctx, Channel channel, Object msg) throws Exception {
+		if (!(msg instanceof ChannelBuffer)) {
+			return msg;
+		}
 
-        ISenseOtapProgramResult result =
-                HeaderAndJavaBeansXMLDecoderEncoder.decode(ISenseOtapProgramResult.SERIALIZATION_HEADER,
+		ISenseOtapProgramResult result =
+				HeaderAndJavaBeansXMLDecoderEncoder.decode(ISenseOtapProgramResult.SERIALIZATION_HEADER,
 						ISenseOtapProgramResult.class, (ChannelBuffer) msg
 				);
 
-        return result != null ? result : msg;
-    }
+		return result != null ? result : msg;
+	}
 
 }

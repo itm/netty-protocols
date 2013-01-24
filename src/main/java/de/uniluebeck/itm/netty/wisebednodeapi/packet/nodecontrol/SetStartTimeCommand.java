@@ -13,14 +13,16 @@ import org.jboss.netty.buffer.ChannelBuffers;
  * To change this template use File | Settings | File Templates.
  */
 public class SetStartTimeCommand extends Command {
+
 	private ChannelBuffer buffer;
+
 	public SetStartTimeCommand(byte requestID, ChannelBuffer payload, short time) {
 		super(CommandType.NodeControl.SET_START_TIME, requestID, payload);
 		this.buffer = ChannelBuffers.buffer(2);
 		this.buffer.writeShort(time);
 	}
 
-	public short getTime(){
+	public short getTime() {
 		return this.buffer.getShort(0);
 	}
 

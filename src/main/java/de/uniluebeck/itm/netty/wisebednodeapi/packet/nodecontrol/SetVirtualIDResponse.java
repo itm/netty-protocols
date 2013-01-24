@@ -10,11 +10,12 @@ import de.uniluebeck.itm.netty.wisebednodeapi.packet.Response;
  * To change this template use File | Settings | File Templates.
  */
 public class SetVirtualIDResponse extends Response {
+
 	public SetVirtualIDResponse(final SetVirtualIDRequest request) {
 		super(request);
 	}
 
-	public long getVirtualNodeId(){
+	public long getVirtualNodeId() {
 		return ((SetVirtualIDRequest) request).getVirtualNodeId();
 	}
 }

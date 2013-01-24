@@ -9,7 +9,8 @@ public abstract class ChannelBufferTools {
 	/**
 	 * Uses {@link ChannelBuffer#getBytes(int, byte[], int, int)} to copy the buffers contents to a byte array.
 	 *
-	 * @param buffer the buffer to copy from
+	 * @param buffer
+	 * 		the buffer to copy from
 	 *
 	 * @return a new byte array instance
 	 */
@@ -22,7 +23,8 @@ public abstract class ChannelBufferTools {
 	/**
 	 * Uses {@link ChannelBuffer#readBytes(byte[])} to copy the buffers contents to a byte array.
 	 *
-	 * @param buffer the buffer to copy from
+	 * @param buffer
+	 * 		the buffer to copy from
 	 *
 	 * @return a new byte array instance
 	 */
@@ -35,7 +37,8 @@ public abstract class ChannelBufferTools {
 	/**
 	 * Same as calling {@code toPrintableString(buffer, Integer.MAX_VALUE)}.
 	 *
-	 * @param buffer the buffer to convert
+	 * @param buffer
+	 * 		the buffer to convert
 	 *
 	 * @return a printable String
 	 */
@@ -47,8 +50,10 @@ public abstract class ChannelBufferTools {
 	 * Returns a printable (ASCII) String by constructing a new String of maximum length {@code maxLength} and calling
 	 * {@link StringUtils#replaceNonPrintableAsciiCharacters(String)} on it.
 	 *
-	 * @param buffer	the buffer to convert
-	 * @param maxLength the maximum length of the input String for {@link StringUtils#replaceNonPrintableAsciiCharacters(String)}
+	 * @param buffer
+	 * 		the buffer to convert
+	 * @param maxLength
+	 * 		the maximum length of the input String for {@link StringUtils#replaceNonPrintableAsciiCharacters(String)}
 	 *
 	 * @return a printable String
 	 */

@@ -22,7 +22,10 @@
  */
 package de.uniluebeck.itm.netty.isense.otap;
 
+import com.coalesenses.tools.iSenseAes;
+import com.coalesenses.tools.iSenseAes128BitKey;
 import de.uniluebeck.itm.netty.isense.iseraerial.ISerAerialOutgoingPacket;
+import de.uniluebeck.itm.netty.isense.otap.generatedmessages.*;
 import de.uniluebeck.itm.netty.util.HandlerTools;
 import org.jboss.netty.buffer.ChannelBuffers;
 import org.jboss.netty.channel.ChannelHandlerContext;
@@ -31,91 +34,83 @@ import org.jboss.netty.channel.SimpleChannelDownstreamHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.coalesenses.tools.iSenseAes;
-import com.coalesenses.tools.iSenseAes128BitKey;
-
-import de.uniluebeck.itm.netty.isense.otap.generatedmessages.MacroFabricSerializer;
-import de.uniluebeck.itm.netty.isense.otap.generatedmessages.OtapInitReply;
-import de.uniluebeck.itm.netty.isense.otap.generatedmessages.OtapInitRequest;
-import de.uniluebeck.itm.netty.isense.otap.generatedmessages.OtapProgramReply;
-import de.uniluebeck.itm.netty.isense.otap.generatedmessages.OtapProgramRequest;
-import de.uniluebeck.itm.netty.isense.otap.generatedmessages.PresenceDetectReply;
-import de.uniluebeck.itm.netty.isense.otap.generatedmessages.PresenceDetectRequest;
-
 public class ISenseOtapPacketEncoder extends SimpleChannelDownstreamHandler {
 
-    private final Logger log;
+	private final Logger log;
 
-    private iSenseAes aes = null;
+	private iSenseAes aes = null;
 
-    public ISenseOtapPacketEncoder() {
-        this(null);
-    }
+	public ISenseOtapPacketEncoder() {
+		this(null);
+	}
 
-    public ISenseOtapPacketEncoder(String instanceName) {
-        log = LoggerFactory.getLogger(instanceName != null ? instanceName : ISenseOtapPacketEncoder.class.getName());
-    }
+	public ISenseOtapPacketEncoder(String instanceName) {
+		log = LoggerFactory.getLogger(instanceName != null ? instanceName : ISenseOtapPacketEncoder.class.getName());
+	}
 
-    private byte[] computeCrc(byte[] payload) {
-        byte crc[] = { (byte) 0xAA, (byte) 0xAA, (byte) 0xAA, (byte) 0xAA };
+	private byte[] computeCrc(byte[] payload) {
+		byte crc[] = {(byte) 0xAA, (byte) 0xAA, (byte) 0xAA, (byte) 0xAA};
 
-        for (int i = 0; i < payload.length; i++)
-            crc[i % 4] = (byte) (0xFF & (crc[i % 4] ^ payload[i]));
+		for (int i = 0; i < payload.length; i++) {
+			crc[i % 4] = (byte) (0xFF & (crc[i % 4] ^ payload[i]));
+		}
 
-        return crc;
-    }
+		return crc;
+	}
 
-    @Override
-    public void writeRequested(ChannelHandlerContext ctx, MessageEvent e) throws Exception {
-        Object msg = e.getMessage();
+	@Override
+	public void writeRequested(ChannelHandlerContext ctx, MessageEvent e) throws Exception {
+		Object msg = e.getMessage();
 
-        if (msg instanceof ISenseOtapPacketEncoderSetAESKeyRequest) {
+		if (msg instanceof ISenseOtapPacketEncoderSetAESKeyRequest) {
 
-            iSenseAes128BitKey key = ((ISenseOtapPacketEncoderSetAESKeyRequest) msg).getKey();
+			iSenseAes128BitKey key = ((ISenseOtapPacketEncoderSetAESKeyRequest) msg).getKey();
 
-            if (key != null) {
-                log.info("Encrypting payload of otap packets");
-                this.aes = new iSenseAes(key);
-            } else {
-                log.info("Disabled otap payload encryption");
-                this.aes = null;
-            }
+			if (key != null) {
+				log.info("Encrypting payload of otap packets");
+				this.aes = new iSenseAes(key);
+			} else {
+				log.info("Disabled otap payload encryption");
+				this.aes = null;
+			}
 
-            return;
-        }
+			return;
+		}
 
-        byte[] bytes = null;
+		byte[] bytes = null;
 
-        if (msg instanceof OtapInitReply)
-            bytes = MacroFabricSerializer.serialize((OtapInitReply) msg);
-        else if (msg instanceof OtapInitRequest)
-            bytes = MacroFabricSerializer.serialize((OtapInitRequest) msg);
-        else if (msg instanceof OtapProgramReply)
-            bytes = MacroFabricSerializer.serialize((OtapProgramReply) msg);
-        else if (msg instanceof OtapProgramRequest)
-            bytes = MacroFabricSerializer.serialize((OtapProgramRequest) msg);
-        else if (msg instanceof PresenceDetectRequest)
-            bytes = MacroFabricSerializer.serialize((PresenceDetectRequest) msg);
-        else if (msg instanceof PresenceDetectReply)
-            bytes = MacroFabricSerializer.serialize((PresenceDetectReply) msg);
+		if (msg instanceof OtapInitReply) {
+			bytes = MacroFabricSerializer.serialize((OtapInitReply) msg);
+		} else if (msg instanceof OtapInitRequest) {
+			bytes = MacroFabricSerializer.serialize((OtapInitRequest) msg);
+		} else if (msg instanceof OtapProgramReply) {
+			bytes = MacroFabricSerializer.serialize((OtapProgramReply) msg);
+		} else if (msg instanceof OtapProgramRequest) {
+			bytes = MacroFabricSerializer.serialize((OtapProgramRequest) msg);
+		} else if (msg instanceof PresenceDetectRequest) {
+			bytes = MacroFabricSerializer.serialize((PresenceDetectRequest) msg);
+		} else if (msg instanceof PresenceDetectReply) {
+			bytes = MacroFabricSerializer.serialize((PresenceDetectReply) msg);
+		}
 
-        if (bytes != null) {
+		if (bytes != null) {
 
-            if (aes != null) {
-                log.trace(("Encrypted otap payload wit AES"));
-                bytes = aes.encodeWithRandomNonce(bytes);
-            }
+			if (aes != null) {
+				log.trace(("Encrypted otap payload wit AES"));
+				bytes = aes.encodeWithRandomNonce(bytes);
+			}
 
-            ISerAerialOutgoingPacket iSerAerialPacket =
-                    new ISerAerialOutgoingPacket(ISerAerialOutgoingPacket.BROADCAST_ADDRESS_16_BIT, (byte) 0x0,
-                            ChannelBuffers.wrappedBuffer(bytes, computeCrc(bytes)));
+			ISerAerialOutgoingPacket iSerAerialPacket =
+					new ISerAerialOutgoingPacket(ISerAerialOutgoingPacket.BROADCAST_ADDRESS_16_BIT, (byte) 0x0,
+							ChannelBuffers.wrappedBuffer(bytes, computeCrc(bytes))
+					);
 
-            log.trace("Encoded {} otap packet with crc: {}", msg.getClass().getSimpleName(), iSerAerialPacket);
+			log.trace("Encoded {} otap packet with crc: {}", msg.getClass().getSimpleName(), iSerAerialPacket);
 
-            HandlerTools.sendDownstream(iSerAerialPacket, ctx);
-        } else {
-            super.writeRequested(ctx, e);
-        }
+			HandlerTools.sendDownstream(iSerAerialPacket, ctx);
+		} else {
+			super.writeRequested(ctx, e);
+		}
 
-    }
+	}
 }

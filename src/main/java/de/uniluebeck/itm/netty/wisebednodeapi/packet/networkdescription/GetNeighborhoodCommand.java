@@ -12,6 +12,7 @@ import org.jboss.netty.buffer.ChannelBuffer;
  * To change this template use File | Settings | File Templates.
  */
 public class GetNeighborhoodCommand extends Command {
+
 	public GetNeighborhoodCommand(byte requestID, ChannelBuffer payload) {
 		super(CommandType.NetworkDescription.GET_NEIGHBORHOOD, requestID, payload);
 	}

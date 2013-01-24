@@ -10,6 +10,7 @@ import de.uniluebeck.itm.netty.wisebednodeapi.packet.Response;
  * To change this template use File | Settings | File Templates.
  */
 public class DestroyVirtualLinkResponse extends Response {
+
 	public DestroyVirtualLinkResponse(final DestroyVirtualLinkRequest request) {
 		super(request);
 	}

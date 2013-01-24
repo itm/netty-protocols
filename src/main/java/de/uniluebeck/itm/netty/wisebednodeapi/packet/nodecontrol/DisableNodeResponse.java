@@ -10,6 +10,7 @@ import de.uniluebeck.itm.netty.wisebednodeapi.packet.Response;
  * To change this template use File | Settings | File Templates.
  */
 public class DisableNodeResponse extends Response {
+
 	public DisableNodeResponse(final DisableNodeRequest request) {
 		super(request);
 	}

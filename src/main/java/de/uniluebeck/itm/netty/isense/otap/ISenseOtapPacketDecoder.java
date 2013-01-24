@@ -22,6 +22,11 @@
  */
 package de.uniluebeck.itm.netty.isense.otap;
 
+import com.coalesenses.tools.iSenseAes;
+import com.coalesenses.tools.iSenseAes128BitKey;
+import de.uniluebeck.itm.netty.isense.iseraerial.ISerAerialIncomingPacket;
+import de.uniluebeck.itm.netty.isense.otap.generatedmessages.MacroFabricSerializer;
+import de.uniluebeck.itm.netty.util.HandlerTools;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.MessageEvent;
@@ -29,94 +34,88 @@ import org.jboss.netty.channel.SimpleChannelHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.coalesenses.tools.iSenseAes;
-import com.coalesenses.tools.iSenseAes128BitKey;
-
-import de.uniluebeck.itm.netty.isense.otap.generatedmessages.MacroFabricSerializer;
-import de.uniluebeck.itm.netty.isense.iseraerial.ISerAerialIncomingPacket;
-import de.uniluebeck.itm.netty.util.HandlerTools;
-
 public class ISenseOtapPacketDecoder extends SimpleChannelHandler {
-    private final Logger log;
 
-    private iSenseAes aes = null;
+	private final Logger log;
 
-    public ISenseOtapPacketDecoder() {
-        this(null);
-    }
+	private iSenseAes aes = null;
 
-    public ISenseOtapPacketDecoder(String instanceName) {
-        log = LoggerFactory.getLogger(instanceName != null ? instanceName : ISenseOtapPacketDecoder.class.getName());
-        log.debug("New instance");
-    }
+	public ISenseOtapPacketDecoder() {
+		this(null);
+	}
 
-    @Override
-    public void writeRequested(ChannelHandlerContext ctx, MessageEvent e) throws Exception {
-        Object msg = e.getMessage();
+	public ISenseOtapPacketDecoder(String instanceName) {
+		log = LoggerFactory.getLogger(instanceName != null ? instanceName : ISenseOtapPacketDecoder.class.getName());
+		log.debug("New instance");
+	}
 
-        if (msg instanceof ISenseOtapPacketDecoderSetAESKeyRequest) {
-            iSenseAes128BitKey key = ((ISenseOtapPacketDecoderSetAESKeyRequest) msg).getKey();
-            if (key != null) {
-                log.info("Decrypting payload of otap packets");
-                this.aes = new iSenseAes(key);
-            } else {
-                log.info("Disabled otap payload encryption");
-                this.aes = null;
-            }
-        } else {
-            super.writeRequested(ctx, e);
-        }
+	@Override
+	public void writeRequested(ChannelHandlerContext ctx, MessageEvent e) throws Exception {
+		Object msg = e.getMessage();
 
-    }
+		if (msg instanceof ISenseOtapPacketDecoderSetAESKeyRequest) {
+			iSenseAes128BitKey key = ((ISenseOtapPacketDecoderSetAESKeyRequest) msg).getKey();
+			if (key != null) {
+				log.info("Decrypting payload of otap packets");
+				this.aes = new iSenseAes(key);
+			} else {
+				log.info("Disabled otap payload encryption");
+				this.aes = null;
+			}
+		} else {
+			super.writeRequested(ctx, e);
+		}
 
-    @Override
-    public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) throws Exception {
-        Object msg = e.getMessage();
-        if (!(msg instanceof ISerAerialIncomingPacket)) {
-            super.messageReceived(ctx, e);
-            return;
-        }
+	}
 
-        ISerAerialIncomingPacket serAerialMsg = (ISerAerialIncomingPacket) msg;
+	@Override
+	public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) throws Exception {
+		Object msg = e.getMessage();
+		if (!(msg instanceof ISerAerialIncomingPacket)) {
+			super.messageReceived(ctx, e);
+			return;
+		}
 
-        if (!serAerialMsg.getPayload().readable()) {
-            super.messageReceived(ctx, e);
-            return;
-        }
+		ISerAerialIncomingPacket serAerialMsg = (ISerAerialIncomingPacket) msg;
 
-        ChannelBuffer payload = serAerialMsg.getPayload();
+		if (!serAerialMsg.getPayload().readable()) {
+			super.messageReceived(ctx, e);
+			return;
+		}
 
-        // Check if this is an OTAP packet
-        if (payload.getByte(0) != ISenseOtapPacketType.OTAP) {
-            super.messageReceived(ctx, e);
-            return;
-        }
+		ChannelBuffer payload = serAerialMsg.getPayload();
 
-        // Convert the payload to byte[]
-        byte[] byteArray = new byte[payload.readableBytes()];
-        payload.getBytes(payload.readerIndex(), byteArray, 0, byteArray.length);
+		// Check if this is an OTAP packet
+		if (payload.getByte(0) != ISenseOtapPacketType.OTAP) {
+			super.messageReceived(ctx, e);
+			return;
+		}
 
-        // Check if we need to decrypt the payload
-        if (aes != null) {
-            log.trace(("Encrypted otap payload wit AES"));
-            byteArray = aes.decode(byteArray);
+		// Convert the payload to byte[]
+		byte[] byteArray = new byte[payload.readableBytes()];
+		payload.getBytes(payload.readerIndex(), byteArray, 0, byteArray.length);
 
-            if (byteArray == null) {
-                log.trace("Unable to decrypt otap message. Message dropped");
-                return;
-            }
-        }
+		// Check if we need to decrypt the payload
+		if (aes != null) {
+			log.trace(("Encrypted otap payload wit AES"));
+			byteArray = aes.decode(byteArray);
 
-        // Try to deserialize, if not, null is returned.
-        Object result = MacroFabricSerializer.deserialize(byteArray);
+			if (byteArray == null) {
+				log.trace("Unable to decrypt otap message. Message dropped");
+				return;
+			}
+		}
 
-        // Not an OTAP packet, return the original object
-        if (result == null) {
-            super.messageReceived(ctx, e);
-            return;
-        }
+		// Try to deserialize, if not, null is returned.
+		Object result = MacroFabricSerializer.deserialize(byteArray);
 
-        // Return the decoded OTAP object
-        HandlerTools.sendUpstream(result, ctx);
-    }
+		// Not an OTAP packet, return the original object
+		if (result == null) {
+			super.messageReceived(ctx, e);
+			return;
+		}
+
+		// Return the decoded OTAP object
+		HandlerTools.sendUpstream(result, ctx);
+	}
 }

@@ -11,6 +11,7 @@ import org.jboss.netty.buffer.ChannelBuffer;
  * To change this template use File | Settings | File Templates.
  */
 public class BinaryDataCommand extends BinaryMessageCommand {
+
 	public BinaryDataCommand(byte requestID, byte len, ChannelBuffer payload) {
 		super(CommandType.Interaction.BINARY_DATA, requestID, len, payload);
 	}

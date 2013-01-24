@@ -13,6 +13,7 @@ import org.jboss.netty.buffer.ChannelBuffers;
  * To change this template use File | Settings | File Templates.
  */
 public class DestroyVirtualLinkCommand extends Command {
+
 	private ChannelBuffer buffer;
 
 	public DestroyVirtualLinkCommand(byte requestID, ChannelBuffer payload, long destinationNode) {
@@ -25,7 +26,7 @@ public class DestroyVirtualLinkCommand extends Command {
 		return this.buffer.getLong(0);
 	}
 
-	public ChannelBuffer getBuffer(){
+	public ChannelBuffer getBuffer() {
 		return ChannelBuffers.wrappedBuffer(super.buffer, this.buffer);
 	}
 

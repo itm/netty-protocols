@@ -10,7 +10,8 @@ import de.uniluebeck.itm.netty.wisebednodeapi.packet.Request;
  * Time: 16:55
  * To change this template use File | Settings | File Templates.
  */
-public class AreNodesAliveRequest extends Request{
+public class AreNodesAliveRequest extends Request {
+
 	public AreNodesAliveRequest(final byte requestID, final byte[] payload) {
 		super(CommandType.NodeControl.ARE_NODES_ALIVE, requestID, payload);
 	}

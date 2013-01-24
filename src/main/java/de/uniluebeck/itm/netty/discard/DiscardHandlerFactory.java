@@ -25,9 +25,13 @@ public class DiscardHandlerFactory implements HandlerFactory {
 
 		final boolean discardUpstream = HandlerFactoryPropertiesHelper
 				.getFirstValueOf(properties, KEY_DISCARD_UPSTREAM, true);
-		final boolean discardDownstream = HandlerFactoryPropertiesHelper.getFirstValueOf(properties, KEY_DISCARD_DOWNSTREAM, true);;
+		final boolean discardDownstream =
+				HandlerFactoryPropertiesHelper.getFirstValueOf(properties, KEY_DISCARD_DOWNSTREAM, true);
+		;
 
-		return newArrayList(new Tuple<String, ChannelHandler>(instanceName, new DiscardHandler(discardUpstream, discardDownstream)));
+		return newArrayList(
+				new Tuple<String, ChannelHandler>(instanceName, new DiscardHandler(discardUpstream, discardDownstream))
+		);
 	}
 
 	@Override
@@ -39,7 +43,9 @@ public class DiscardHandlerFactory implements HandlerFactory {
 	public Multimap<String, String> getConfigurationOptions() {
 		final HashMultimap<String, String> map = HashMultimap.create();
 		map.put(KEY_DISCARD_UPSTREAM, "(optional, boolean, default=true) if true all upstream messages are discarded");
-		map.put(KEY_DISCARD_DOWNSTREAM, "(optional, boolean, default=true) if true all downstream messages are discarded");
+		map.put(KEY_DISCARD_DOWNSTREAM,
+				"(optional, boolean, default=true) if true all downstream messages are discarded"
+		);
 		return map;
 	}
 

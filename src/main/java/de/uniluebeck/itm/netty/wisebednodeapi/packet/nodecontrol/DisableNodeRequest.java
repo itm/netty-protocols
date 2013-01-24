@@ -11,6 +11,7 @@ import de.uniluebeck.itm.netty.wisebednodeapi.packet.Request;
  * To change this template use File | Settings | File Templates.
  */
 public class DisableNodeRequest extends Request {
+
 	public DisableNodeRequest(final byte requestID, final byte[] payload) {
 		super(CommandType.NodeControl.DISABLE_NODE, requestID, payload);
 	}

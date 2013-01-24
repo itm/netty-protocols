@@ -12,6 +12,7 @@ import org.jboss.netty.buffer.ChannelBuffer;
  * To change this template use File | Settings | File Templates.
  */
 public class SetStartTimeCommandResponse extends CommandResponse {
+
 	public SetStartTimeCommandResponse(byte requestID, byte result, ChannelBuffer payload) {
 		super(CommandType.NodeControl.SET_START_TIME, requestID, result, payload);
 	}

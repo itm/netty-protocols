@@ -10,6 +10,7 @@ import de.uniluebeck.itm.netty.wisebednodeapi.packet.Response;
  * To change this template use File | Settings | File Templates.
  */
 public class BinaryDataResponse extends Response {
+
 	public BinaryDataResponse(final BinaryDataRequest request) {
 		super(request);
 	}

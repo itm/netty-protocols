@@ -2,24 +2,11 @@ package de.uniluebeck.itm.netty.wisebednodeapi;
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
-import de.uniluebeck.itm.netty.wisebednodeapi.packet.Command;
-import de.uniluebeck.itm.netty.wisebednodeapi.packet.CommandResponse;
+import de.uniluebeck.itm.netty.wisebednodeapi.packet.*;
 import de.uniluebeck.itm.netty.wisebednodeapi.packet.interaction.*;
-import de.uniluebeck.itm.netty.wisebednodeapi.packet.linkcontrol.DestroyVirtualLinkCommand;
-import de.uniluebeck.itm.netty.wisebednodeapi.packet.linkcontrol.DisablePhysicalLinkCommand;
-import de.uniluebeck.itm.netty.wisebednodeapi.packet.linkcontrol.EnablePhysicalLinkCommand;
-import de.uniluebeck.itm.netty.wisebednodeapi.packet.linkcontrol.SetVirtualLinkCommand;
-import de.uniluebeck.itm.netty.wisebednodeapi.packet.networkdescription.GetNeighborhoodCommand;
-import de.uniluebeck.itm.netty.wisebednodeapi.packet.networkdescription.GetPropertyValueCommand;
-import de.uniluebeck.itm.netty.wisebednodeapi.packet.nodecontrol.*;
-import de.uniluebeck.itm.netty.wisebednodeapi.packet.Request;
-import de.uniluebeck.itm.netty.wisebednodeapi.packet.Response;
-import de.uniluebeck.itm.netty.wisebednodeapi.packet.TimeOutResponse;
 import de.uniluebeck.itm.netty.wisebednodeapi.packet.linkcontrol.*;
-import de.uniluebeck.itm.netty.wisebednodeapi.packet.networkdescription.GetNeighborhoodRequest;
-import de.uniluebeck.itm.netty.wisebednodeapi.packet.networkdescription.GetNeighborhoodResponse;
-import de.uniluebeck.itm.netty.wisebednodeapi.packet.networkdescription.GetPropertyValueRequest;
-import de.uniluebeck.itm.netty.wisebednodeapi.packet.networkdescription.GetPropertyValueResponse;
+import de.uniluebeck.itm.netty.wisebednodeapi.packet.networkdescription.*;
+import de.uniluebeck.itm.netty.wisebednodeapi.packet.nodecontrol.*;
 import de.uniluebeck.itm.tr.util.TimedCache;
 import de.uniluebeck.itm.tr.util.TimedCacheListener;
 import de.uniluebeck.itm.tr.util.Tuple;
@@ -42,7 +29,8 @@ public class NodeAPIHandler extends SimpleChannelHandler implements ChannelUpstr
 
 		public final SocketAddress remoteAddress;
 
-		RequestCacheEntry(Request request, Channel channel, ChannelHandlerContext channelHandlerContext, SocketAddress remoteAddress) {
+		RequestCacheEntry(Request request, Channel channel, ChannelHandlerContext channelHandlerContext,
+						  SocketAddress remoteAddress) {
 			this.request = request;
 			this.channel = channel;
 			this.channelHandlerContext = channelHandlerContext;
@@ -58,15 +46,16 @@ public class NodeAPIHandler extends SimpleChannelHandler implements ChannelUpstr
 	@Named("requestCache")
 	private TimedCache<Byte, RequestCacheEntry> requestCache = new TimedCache<Byte, RequestCacheEntry>();
 
-	private final TimedCacheListener<Byte, RequestCacheEntry> requestCacheListener = new TimedCacheListener<Byte, RequestCacheEntry>() {
-		@Override
-		public Tuple<Long, TimeUnit> timeout(Byte requestId, RequestCacheEntry entry) {
-			TimeOutResponse response = new TimeOutResponse(entry.request);
-			UpstreamMessageEvent event = new UpstreamMessageEvent(entry.channel, response, entry.remoteAddress);
-			entry.channelHandlerContext.sendUpstream(event);
-			return null;
-		}
-	};
+	private final TimedCacheListener<Byte, RequestCacheEntry> requestCacheListener =
+			new TimedCacheListener<Byte, RequestCacheEntry>() {
+				@Override
+				public Tuple<Long, TimeUnit> timeout(Byte requestId, RequestCacheEntry entry) {
+					TimeOutResponse response = new TimeOutResponse(entry.request);
+					UpstreamMessageEvent event = new UpstreamMessageEvent(entry.channel, response, entry.remoteAddress);
+					entry.channelHandlerContext.sendUpstream(event);
+					return null;
+				}
+			};
 
 	/**
 	 * Only for unit testing.
@@ -80,7 +69,7 @@ public class NodeAPIHandler extends SimpleChannelHandler implements ChannelUpstr
 	NodeAPIHandler() {
 		requestCache.setListener(requestCacheListener);
 	}
-	
+
 	@Override
 	public void handleDownstream(final ChannelHandlerContext ctx, final ChannelEvent e) throws Exception {
 		final DownstreamMessageEvent event = (DownstreamMessageEvent) e;
@@ -106,13 +95,17 @@ public class NodeAPIHandler extends SimpleChannelHandler implements ChannelUpstr
 		ChannelBuffer payload = ChannelBuffers.wrappedBuffer(request.getPayload());
 		//Link Control
 		if (request instanceof SetVirtualLinkRequest) {
-			return new SetVirtualLinkCommand(requestID, payload, ((SetVirtualLinkRequest) request).getDestinationNode());
+			return new SetVirtualLinkCommand(requestID, payload, ((SetVirtualLinkRequest) request).getDestinationNode()
+			);
 		} else if (request instanceof DestroyVirtualLinkRequest) {
-			return new DestroyVirtualLinkCommand(requestID, payload, ((DestroyVirtualLinkRequest) request).getDestinationNode());
+			return new DestroyVirtualLinkCommand(requestID, payload,
+					((DestroyVirtualLinkRequest) request).getDestinationNode()
+			);
 		} else if (request instanceof EnablePhysicalLinkRequest) {
 			return new EnablePhysicalLinkCommand(requestID, payload, ((EnablePhysicalLinkRequest) request).getNodeB());
 		} else if (request instanceof DisablePhysicalLinkRequest) {
-			return new DisablePhysicalLinkCommand(requestID, payload, ((DisablePhysicalLinkRequest) request).getNodeB());
+			return new DisablePhysicalLinkCommand(requestID, payload, ((DisablePhysicalLinkRequest) request).getNodeB()
+			);
 			//node control
 		} else if (request instanceof EnableNodeRequest) {
 			return new EnableNodeCommand(requestID, payload);
@@ -139,7 +132,9 @@ public class NodeAPIHandler extends SimpleChannelHandler implements ChannelUpstr
 		} else if (request instanceof VirtualLinkDataRequest) {
 			return new VirtualLinkDataCommand(requestID, ((VirtualLinkDataRequest) request).getRssi(),
 					((VirtualLinkDataRequest) request).getLqi(), ((VirtualLinkDataRequest) request).getLen(),
-					((VirtualLinkDataRequest) request).getDest(), ((VirtualLinkDataRequest) request).getSource(), payload);
+					((VirtualLinkDataRequest) request).getDest(), ((VirtualLinkDataRequest) request).getSource(),
+					payload
+			);
 		} else if (request instanceof BinaryDataRequest) {
 			return new BinaryDataCommand(requestID, ((BinaryDataRequest) request).getLen(), payload);
 		} else if (request instanceof FlashProgramDataRequest) {
@@ -150,8 +145,11 @@ public class NodeAPIHandler extends SimpleChannelHandler implements ChannelUpstr
 			return new NodeOutputBinaryCommand(requestID, ((NodeOutputBinaryRequest) request).getLen(), payload);
 		} else if (request instanceof NodeOutputVirtualLinkRequest) {
 			return new NodeOutputVirtualLinkCommand(requestID, ((NodeOutputVirtualLinkRequest) request).getRssi(),
-					((NodeOutputVirtualLinkRequest) request).getLqi(), ((NodeOutputVirtualLinkRequest) request).getLen(),
-					((NodeOutputVirtualLinkRequest) request).getDest(), ((NodeOutputVirtualLinkRequest) request).getSource(), payload);
+					((NodeOutputVirtualLinkRequest) request).getLqi(),
+					((NodeOutputVirtualLinkRequest) request).getLen(),
+					((NodeOutputVirtualLinkRequest) request).getDest(),
+					((NodeOutputVirtualLinkRequest) request).getSource(), payload
+			);
 		} else {
 			throw new Exception("Could not create CommandMessage from request");
 		}
@@ -160,7 +158,8 @@ public class NodeAPIHandler extends SimpleChannelHandler implements ChannelUpstr
 	@Override
 	public void handleUpstream(final ChannelHandlerContext ctx, final ChannelEvent e) throws Exception {
 		UpstreamMessageEvent event = (UpstreamMessageEvent) e;
-		final Request originalRequestFromRequestCache = requestCache.get(((CommandResponse) event.getMessage()).getRequestID()).getRequest();
+		final Request originalRequestFromRequestCache =
+				requestCache.get(((CommandResponse) event.getMessage()).getRequestID()).getRequest();
 		final Response response = createResponseMessage(originalRequestFromRequestCache);
 
 		final UpstreamMessageEvent upstreamMessageEvent = new UpstreamMessageEvent(

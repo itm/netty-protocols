@@ -12,6 +12,7 @@ import org.jboss.netty.buffer.ChannelBuffers;
  * To change this template use File | Settings | File Templates.
  */
 public abstract class BinaryMessageCommand extends Command {
+
 	private ChannelBuffer buffer;
 
 	public BinaryMessageCommand(byte commandType, byte requestID, byte len, ChannelBuffer payload) {

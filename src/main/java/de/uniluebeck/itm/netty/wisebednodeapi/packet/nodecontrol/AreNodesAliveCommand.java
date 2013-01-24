@@ -12,6 +12,7 @@ import org.jboss.netty.buffer.ChannelBuffer;
  * To change this template use File | Settings | File Templates.
  */
 public class AreNodesAliveCommand extends Command {
+
 	public AreNodesAliveCommand(byte requestID, ChannelBuffer payload) {
 		super(CommandType.NodeControl.ARE_NODES_ALIVE, requestID, payload);
 	}

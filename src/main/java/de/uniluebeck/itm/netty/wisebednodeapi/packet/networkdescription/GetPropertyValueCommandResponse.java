@@ -12,6 +12,7 @@ import org.jboss.netty.buffer.ChannelBuffer;
  * To change this template use File | Settings | File Templates.
  */
 public class GetPropertyValueCommandResponse extends CommandResponse {
+
 	public GetPropertyValueCommandResponse(byte requestID, byte result, ChannelBuffer payload) {
 		super(CommandType.NetworkDescription.GET_PROPERTY_VALUE, requestID, result, payload);
 	}

@@ -12,6 +12,7 @@ import org.jboss.netty.buffer.ChannelBuffers;
  * To change this template use File | Settings | File Templates.
  */
 public abstract class VirtualLinkMessageCommand extends Command {
+
 	private ChannelBuffer buffer;
 
 	public VirtualLinkMessageCommand(byte commandType, byte requestID, byte rssi, byte lqi, byte len, long dest,

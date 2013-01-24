@@ -11,10 +11,15 @@ import de.uniluebeck.itm.netty.wisebednodeapi.packet.Request;
  * To change this template use File | Settings | File Templates.
  */
 public class VirtualLinkDataRequest extends Request {
+
 	private final byte rssi;
+
 	private final byte lqi;
+
 	private final byte len;
+
 	private final long dest;
+
 	private final long source;
 
 	public VirtualLinkDataRequest(final byte requestID, final byte rssi, final byte lqi, final byte len,

@@ -58,9 +58,9 @@ public class LoggingHandlerFactory implements HandlerFactory {
 				+ "to those who have access to the machine running the logger.";
 	}
 
-    @Override
-    public String getName() {
-        return "logging-handler";
-    }
+	@Override
+	public String getName() {
+		return "logging-handler";
+	}
 
 }

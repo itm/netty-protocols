@@ -10,11 +10,12 @@ import de.uniluebeck.itm.netty.wisebednodeapi.packet.Response;
  * To change this template use File | Settings | File Templates.
  */
 public class DisablePhysicalLinkResponse extends Response {
+
 	public DisablePhysicalLinkResponse(final DisablePhysicalLinkRequest request) {
 		super(request);
 	}
 
-	public long getNodeB(){
+	public long getNodeB() {
 		return ((DisablePhysicalLinkRequest) request).getNodeB();
 	}
 }

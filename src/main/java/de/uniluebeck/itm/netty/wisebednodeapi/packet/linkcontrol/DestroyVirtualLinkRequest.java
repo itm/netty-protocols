@@ -11,6 +11,7 @@ import de.uniluebeck.itm.netty.wisebednodeapi.packet.Request;
  * To change this template use File | Settings | File Templates.
  */
 public class DestroyVirtualLinkRequest extends Request {
+
 	private final long destinationNode;
 
 	public DestroyVirtualLinkRequest(final byte requestID, final byte payload[], final long destinationNode) {

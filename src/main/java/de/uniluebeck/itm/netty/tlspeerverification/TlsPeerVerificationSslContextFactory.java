@@ -10,50 +10,54 @@ import java.security.Security;
 import java.security.cert.CertificateException;
 
 public class TlsPeerVerificationSslContextFactory {
-    private static final String PROTOCOL = "TLS";
 
-    public static SSLContext getContext(File rootCertificateAuthorityFile, File localCertificateFile,
-            char[] certificatePassword, boolean clientMode) throws IOException, GeneralSecurityException {
+	private static final String PROTOCOL = "TLS";
 
-        TlsPeerVerificationKeyStore keyStore =
-                new TlsPeerVerificationKeyStore(rootCertificateAuthorityFile, localCertificateFile, certificatePassword);
+	public static SSLContext getContext(File rootCertificateAuthorityFile, File localCertificateFile,
+										char[] certificatePassword, boolean clientMode)
+			throws IOException, GeneralSecurityException {
 
-        return getContext(keyStore, certificatePassword, clientMode);
+		TlsPeerVerificationKeyStore keyStore =
+				new TlsPeerVerificationKeyStore(rootCertificateAuthorityFile, localCertificateFile, certificatePassword
+				);
 
-    }
+		return getContext(keyStore, certificatePassword, clientMode);
 
-    public static SSLContext getContext(TlsPeerVerificationKeyStore keyStore, char[] certificatePassword,
-            boolean clientMode) throws CertificateException, GeneralSecurityException, IOException {
+	}
 
-        String algorithm = Security.getProperty("ssl.KeyManagerFactory.algorithm");
+	public static SSLContext getContext(TlsPeerVerificationKeyStore keyStore, char[] certificatePassword,
+										boolean clientMode)
+			throws CertificateException, GeneralSecurityException, IOException {
 
-        if (algorithm == null) {
-            algorithm = "SunX509";
-        }
+		String algorithm = Security.getProperty("ssl.KeyManagerFactory.algorithm");
 
-        if (clientMode) {
+		if (algorithm == null) {
+			algorithm = "SunX509";
+		}
 
-            TlsPeerVerificationTrustManagerFactory trustManagerFactory =
-                    new TlsPeerVerificationTrustManagerFactory(null);
+		if (clientMode) {
 
-            SSLContext sslContext = SSLContext.getInstance(PROTOCOL);
-            sslContext.init(null, trustManagerFactory.engineGetTrustManagers(), null);
+			TlsPeerVerificationTrustManagerFactory trustManagerFactory =
+					new TlsPeerVerificationTrustManagerFactory(null);
 
-            return sslContext;
+			SSLContext sslContext = SSLContext.getInstance(PROTOCOL);
+			sslContext.init(null, trustManagerFactory.engineGetTrustManagers(), null);
 
-        } else {
-            KeyStore ks = KeyStore.getInstance("JKS");
-            ks.load(SecureChatKeyStore.asInputStream(), SecureChatKeyStore.getKeyStorePassword());
-            KeyManagerFactory kmf = KeyManagerFactory.getInstance(algorithm);
-            kmf.init(ks, SecureChatKeyStore.getCertificatePassword());
-            
-            // Set up key manager factory to use our key store
+			return sslContext;
 
-            SSLContext sslContext = SSLContext.getInstance(PROTOCOL);
-            sslContext.init(kmf.getKeyManagers(), null, null);
-            // sslContext.init(kmf.getKeyManagers(), trustManagerFactory.engineGetTrustManagers(), null);
-            return sslContext;
-        }
+		} else {
+			KeyStore ks = KeyStore.getInstance("JKS");
+			ks.load(SecureChatKeyStore.asInputStream(), SecureChatKeyStore.getKeyStorePassword());
+			KeyManagerFactory kmf = KeyManagerFactory.getInstance(algorithm);
+			kmf.init(ks, SecureChatKeyStore.getCertificatePassword());
 
-    }
+			// Set up key manager factory to use our key store
+
+			SSLContext sslContext = SSLContext.getInstance(PROTOCOL);
+			sslContext.init(kmf.getKeyManagers(), null, null);
+			// sslContext.init(kmf.getKeyManagers(), trustManagerFactory.engineGetTrustManagers(), null);
+			return sslContext;
+		}
+
+	}
 }

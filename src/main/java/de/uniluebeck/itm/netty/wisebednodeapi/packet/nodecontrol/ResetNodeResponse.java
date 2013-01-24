@@ -10,6 +10,7 @@ import de.uniluebeck.itm.netty.wisebednodeapi.packet.Response;
  * To change this template use File | Settings | File Templates.
  */
 public class ResetNodeResponse extends Response {
+
 	public ResetNodeResponse(final ResetNodeRequest request) {
 		super(request);
 	}

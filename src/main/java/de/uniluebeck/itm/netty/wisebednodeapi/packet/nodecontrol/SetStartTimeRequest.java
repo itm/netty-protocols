@@ -11,6 +11,7 @@ import de.uniluebeck.itm.netty.wisebednodeapi.packet.Request;
  * To change this template use File | Settings | File Templates.
  */
 public class SetStartTimeRequest extends Request {
+
 	private final short time;
 
 	public SetStartTimeRequest(final byte requestID, final byte[] payload, final short time) {

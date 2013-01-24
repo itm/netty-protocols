@@ -12,6 +12,7 @@ import org.jboss.netty.buffer.ChannelBuffer;
  * To change this template use File | Settings | File Templates.
  */
 public class EnablePhysicalLinkCommandResponse extends CommandResponse {
+
 	public EnablePhysicalLinkCommandResponse(byte requestID, byte result, ChannelBuffer payload) {
 		super(CommandType.LinkControl.ENABLE_PHYSICAL_LINK, requestID, result, payload);
 	}

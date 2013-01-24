@@ -2,7 +2,6 @@ package de.uniluebeck.itm.netty;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
-import de.uniluebeck.itm.netty.HandlerFactory;
 import de.uniluebeck.itm.tr.util.Tuple;
 import org.jboss.netty.channel.ChannelHandler;
 import org.jboss.netty.handler.codec.string.StringDecoder;
@@ -40,7 +39,8 @@ public class StringDecoderFactory implements HandlerFactory {
 	public Multimap<String, String> getConfigurationOptions() {
 		final HashMultimap<String, String> map = HashMultimap.create();
 		map.put(CHARSET_NAME, "(int, optional, default=UTF-8) the character set to use (e.g. UTF-16, UTF-16BE, "
-				+ "UTF-16LE, UTF-8, ISO-8859-1, US-ASCII)");
+				+ "UTF-16LE, UTF-8, ISO-8859-1, US-ASCII)"
+		);
 		return map;
 	}
 

@@ -26,34 +26,35 @@ import java.util.HashMap;
 import java.util.Map;
 
 public enum ISerAerialPacketSubType {
-    PACKET((byte) (0xFF & 0x00)), CONFIRM((byte) (0xFF & 0x01));
+	PACKET((byte) (0xFF & 0x00)), CONFIRM((byte) (0xFF & 0x01));
 
-    private static final Map<Byte, ISerAerialPacketSubType> typesMap = new HashMap<Byte, ISerAerialPacketSubType>();
+	private static final Map<Byte, ISerAerialPacketSubType> typesMap = new HashMap<Byte, ISerAerialPacketSubType>();
 
-    static {
-        for (ISerAerialPacketSubType packetType : ISerAerialPacketSubType.values()) {
-            typesMap.put(packetType.value, packetType);
-        }
-    }
+	static {
+		for (ISerAerialPacketSubType packetType : ISerAerialPacketSubType.values()) {
+			typesMap.put(packetType.value, packetType);
+		}
+	}
 
-    private final byte value;
+	private final byte value;
 
-    ISerAerialPacketSubType(byte value) {
-        this.value = value;
-    }
+	ISerAerialPacketSubType(byte value) {
+		this.value = value;
+	}
 
-    /**
-     * Returns the enum constant with value {@code value} or null if none of the enum values matches {@code value}.
-     * 
-     * @param value
-     *            the packet's type
-     * @return an ISerAerialPacketSubType enum constant or {@code null} if unknown
-     */
-    public static ISerAerialPacketSubType fromValue(byte value) {
-        return typesMap.get(value);
-    }
+	/**
+	 * Returns the enum constant with value {@code value} or null if none of the enum values matches {@code value}.
+	 *
+	 * @param value
+	 * 		the packet's type
+	 *
+	 * @return an ISerAerialPacketSubType enum constant or {@code null} if unknown
+	 */
+	public static ISerAerialPacketSubType fromValue(byte value) {
+		return typesMap.get(value);
+	}
 
-    public byte getValue() {
-        return value;
-    }
+	public byte getValue() {
+		return value;
+	}
 }

@@ -22,6 +22,7 @@
  */
 package de.uniluebeck.itm.netty.dlestxetx;
 
+import de.uniluebeck.itm.tr.util.StringUtils;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBuffers;
 import org.jboss.netty.channel.Channel;
@@ -30,84 +31,83 @@ import org.jboss.netty.handler.codec.frame.FrameDecoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.uniluebeck.itm.tr.util.StringUtils;
-
 public class DleStxEtxFramingDecoder extends FrameDecoder {
 
-    private final Logger log;
+	private final Logger log;
 
-    private boolean foundDLE;
+	private boolean foundDLE;
 
-    private boolean foundPacket;
+	private boolean foundPacket;
 
-    private ChannelBuffer packet;
+	private ChannelBuffer packet;
 
-    public DleStxEtxFramingDecoder() {
-        this(null);
-    }
+	public DleStxEtxFramingDecoder() {
+		this(null);
+	}
 
-    public DleStxEtxFramingDecoder(String instanceName) {
-        log = LoggerFactory.getLogger(instanceName != null ? instanceName : DleStxEtxFramingDecoder.class.getName());
-        resetDecodingState();
-    }
+	public DleStxEtxFramingDecoder(String instanceName) {
+		log = LoggerFactory.getLogger(instanceName != null ? instanceName : DleStxEtxFramingDecoder.class.getName());
+		resetDecodingState();
+	}
 
-    @Override
-    protected Object decode(final ChannelHandlerContext ctx, final Channel channel, final ChannelBuffer buffer)
-            throws Exception {
+	@Override
+	protected Object decode(final ChannelHandlerContext ctx, final Channel channel, final ChannelBuffer buffer)
+			throws Exception {
 
-        while (buffer.readable()) {
+		while (buffer.readable()) {
 
-            byte c = buffer.readByte();
+			byte c = buffer.readByte();
 
-            // check if last character read was DLE
-            if (foundDLE) {
-                foundDLE = false;
+			// check if last character read was DLE
+			if (foundDLE) {
+				foundDLE = false;
 
-                if (c == DleStxEtxConstants.STX && !foundPacket) {
+				if (c == DleStxEtxConstants.STX && !foundPacket) {
 
-                    foundPacket = true;
+					foundPacket = true;
 
-                } else if (c == DleStxEtxConstants.ETX && foundPacket) {
+				} else if (c == DleStxEtxConstants.ETX && foundPacket) {
 
 					ChannelBuffer packetRead = packet;
-                    resetDecodingState();
-                    return packetRead;
+					resetDecodingState();
+					return packetRead;
 
-                } else if (c == DleStxEtxConstants.DLE && foundPacket) {
+				} else if (c == DleStxEtxConstants.DLE && foundPacket) {
 
-                    // Stuffed DLE found
-                    packet.writeByte(DleStxEtxConstants.DLE);
+					// Stuffed DLE found
+					packet.writeByte(DleStxEtxConstants.DLE);
 
-                } else {
+				} else {
 
-                    if (log.isWarnEnabled()) {
-                        log.warn("Incomplete packet received: {}",
-                                StringUtils.toHexString(packet.array(), packet.readerIndex(), packet.readableBytes()));
-                    }
-                    resetDecodingState();
-                }
+					if (log.isWarnEnabled()) {
+						log.warn("Incomplete packet received: {}",
+								StringUtils.toHexString(packet.array(), packet.readerIndex(), packet.readableBytes())
+						);
+					}
+					resetDecodingState();
+				}
 
-            } else {
+			} else {
 
-                if (c == DleStxEtxConstants.DLE) {
-                    // log.trace("Plain DLE received");
-                    foundDLE = true;
-                } else if (foundPacket) {
-                    packet.writeByte(c);
-                }
+				if (c == DleStxEtxConstants.DLE) {
+					// log.trace("Plain DLE received");
+					foundDLE = true;
+				} else if (foundPacket) {
+					packet.writeByte(c);
+				}
 
-            }
-        }
+			}
+		}
 
-        // decoding is not yet complete, we'll need more bytes until we find DLE
-        // ETX
-        return null;
-    }
+		// decoding is not yet complete, we'll need more bytes until we find DLE
+		// ETX
+		return null;
+	}
 
-    private void resetDecodingState() {
-        foundDLE = false;
-        foundPacket = false;
-        packet = ChannelBuffers.dynamicBuffer(512);
-    }
+	private void resetDecodingState() {
+		foundDLE = false;
+		foundPacket = false;
+		packet = ChannelBuffers.dynamicBuffer(512);
+	}
 
 }

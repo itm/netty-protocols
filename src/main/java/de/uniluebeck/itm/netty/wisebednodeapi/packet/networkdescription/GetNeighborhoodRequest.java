@@ -11,6 +11,7 @@ import de.uniluebeck.itm.netty.wisebednodeapi.packet.Request;
  * To change this template use File | Settings | File Templates.
  */
 public class GetNeighborhoodRequest extends Request {
+
 	public GetNeighborhoodRequest(final byte requestID, final byte[] payload) {
 		super(CommandType.NetworkDescription.GET_NEIGHBORHOOD, requestID, payload);
 	}

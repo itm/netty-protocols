@@ -34,17 +34,20 @@ public interface HandlerFactory {
 	/**
 	 * Creates a(n) instance(s) of {@link ChannelHandler}s using the given configuration options in {@code properties}.
 	 *
-	 * @param properties   the configuration options for the individual {@link ChannelHandler} instances
-	 * @param instanceName the name of the instance to be constructed
+	 * @param properties
+	 * 		the configuration options for the individual {@link ChannelHandler} instances
+	 * @param instanceName
+	 * 		the name of the instance to be constructed
 	 *
 	 * @return a {@link List} of {@link Tuple} types containing instance names and the associated {@link ChannelHandler}
 	 *         instances.
 	 *
-	 * @throws Exception if one or more of the {@link ChannelHandler}s could not be constructed due to e.g., configuration
-	 *                   options are missing or contain invalid values
+	 * @throws Exception
+	 * 		if one or more of the {@link ChannelHandler}s could not be constructed due to e.g., configuration
+	 * 		options are missing or contain invalid values
 	 */
 	List<Tuple<String, ChannelHandler>> create(@Nullable String instanceName, Multimap<String, String> properties)
-	throws Exception;
+			throws Exception;
 
 	/**
 	 * Same as calling {@link HandlerFactory#create(String, com.google.common.collect.Multimap)} with {@code
@@ -69,7 +72,8 @@ public interface HandlerFactory {
 	String getDescription();
 
 	/**
-	 * Returns the name of the HandlerFactory. This name usually corresponds to the type of handler produced by the factory
+	 * Returns the name of the HandlerFactory. This name usually corresponds to the type of handler produced by the
+	 * factory
 	 * e.g., a {@link HandlerFactory} by the name of "base64-encoder" would typically produce {@link ChannelHandler}s of
 	 * type {@link org.jboss.netty.handler.codec.base64.Base64Encoder}.
 	 *

@@ -12,6 +12,7 @@ import org.jboss.netty.buffer.ChannelBuffer;
  * To change this template use File | Settings | File Templates.
  */
 public class NodeOutputBinaryCommandResponse extends CommandResponse {
+
 	public NodeOutputBinaryCommandResponse(byte requestID, byte result, ChannelBuffer payload) {
 		super(CommandType.Interaction.NODE_OUTPUT_BINARY, requestID, result, payload);
 	}

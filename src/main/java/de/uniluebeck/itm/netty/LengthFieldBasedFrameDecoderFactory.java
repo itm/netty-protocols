@@ -80,8 +80,12 @@ public class LengthFieldBasedFrameDecoderFactory implements HandlerFactory {
 		);
 		map.put(LENGTH_FIELD_OFFSET, "(int) the offset of the length field");
 		map.put(LENGTH_FIELD_LENGTH, "(int) the length of the length field");
-		map.put(LENGTH_ADJUSTMENT, "(int, optional, default=0) the compensation value to add to the value of the length field");
-		map.put(INITIAL_BYTES_TO_STRIP, "(int, optional, default=0) the number of first bytes to strip out from the decoded frame");
+		map.put(LENGTH_ADJUSTMENT,
+				"(int, optional, default=0) the compensation value to add to the value of the length field"
+		);
+		map.put(INITIAL_BYTES_TO_STRIP,
+				"(int, optional, default=0) the number of first bytes to strip out from the decoded frame"
+		);
 		return map;
 	}
 

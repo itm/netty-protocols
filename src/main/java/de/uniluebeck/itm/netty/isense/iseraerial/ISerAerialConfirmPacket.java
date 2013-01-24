@@ -25,51 +25,60 @@ package de.uniluebeck.itm.netty.isense.iseraerial;
 import org.jboss.netty.buffer.ChannelBuffer;
 
 public class ISerAerialConfirmPacket {
-    private static final int HEADER_LENGTH = 3;
-    public static final byte TYPE_CODE = 0x01;
-    private final ChannelBuffer buffer;
 
-    /**
-     * Creates a new ISerAerialConfirmPacket instance using {@code buffer} as its backing buffer.
-     * 
-     * @param buffer
-     *            the backing buffer
-     */
-    public ISerAerialConfirmPacket(ChannelBuffer buffer) throws Exception {
+	private static final int HEADER_LENGTH = 3;
 
-        if (buffer.readableBytes() != HEADER_LENGTH)
-            throw new Exception(String.format("Packet size of %d is wrong, expecting %d", buffer.readableBytes(),
-                    HEADER_LENGTH));
+	public static final byte TYPE_CODE = 0x01;
 
-        if (buffer.getByte(0) != TYPE_CODE)
-            throw new Exception(String.format("Unexpected first type byte %d, expected %d", buffer.getByte(0),
-                    TYPE_CODE));
+	private final ChannelBuffer buffer;
 
-        this.buffer = buffer;
-    }
+	/**
+	 * Creates a new ISerAerialConfirmPacket instance using {@code buffer} as its backing buffer.
+	 *
+	 * @param buffer
+	 * 		the backing buffer
+	 */
+	public ISerAerialConfirmPacket(ChannelBuffer buffer) throws Exception {
 
-    public int getState() {
-        return 0xFF & buffer.getByte(1);
-    }
+		if (buffer.readableBytes() != HEADER_LENGTH) {
+			throw new Exception(String.format("Packet size of %d is wrong, expecting %d", buffer.readableBytes(),
+					HEADER_LENGTH
+			)
+			);
+		}
 
-    public int getTries() {
-        return 0xFF & buffer.getByte(2);
-    }
+		if (buffer.getByte(0) != TYPE_CODE) {
+			throw new Exception(String.format("Unexpected first type byte %d, expected %d", buffer.getByte(0),
+					TYPE_CODE
+			)
+			);
+		}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.lang.Object#toString()
-     */
-    @Override
-    public String toString() {
-        StringBuilder builder = new StringBuilder();
-        builder.append("ISerAerialConfirmPacket [getState()=");
-        builder.append(getState());
-        builder.append(", getTries()=");
-        builder.append(getTries());
-        builder.append("]");
-        return builder.toString();
-    }
+		this.buffer = buffer;
+	}
+
+	public int getState() {
+		return 0xFF & buffer.getByte(1);
+	}
+
+	public int getTries() {
+		return 0xFF & buffer.getByte(2);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("ISerAerialConfirmPacket [getState()=");
+		builder.append(getState());
+		builder.append(", getTries()=");
+		builder.append(getTries());
+		builder.append("]");
+		return builder.toString();
+	}
 
 }

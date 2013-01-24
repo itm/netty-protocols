@@ -22,58 +22,63 @@
  */
 package de.uniluebeck.itm.netty.isense.otap.init;
 
-import java.util.Set;
-
 import de.uniluebeck.itm.netty.util.DurationPlusUnit;
+
+import java.util.Set;
 
 public class ISenseOtapInitStartCommand {
 
-    private final Set<Integer> devicesToInitialize;
-    private final DurationPlusUnit otapInitTimeout;
-    private final short chunkCount;
-    private final short maxRerequests;
-    private short timeoutMultiplier;
+	private final Set<Integer> devicesToInitialize;
 
-    public ISenseOtapInitStartCommand(final Set<Integer> devicesToInitialize, final DurationPlusUnit otapInitTimeout,
-            final short chunkCount, final short maxRerequests, final short timeoutMultiplier) {
+	private final DurationPlusUnit otapInitTimeout;
 
-        this.chunkCount = chunkCount;
-        this.devicesToInitialize = devicesToInitialize;
-        this.otapInitTimeout = otapInitTimeout;
-        this.maxRerequests = maxRerequests;
-        this.timeoutMultiplier = timeoutMultiplier;
-    }
+	private final short chunkCount;
 
-    /**
-     * @return the devicesToInitialize
-     */
-    public Set<Integer> getDevicesToInitialize() {
-        return devicesToInitialize;
-    }
+	private final short maxRerequests;
 
-    /**
-     * @return the otapInitTimeout
-     */
-    public DurationPlusUnit getOtapInitTimeout() {
-        return otapInitTimeout;
-    }
+	private short timeoutMultiplier;
 
-    /**
-     * @return the chunkCount
-     */
-    public short getChunkCount() {
-        return chunkCount;
-    }
+	public ISenseOtapInitStartCommand(final Set<Integer> devicesToInitialize, final DurationPlusUnit otapInitTimeout,
+									  final short chunkCount, final short maxRerequests,
+									  final short timeoutMultiplier) {
 
-    public short getMaxRerequests() {
-        return maxRerequests;
-    }
+		this.chunkCount = chunkCount;
+		this.devicesToInitialize = devicesToInitialize;
+		this.otapInitTimeout = otapInitTimeout;
+		this.maxRerequests = maxRerequests;
+		this.timeoutMultiplier = timeoutMultiplier;
+	}
 
-    /**
-     * @return the timeoutMultiplier
-     */
-    public short getTimeoutMultiplier() {
-        return timeoutMultiplier;
-    }
+	/**
+	 * @return the devicesToInitialize
+	 */
+	public Set<Integer> getDevicesToInitialize() {
+		return devicesToInitialize;
+	}
+
+	/**
+	 * @return the otapInitTimeout
+	 */
+	public DurationPlusUnit getOtapInitTimeout() {
+		return otapInitTimeout;
+	}
+
+	/**
+	 * @return the chunkCount
+	 */
+	public short getChunkCount() {
+		return chunkCount;
+	}
+
+	public short getMaxRerequests() {
+		return maxRerequests;
+	}
+
+	/**
+	 * @return the timeoutMultiplier
+	 */
+	public short getTimeoutMultiplier() {
+		return timeoutMultiplier;
+	}
 
 }

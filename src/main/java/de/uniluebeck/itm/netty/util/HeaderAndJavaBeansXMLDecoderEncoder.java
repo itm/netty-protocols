@@ -61,7 +61,8 @@ public abstract class HeaderAndJavaBeansXMLDecoderEncoder {
 	 * Checks if the received message is a ChannelBuffer, has a minimal length and contains {@link this#header} prefix.
 	 * If not, null is returned.
 	 *
-	 * @param msg The received object
+	 * @param msg
+	 * 		The received object
 	 *
 	 * @return The bytes containing the request as serialized XML or null if the request could not be parsed.
 	 */

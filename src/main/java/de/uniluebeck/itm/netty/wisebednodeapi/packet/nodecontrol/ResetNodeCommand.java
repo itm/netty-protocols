@@ -13,6 +13,7 @@ import org.jboss.netty.buffer.ChannelBuffers;
  * To change this template use File | Settings | File Templates.
  */
 public class ResetNodeCommand extends Command {
+
 	private ChannelBuffer buffer;
 
 	public ResetNodeCommand(byte requestID, ChannelBuffer payload, short time) {
@@ -21,7 +22,7 @@ public class ResetNodeCommand extends Command {
 		this.buffer.writeShort(time);
 	}
 
-	public short getTime(){
+	public short getTime() {
 		return this.buffer.getShort(0);
 	}
 

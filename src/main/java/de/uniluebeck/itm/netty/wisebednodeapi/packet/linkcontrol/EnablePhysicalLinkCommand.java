@@ -13,6 +13,7 @@ import org.jboss.netty.buffer.ChannelBuffers;
  * To change this template use File | Settings | File Templates.
  */
 public class EnablePhysicalLinkCommand extends Command {
+
 	private ChannelBuffer buffer;
 
 	public EnablePhysicalLinkCommand(byte requestID, ChannelBuffer payload, long nodeB) {
@@ -21,11 +22,11 @@ public class EnablePhysicalLinkCommand extends Command {
 		buffer.writeLong(nodeB);
 	}
 
-	public long getNodeB(){
+	public long getNodeB() {
 		return buffer.getLong(0);
 	}
 
-	public ChannelBuffer getBuffer(){
+	public ChannelBuffer getBuffer() {
 		return ChannelBuffers.wrappedBuffer(super.buffer, this.buffer);
 	}
 

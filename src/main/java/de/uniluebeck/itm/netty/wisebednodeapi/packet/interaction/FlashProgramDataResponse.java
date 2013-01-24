@@ -10,11 +10,12 @@ import de.uniluebeck.itm.netty.wisebednodeapi.packet.Response;
  * To change this template use File | Settings | File Templates.
  */
 public class FlashProgramDataResponse extends Response {
+
 	public FlashProgramDataResponse(final FlashProgramDataRequest request) {
 		super(request);
 	}
 
-	public byte getLen(){
+	public byte getLen() {
 		return ((FlashProgramDataRequest) request).getLen();
 	}
 }

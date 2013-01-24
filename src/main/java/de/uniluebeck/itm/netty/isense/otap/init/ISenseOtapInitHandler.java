@@ -43,188 +43,203 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 public class ISenseOtapInitHandler extends SimpleChannelHandler implements LifeCycleAwareChannelHandler {
-    private final Logger log;
-    private final int maxDevicesPerPacket = new OtapInitRequest().participating_devices.value.length;
-    private final ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
 
-    private ISenseOtapInitStartCommand request = null;
-    private ChannelHandlerContext context;
-    private TimeDiff otapInitStart;
+	private final Logger log;
 
-    /**
-     * A set of devices selected to program, they must all ack before they are programmed
-     */
-    private Set<Integer> initializedDevices;
+	private final int maxDevicesPerPacket = new OtapInitRequest().participating_devices.value.length;
 
-    private ScheduledFuture<?> sendOtapInitRequestsSchedule;
-    private final Runnable sendOtapInitRequestsRunnable = new Runnable() {
+	private final ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
 
-        private OtapInitRequest createRequest() {
-            Preconditions.checkNotNull(request, "No otap init request has been received");
+	private ISenseOtapInitStartCommand request = null;
 
-            OtapInitRequest req = new OtapInitRequest();
-            req.chunk_count = request.getChunkCount();
-            req.max_re_requests = request.getMaxRerequests();
-            req.timeout_multiplier_ms = request.getTimeoutMultiplier();
+	private ChannelHandlerContext context;
 
-            return req;
-        }
+	private TimeDiff otapInitStart;
 
-        @Override
-        public void run() {
-            if (context == null)
-                return;
+	/**
+	 * A set of devices selected to program, they must all ack before they are programmed
+	 */
+	private Set<Integer> initializedDevices;
 
-            OtapInitRequest req = createRequest();
+	private ScheduledFuture<?> sendOtapInitRequestsSchedule;
 
-            // Send a number of otap init requests with maxDevicesPerPacket devices per request (size issue)
-            int currentDeviceCount = 0;
-            for (Integer id : request.getDevicesToInitialize()) {
-                req.participating_devices.value[currentDeviceCount] = id;
-                req.participating_devices.count++;
-                currentDeviceCount++;
+	private final Runnable sendOtapInitRequestsRunnable = new Runnable() {
 
-                if (currentDeviceCount == maxDevicesPerPacket) {
-                    log.trace("Sending otap init request");
-                    HandlerTools.sendDownstream(req, context);
-                    currentDeviceCount = 0;
-                    req = createRequest();
-                }
-            }
+		private OtapInitRequest createRequest() {
+			Preconditions.checkNotNull(request, "No otap init request has been received");
 
-            // Send the last packet (if there is one)
-            if (currentDeviceCount > 0 && currentDeviceCount < maxDevicesPerPacket) {
-                log.trace("Sending otap init request: {}", req);
-                HandlerTools.sendDownstream(req, context);
+			OtapInitRequest req = new OtapInitRequest();
+			req.chunk_count = request.getChunkCount();
+			req.max_re_requests = request.getMaxRerequests();
+			req.timeout_multiplier_ms = request.getTimeoutMultiplier();
 
-            }
+			return req;
+		}
 
-            checkIfDoneAndNotifyUpstream();
-        }
+		@Override
+		public void run() {
+			if (context == null) {
+				return;
+			}
 
-    };
+			OtapInitRequest req = createRequest();
 
-    public ISenseOtapInitHandler() {
-        this(null);
-    }
+			// Send a number of otap init requests with maxDevicesPerPacket devices per request (size issue)
+			int currentDeviceCount = 0;
+			for (Integer id : request.getDevicesToInitialize()) {
+				req.participating_devices.value[currentDeviceCount] = id;
+				req.participating_devices.count++;
+				currentDeviceCount++;
 
-    public ISenseOtapInitHandler(String instanceName) {
-        log = LoggerFactory.getLogger((instanceName != null) ? instanceName : ISenseOtapInitHandler.class.getName());
-    }
+				if (currentDeviceCount == maxDevicesPerPacket) {
+					log.trace("Sending otap init request");
+					HandlerTools.sendDownstream(req, context);
+					currentDeviceCount = 0;
+					req = createRequest();
+				}
+			}
 
-    public void startOtapInit(ISenseOtapInitStartCommand req) {
-        stopOtapInit();
+			// Send the last packet (if there is one)
+			if (currentDeviceCount > 0 && currentDeviceCount < maxDevicesPerPacket) {
+				log.trace("Sending otap init request: {}", req);
+				HandlerTools.sendDownstream(req, context);
 
-        this.request = req;
+			}
 
-        long transmitFrequencyMillis = Math.max(request.getOtapInitTimeout().toMillis() / 500, 100);
+			checkIfDoneAndNotifyUpstream();
+		}
 
-        initializedDevices = Sets.newHashSet();
+	};
 
-        sendOtapInitRequestsSchedule =
-                executorService.scheduleWithFixedDelay(sendOtapInitRequestsRunnable, 0, transmitFrequencyMillis,
-                        TimeUnit.MILLISECONDS);
+	public ISenseOtapInitHandler() {
+		this(null);
+	}
 
-        otapInitStart = new TimeDiff(request.getOtapInitTimeout().toMillis());
-    }
+	public ISenseOtapInitHandler(String instanceName) {
+		log = LoggerFactory.getLogger((instanceName != null) ? instanceName : ISenseOtapInitHandler.class.getName());
+	}
 
-    public void stopOtapInit() {
-        if (sendOtapInitRequestsSchedule != null)
-            sendOtapInitRequestsSchedule.cancel(false);
+	public void startOtapInit(ISenseOtapInitStartCommand req) {
+		stopOtapInit();
 
-        initializedDevices = null;
-        request = null;
-        otapInitStart = null;
-    }
+		this.request = req;
 
-    @Override
-    public void writeRequested(ChannelHandlerContext ctx, MessageEvent e) throws Exception {
-        Object message = e.getMessage();
+		long transmitFrequencyMillis = Math.max(request.getOtapInitTimeout().toMillis() / 500, 100);
 
-        if (message instanceof ISenseOtapInitStartCommand) {
-            log.debug("Received otap init request. Starting to initialize devices...");
-            ISenseOtapInitStartCommand request = (ISenseOtapInitStartCommand) message;
-            startOtapInit(request);
+		initializedDevices = Sets.newHashSet();
 
-        } else {
-            super.writeRequested(ctx, e);
-        }
-    }
+		sendOtapInitRequestsSchedule =
+				executorService.scheduleWithFixedDelay(sendOtapInitRequestsRunnable, 0, transmitFrequencyMillis,
+						TimeUnit.MILLISECONDS
+				);
 
-    @Override
-    public void messageReceived(final ChannelHandlerContext ctx, final MessageEvent e) throws Exception {
-        Object message = e.getMessage();
+		otapInitStart = new TimeDiff(request.getOtapInitTimeout().toMillis());
+	}
 
-        if (message instanceof OtapInitReply) {
-            OtapInitReply reply = (OtapInitReply) message;
+	public void stopOtapInit() {
+		if (sendOtapInitRequestsSchedule != null) {
+			sendOtapInitRequestsSchedule.cancel(false);
+		}
 
-            if (request != null) {
-                handleOtapInitReply(reply);
-            } else {
-                log.debug("Ignoring otap init reply in wrong state --> no previous request");
-            }
+		initializedDevices = null;
+		request = null;
+		otapInitStart = null;
+	}
 
-        } else {
-            super.messageReceived(ctx, e);
-        }
+	@Override
+	public void writeRequested(ChannelHandlerContext ctx, MessageEvent e) throws Exception {
+		Object message = e.getMessage();
 
-    }
+		if (message instanceof ISenseOtapInitStartCommand) {
+			log.debug("Received otap init request. Starting to initialize devices...");
+			ISenseOtapInitStartCommand request = (ISenseOtapInitStartCommand) message;
+			startOtapInit(request);
 
-    private void handleOtapInitReply(OtapInitReply reply) {
-        Set<Integer> devicesToInitialize = request.getDevicesToInitialize();
+		} else {
+			super.writeRequested(ctx, e);
+		}
+	}
 
-        if (devicesToInitialize.contains(reply.device_id)) {
-            initializedDevices.add(reply.device_id);
-            log.trace("Init reply from device {}, now got {} devices: {}", new Object[]{reply.device_id,
-                    initializedDevices.size(), StringUtils.toString(initializedDevices, ", ")});
-        } else {
-            log.trace("Ignored unsolicited reply from device {} that does not participate.",
-                    StringUtils.toHexString(reply.device_id));
-        }
+	@Override
+	public void messageReceived(final ChannelHandlerContext ctx, final MessageEvent e) throws Exception {
+		Object message = e.getMessage();
 
-        checkIfDoneAndNotifyUpstream();
-    }
+		if (message instanceof OtapInitReply) {
+			OtapInitReply reply = (OtapInitReply) message;
 
-    /**
-     * Check if all devices have sent acks or if a timeout has occured.
-     */
-    private void checkIfDoneAndNotifyUpstream() {
-        Set<Integer> devicesToInitialize = request.getDevicesToInitialize();
-        boolean timeout = otapInitStart.isTimeout();
-        boolean allDevicesInitialized = devicesToInitialize.size() == initializedDevices.size();
+			if (request != null) {
+				handleOtapInitReply(reply);
+			} else {
+				log.debug("Ignoring otap init reply in wrong state --> no previous request");
+			}
 
-        if (timeout || allDevicesInitialized) {
+		} else {
+			super.messageReceived(ctx, e);
+		}
 
-            log.info("All {} devices have either acknowledged {}, or a timeout occured {}. Done", new Object[]{
-                    devicesToInitialize.size(), allDevicesInitialized, timeout});
+	}
 
-            ISenseOtapInitResult result = new ISenseOtapInitResult(request, initializedDevices);
+	private void handleOtapInitReply(OtapInitReply reply) {
+		Set<Integer> devicesToInitialize = request.getDevicesToInitialize();
 
-            stopOtapInit();
+		if (devicesToInitialize.contains(reply.device_id)) {
+			initializedDevices.add(reply.device_id);
+			log.trace("Init reply from device {}, now got {} devices: {}", new Object[]{
+					reply.device_id,
+					initializedDevices.size(), StringUtils.toString(initializedDevices, ", ")
+			}
+			);
+		} else {
+			log.trace("Ignored unsolicited reply from device {} that does not participate.",
+					StringUtils.toHexString(reply.device_id)
+			);
+		}
 
-            HandlerTools.sendUpstream(result, context);
-        }
-    }
+		checkIfDoneAndNotifyUpstream();
+	}
 
-    @Override
-    public void afterAdd(ChannelHandlerContext ctx) throws Exception {
-        Preconditions.checkArgument(context == null, "This instance may only be inserted once into a pipeline. ");
-        this.context = ctx;
-    }
+	/**
+	 * Check if all devices have sent acks or if a timeout has occured.
+	 */
+	private void checkIfDoneAndNotifyUpstream() {
+		Set<Integer> devicesToInitialize = request.getDevicesToInitialize();
+		boolean timeout = otapInitStart.isTimeout();
+		boolean allDevicesInitialized = devicesToInitialize.size() == initializedDevices.size();
 
-    @Override
-    public void afterRemove(ChannelHandlerContext ctx) throws Exception {
-        this.context = null;
-    }
+		if (timeout || allDevicesInitialized) {
 
-    @Override
-    public void beforeAdd(ChannelHandlerContext ctx) throws Exception {
-        // Nothing to do
-    }
+			log.info("All {} devices have either acknowledged {}, or a timeout occured {}. Done", new Object[]{
+					devicesToInitialize.size(), allDevicesInitialized, timeout
+			}
+			);
 
-    @Override
-    public void beforeRemove(ChannelHandlerContext ctx) throws Exception {
-        // Nothing to do
-    }
+			ISenseOtapInitResult result = new ISenseOtapInitResult(request, initializedDevices);
+
+			stopOtapInit();
+
+			HandlerTools.sendUpstream(result, context);
+		}
+	}
+
+	@Override
+	public void afterAdd(ChannelHandlerContext ctx) throws Exception {
+		Preconditions.checkArgument(context == null, "This instance may only be inserted once into a pipeline. ");
+		this.context = ctx;
+	}
+
+	@Override
+	public void afterRemove(ChannelHandlerContext ctx) throws Exception {
+		this.context = null;
+	}
+
+	@Override
+	public void beforeAdd(ChannelHandlerContext ctx) throws Exception {
+		// Nothing to do
+	}
+
+	@Override
+	public void beforeRemove(ChannelHandlerContext ctx) throws Exception {
+		// Nothing to do
+	}
 
 }

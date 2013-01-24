@@ -11,6 +11,7 @@ import org.jboss.netty.buffer.ChannelBuffers;
  * To change this template use File | Settings | File Templates.
  */
 public abstract class Command {
+
 	protected ChannelBuffer buffer;
 
 	public Command(byte commandType, byte requestID, ChannelBuffer payload) {
@@ -22,15 +23,15 @@ public abstract class Command {
 
 	public abstract ChannelBuffer getBuffer();
 
-	public int getCommandType(){
+	public int getCommandType() {
 		return this.buffer.getByte(0);
 	}
 
-	public int getRequestID(){
+	public int getRequestID() {
 		return this.buffer.getByte(1);
 	}
 
-	public ChannelBuffer getPayload(){
+	public ChannelBuffer getPayload() {
 		return this.buffer.slice(2, this.buffer.readableBytes() - 2);
 	}
 }

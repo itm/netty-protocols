@@ -11,6 +11,7 @@ import de.uniluebeck.itm.netty.wisebednodeapi.packet.Request;
  * To change this template use File | Settings | File Templates.
  */
 public class TextDataRequest extends Request {
+
 	private final byte messageLevel;
 
 	public TextDataRequest(final byte requestID, final byte messageLevel, final byte[] payload) {

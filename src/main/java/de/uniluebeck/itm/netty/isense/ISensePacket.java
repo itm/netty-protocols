@@ -35,8 +35,11 @@ public class ISensePacket {
 	 * Creates a new ISensePacket instance that creates a new wrapping ChannelBuffer around {@code type} and
 	 * {@code payload}. Any changes made to {@code payload} will reflect on this packet.
 	 *
-	 * @param type	the type of the packet (see {@link ISensePacketType})
-	 * @param payload the packets payload
+	 * @param type
+	 * 		the type of the packet (see {@link ISensePacketType})
+	 * @param payload
+	 * 		the packets payload
+	 *
 	 * @see ChannelBuffers#wrappedBuffer(java.nio.ByteBuffer...)
 	 */
 	public ISensePacket(final byte type, final ChannelBuffer payload) {
@@ -46,7 +49,8 @@ public class ISensePacket {
 	/**
 	 * Creates a new ISensePacket instance using {@code buffer} as its backing buffer.
 	 *
-	 * @param buffer the backing buffer
+	 * @param buffer
+	 * 		the backing buffer
 	 */
 	public ISensePacket(ChannelBuffer buffer) {
 		this.buffer = buffer;
@@ -55,8 +59,10 @@ public class ISensePacket {
 	/**
 	 * Creates a new ISensePacket by calling {@code this(type.getValue(), channelBuffer)}.
 	 *
-	 * @param type the type of the packet
-	 * @param channelBuffer the packets payload
+	 * @param type
+	 * 		the type of the packet
+	 * @param channelBuffer
+	 * 		the packets payload
 	 */
 	public ISensePacket(ISensePacketType type, ChannelBuffer channelBuffer) {
 		this(type.getValue(), channelBuffer);
@@ -66,6 +72,7 @@ public class ISensePacket {
 	 * Returns a slice of the underlying {@link ChannelBuffer} containing the packets payload.
 	 *
 	 * @return a slice of the underlying ChannelBuffer
+	 *
 	 * @see ChannelBuffer#slice(int, int)
 	 */
 	public ChannelBuffer getPayload() {

@@ -10,7 +10,8 @@ import org.jboss.netty.buffer.ChannelBuffer;
  * Time: 13:22
  * To change this template use File | Settings | File Templates.
  */
-public class NodeOutputTextCommand extends TextMessageCommand{
+public class NodeOutputTextCommand extends TextMessageCommand {
+
 	public NodeOutputTextCommand(byte requestID, byte messageLevel, ChannelBuffer payload) {
 		super(CommandType.Interaction.NODE_OUTPUT_TEXT, requestID, messageLevel, payload);
 	}

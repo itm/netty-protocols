@@ -12,6 +12,7 @@ import org.jboss.netty.buffer.ChannelBuffer;
  * To change this template use File | Settings | File Templates.
  */
 public class ResetNodeCommandResponse extends CommandResponse {
+
 	public ResetNodeCommandResponse(byte requestID, byte result, ChannelBuffer payload) {
 		super(CommandType.NodeControl.RESET_NODE, requestID, result, payload);
 	}

@@ -31,8 +31,8 @@ public class DleStxEtxConstants {
 
 	public static final byte ETX = 0x03;
 
-	public static final byte[] DLE_STX = new byte[] { DLE, STX };
+	public static final byte[] DLE_STX = new byte[]{DLE, STX};
 
-	public static final byte[] DLE_ETX = new byte[] { DLE, ETX };
+	public static final byte[] DLE_ETX = new byte[]{DLE, ETX};
 
 }

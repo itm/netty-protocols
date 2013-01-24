@@ -10,11 +10,12 @@ import de.uniluebeck.itm.netty.wisebednodeapi.packet.Response;
  * To change this template use File | Settings | File Templates.
  */
 public class GetPropertyValueResponse extends Response {
+
 	public GetPropertyValueResponse(final GetPropertyValueRequest request) {
 		super(request);
 	}
 
-	public byte getProperty(){
+	public byte getProperty() {
 		return ((GetPropertyValueRequest) request).getProperty();
 	}
 }

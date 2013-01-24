@@ -10,11 +10,12 @@ import de.uniluebeck.itm.netty.wisebednodeapi.packet.Response;
  * To change this template use File | Settings | File Templates.
  */
 public class NodeOutputBinaryResponse extends Response {
+
 	public NodeOutputBinaryResponse(final NodeOutputBinaryRequest request) {
 		super(request);
 	}
 
-	public byte getLen(){
+	public byte getLen() {
 		return ((NodeOutputBinaryRequest) request).getLen();
 	}
 }

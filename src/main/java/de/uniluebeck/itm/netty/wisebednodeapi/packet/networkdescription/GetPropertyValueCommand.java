@@ -12,15 +12,17 @@ import org.jboss.netty.buffer.ChannelBuffers;
  * Time: 10:37
  * To change this template use File | Settings | File Templates.
  */
-public class GetPropertyValueCommand extends Command{
+public class GetPropertyValueCommand extends Command {
+
 	private ChannelBuffer buffer;
+
 	public GetPropertyValueCommand(byte requestID, ChannelBuffer payload, byte property) {
 		super(CommandType.NetworkDescription.GET_PROPERTY_VALUE, requestID, payload);
 		this.buffer = ChannelBuffers.buffer(1);
 		this.buffer.writeByte(property);
 	}
 
-	public byte getProperty(){
+	public byte getProperty() {
 		return this.buffer.getByte(0);
 	}
 

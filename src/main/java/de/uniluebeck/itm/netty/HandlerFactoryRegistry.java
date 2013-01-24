@@ -116,7 +116,8 @@ public class HandlerFactoryRegistry {
 	 * }
 	 * </pre>
 	 *
-	 * @param configFile The configuration file to read.
+	 * @param configFile
+	 * 		The configuration file to read.
 	 *
 	 * @return
 	 *

@@ -6,7 +6,9 @@ package de.uniluebeck.itm.netty.wisebednodeapi.packet;
 public abstract class Request {
 
 	private final byte commandType;
+
 	private final byte requestID;
+
 	private final byte[] payload;
 
 	public Request(final byte commandType, final byte requestID, final byte[] payload) {
@@ -19,7 +21,7 @@ public abstract class Request {
 		return requestID;
 	}
 
-	public byte getCommandType(){
+	public byte getCommandType() {
 		return this.commandType;
 	}
 

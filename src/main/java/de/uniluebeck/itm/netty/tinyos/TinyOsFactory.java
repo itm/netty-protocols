@@ -3,10 +3,6 @@ package de.uniluebeck.itm.netty.tinyos;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import de.uniluebeck.itm.netty.HandlerFactory;
-import de.uniluebeck.itm.netty.tinyos.HdlcTranslateDecoderFactory;
-import de.uniluebeck.itm.netty.tinyos.HdlcTranslateEncoderFactory;
-import de.uniluebeck.itm.netty.tinyos.TinyOsSerialDecoderFactory;
-import de.uniluebeck.itm.netty.tinyos.TinyOsSerialEncoderFactory;
 import de.uniluebeck.itm.tr.util.Tuple;
 import org.jboss.netty.channel.ChannelHandler;
 
@@ -21,8 +17,12 @@ public class TinyOsFactory implements HandlerFactory {
 													  final Multimap<String, String> properties) throws Exception {
 
 		List<Tuple<String, ChannelHandler>> handlers = new LinkedList<Tuple<String, ChannelHandler>>();
-		handlers.addAll(new HdlcTranslateDecoderFactory().create(instanceName + "-tinyos-hdlctranslate-decoder", properties));
-		handlers.addAll(new HdlcTranslateEncoderFactory().create(instanceName + "-tinyos-hdlctranslate-encoder", properties));
+		handlers.addAll(
+				new HdlcTranslateDecoderFactory().create(instanceName + "-tinyos-hdlctranslate-decoder", properties)
+		);
+		handlers.addAll(
+				new HdlcTranslateEncoderFactory().create(instanceName + "-tinyos-hdlctranslate-encoder", properties)
+		);
 		handlers.addAll(new TinyOsSerialDecoderFactory().create(instanceName + "-tinyos-serial-decoder", properties));
 		handlers.addAll(new TinyOsSerialEncoderFactory().create(instanceName + "-tinyos-serial-encoder", properties));
 		return handlers;

@@ -34,68 +34,71 @@ import org.jboss.netty.channel.SimpleChannelHandler;
 import org.slf4j.LoggerFactory;
 
 public class IShellInterpreterHandler extends SimpleChannelHandler {
-    private final org.slf4j.Logger log;
 
-    private ChannelHandlerContext context;
+	private final org.slf4j.Logger log;
 
-    public IShellInterpreterHandler() {
-        this(null);
-    }
+	private ChannelHandlerContext context;
 
-    public IShellInterpreterHandler(String instanceName) {
-        log = LoggerFactory.getLogger(instanceName != null ? instanceName : IShellInterpreterHandler.class.getName());
-    }
+	public IShellInterpreterHandler() {
+		this(null);
+	}
 
-    @Override
-    public void channelDisconnected(final ChannelHandlerContext ctx, final ChannelStateEvent e) throws Exception {
-        context = null;
-        super.channelDisconnected(ctx, e);
-    }
+	public IShellInterpreterHandler(String instanceName) {
+		log = LoggerFactory.getLogger(instanceName != null ? instanceName : IShellInterpreterHandler.class.getName());
+	}
 
-    @Override
-    public void channelConnected(final ChannelHandlerContext ctx, final ChannelStateEvent e) throws Exception {
-        log.debug("----IShellInterpreterHandler:connected----");
-        if (ctx == null) log.debug("received null ctx channel");
-        context = ctx;
-        super.channelConnected(ctx, e);
+	@Override
+	public void channelDisconnected(final ChannelHandlerContext ctx, final ChannelStateEvent e) throws Exception {
+		context = null;
+		super.channelDisconnected(ctx, e);
+	}
+
+	@Override
+	public void channelConnected(final ChannelHandlerContext ctx, final ChannelStateEvent e) throws Exception {
+		log.debug("----IShellInterpreterHandler:connected----");
+		if (ctx == null) {
+			log.debug("received null ctx channel");
+		}
+		context = ctx;
+		super.channelConnected(ctx, e);
 
 //        setChannel((byte) 11);
-    }
+	}
 
-    @Override
-    public void writeRequested(ChannelHandlerContext ctx, MessageEvent e) throws Exception {
+	@Override
+	public void writeRequested(ChannelHandlerContext ctx, MessageEvent e) throws Exception {
 
-        if (e.getMessage() instanceof IShellInterpreterSetChannelMessage) {
-            IShellInterpreterSetChannelMessage msg = (IShellInterpreterSetChannelMessage) e.getMessage();
-            setChannel(msg.getChannel());
-        } else if (e.getMessage() instanceof ChannelBuffer) {
-            log.debug("setting channel");
-            ChannelBuffer cbuf = (ChannelBuffer) e.getMessage();
-            if ((cbuf.getByte(0) == ISensePacketType.CODE.getValue()) &&
-                    (cbuf.getByte(1) == IShellInterpreterPacketTypes.COMMAND_SET_CHANNEL.getValue())) {
-                setChannel(cbuf.getByte(2));
-            } else {
-                super.writeRequested(ctx, e);
-            }
+		if (e.getMessage() instanceof IShellInterpreterSetChannelMessage) {
+			IShellInterpreterSetChannelMessage msg = (IShellInterpreterSetChannelMessage) e.getMessage();
+			setChannel(msg.getChannel());
+		} else if (e.getMessage() instanceof ChannelBuffer) {
+			log.debug("setting channel");
+			ChannelBuffer cbuf = (ChannelBuffer) e.getMessage();
+			if ((cbuf.getByte(0) == ISensePacketType.CODE.getValue()) &&
+					(cbuf.getByte(1) == IShellInterpreterPacketTypes.COMMAND_SET_CHANNEL.getValue())) {
+				setChannel(cbuf.getByte(2));
+			} else {
+				super.writeRequested(ctx, e);
+			}
 
-        } else {
-            super.writeRequested(ctx, e);
-        }
+		} else {
+			super.writeRequested(ctx, e);
+		}
 
-    }
+	}
 
-    public void setChannel(byte channelNumber) {
-        if (this.context == null) {
-            throw new RuntimeException("Channel not yet connected");
-        }
+	public void setChannel(byte channelNumber) {
+		if (this.context == null) {
+			throw new RuntimeException("Channel not yet connected");
+		}
 
-        ChannelBuffer buffer = ChannelBuffers.buffer(3);
-        buffer.writeByte(ISensePacketType.CODE.getValue());
-        buffer.writeByte(IShellInterpreterPacketTypes.COMMAND_SET_CHANNEL.getValue());
-        buffer.writeByte(channelNumber);
+		ChannelBuffer buffer = ChannelBuffers.buffer(3);
+		buffer.writeByte(ISensePacketType.CODE.getValue());
+		buffer.writeByte(IShellInterpreterPacketTypes.COMMAND_SET_CHANNEL.getValue());
+		buffer.writeByte(channelNumber);
 
-        log.debug("Setting channel to {}", channelNumber);
-        HandlerTools.sendDownstream(new ISensePacket(buffer), context);
-    }
+		log.debug("Setting channel to {}", channelNumber);
+		HandlerTools.sendDownstream(new ISensePacket(buffer), context);
+	}
 
 }

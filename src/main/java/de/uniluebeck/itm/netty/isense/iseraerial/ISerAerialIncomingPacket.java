@@ -22,91 +22,101 @@
  */
 package de.uniluebeck.itm.netty.isense.iseraerial;
 
+import de.uniluebeck.itm.netty.util.NettyStringUtils;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBuffers;
 import org.slf4j.LoggerFactory;
 
-import de.uniluebeck.itm.netty.util.NettyStringUtils;
-
 public class ISerAerialIncomingPacket {
-    private static final org.slf4j.Logger log = LoggerFactory.getLogger(ISerAerialIncomingPacket.class);
-    private static final int HEADER_LENGTH = 9;
-    public static final byte TYPE_CODE = 0x00;
-    private final ChannelBuffer buffer;
 
-    /**
-     * Creates a new ISensePacket instance using {@code buffer} as its backing buffer.
-     * 
-     * @param buffer
-     *            the backing buffer
-     */
-    public ISerAerialIncomingPacket(ChannelBuffer buffer) throws Exception {
+	private static final org.slf4j.Logger log = LoggerFactory.getLogger(ISerAerialIncomingPacket.class);
 
-        if (buffer.readableBytes() < HEADER_LENGTH)
-            throw new Exception(String.format("Packet size of %d is too short, expecting at least %d",
-                    buffer.readableBytes(), HEADER_LENGTH));
+	private static final int HEADER_LENGTH = 9;
 
-        if (buffer.getByte(0) != TYPE_CODE)
-            throw new Exception(String.format("Unexpected first type byte %d, expected %d", buffer.getByte(0),
-                    TYPE_CODE));
+	public static final byte TYPE_CODE = 0x00;
 
-        this.buffer = buffer;
-    }
+	private final ChannelBuffer buffer;
 
-    public int getSource() {
-        return ((0xFF & buffer.getByte(1)) << 8) + (0xFF & buffer.getByte(2));
-    }
+	/**
+	 * Creates a new ISensePacket instance using {@code buffer} as its backing buffer.
+	 *
+	 * @param buffer
+	 * 		the backing buffer
+	 */
+	public ISerAerialIncomingPacket(ChannelBuffer buffer) throws Exception {
 
-    public int getDestination() {
-        return ((0xFF & buffer.getByte(3)) << 8) + (0xFF & buffer.getByte(4));
-    }
+		if (buffer.readableBytes() < HEADER_LENGTH) {
+			throw new Exception(String.format("Packet size of %d is too short, expecting at least %d",
+					buffer.readableBytes(), HEADER_LENGTH
+			)
+			);
+		}
 
-    public int getLinkQualityIndicator() {
-        return ((0xFF & buffer.getByte(5)) << 8) + (0xFF & buffer.getByte(6));
-    }
+		if (buffer.getByte(0) != TYPE_CODE) {
+			throw new Exception(String.format("Unexpected first type byte %d, expected %d", buffer.getByte(0),
+					TYPE_CODE
+			)
+			);
+		}
 
-    public int getInterface() {
-        return (0xFF & buffer.getByte(7));
-    }
+		this.buffer = buffer;
+	}
 
-    public ChannelBuffer getPayload() {
-        int readablePayloadBytes = buffer.readableBytes() - HEADER_LENGTH;
-        int advertisedPayloadBytes = (0xFF & buffer.getByte(8));
+	public int getSource() {
+		return ((0xFF & buffer.getByte(1)) << 8) + (0xFF & buffer.getByte(2));
+	}
 
-        if (readablePayloadBytes == 0 || readablePayloadBytes != advertisedPayloadBytes) {
-            log.warn("Unable to decode packet, advertised payload length {} != readableBytes {}",
-                    advertisedPayloadBytes, readablePayloadBytes);
-            return ChannelBuffers.EMPTY_BUFFER;
-        }
+	public int getDestination() {
+		return ((0xFF & buffer.getByte(3)) << 8) + (0xFF & buffer.getByte(4));
+	}
 
-        if (readablePayloadBytes == 0) {
-            log.debug("Empty payload received, returning emptyp buffer");
-            return ChannelBuffers.EMPTY_BUFFER;
-        }
+	public int getLinkQualityIndicator() {
+		return ((0xFF & buffer.getByte(5)) << 8) + (0xFF & buffer.getByte(6));
+	}
 
-        return ChannelBuffers.unmodifiableBuffer(buffer.slice(HEADER_LENGTH, buffer.readableBytes() - HEADER_LENGTH));
-    }
+	public int getInterface() {
+		return (0xFF & buffer.getByte(7));
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.lang.Object#toString()
-     */
-    @Override
-    public String toString() {
-        StringBuilder builder = new StringBuilder();
-        builder.append("ISerAerialIncomingPacket [source=0x");
-        builder.append(Integer.toString(getSource(), 16));
-        builder.append(", destination=0x");
-        builder.append(Integer.toString(getDestination(), 16));
-        builder.append(", lqi=");
-        builder.append(getLinkQualityIndicator());
-        builder.append(", interface=");
-        builder.append(getInterface());
-        builder.append(", payload=");
-        builder.append(NettyStringUtils.toHexString(getPayload()));
-        builder.append("]");
-        return builder.toString();
-    }
+	public ChannelBuffer getPayload() {
+		int readablePayloadBytes = buffer.readableBytes() - HEADER_LENGTH;
+		int advertisedPayloadBytes = (0xFF & buffer.getByte(8));
+
+		if (readablePayloadBytes == 0 || readablePayloadBytes != advertisedPayloadBytes) {
+			log.warn("Unable to decode packet, advertised payload length {} != readableBytes {}",
+					advertisedPayloadBytes, readablePayloadBytes
+			);
+			return ChannelBuffers.EMPTY_BUFFER;
+		}
+
+		if (readablePayloadBytes == 0) {
+			log.debug("Empty payload received, returning emptyp buffer");
+			return ChannelBuffers.EMPTY_BUFFER;
+		}
+
+		return ChannelBuffers.unmodifiableBuffer(buffer.slice(HEADER_LENGTH, buffer.readableBytes() - HEADER_LENGTH));
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("ISerAerialIncomingPacket [source=0x");
+		builder.append(Integer.toString(getSource(), 16));
+		builder.append(", destination=0x");
+		builder.append(Integer.toString(getDestination(), 16));
+		builder.append(", lqi=");
+		builder.append(getLinkQualityIndicator());
+		builder.append(", interface=");
+		builder.append(getInterface());
+		builder.append(", payload=");
+		builder.append(NettyStringUtils.toHexString(getPayload()));
+		builder.append("]");
+		return builder.toString();
+	}
 
 }

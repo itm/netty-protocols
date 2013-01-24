@@ -10,7 +10,8 @@ import de.uniluebeck.itm.netty.wisebednodeapi.packet.Request;
  * Time: 13:17
  * To change this template use File | Settings | File Templates.
  */
-public class NodeOutputTextRequest extends Request{
+public class NodeOutputTextRequest extends Request {
+
 	private final byte messageLevel;
 
 	public NodeOutputTextRequest(final byte requestID, final byte messageLevel, final byte[] payload) {
@@ -22,5 +23,5 @@ public class NodeOutputTextRequest extends Request{
 	public byte getMessageLevel() {
 		return messageLevel;
 	}
-	
+
 }

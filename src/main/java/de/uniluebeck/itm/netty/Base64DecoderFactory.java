@@ -2,7 +2,6 @@ package de.uniluebeck.itm.netty;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
-import de.uniluebeck.itm.netty.HandlerFactory;
 import de.uniluebeck.itm.tr.util.Tuple;
 import org.jboss.netty.channel.ChannelHandler;
 import org.jboss.netty.handler.codec.base64.Base64Decoder;

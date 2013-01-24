@@ -12,6 +12,7 @@ import org.jboss.netty.buffer.ChannelBuffer;
  * To change this template use File | Settings | File Templates.
  */
 public class DisableNodeCommandResponse extends CommandResponse {
+
 	public DisableNodeCommandResponse(byte requestID, byte result, ChannelBuffer payload) {
 		super(CommandType.NodeControl.DISABLE_NODE, requestID, result, payload);
 	}

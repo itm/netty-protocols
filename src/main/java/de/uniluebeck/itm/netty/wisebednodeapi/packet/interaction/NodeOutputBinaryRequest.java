@@ -11,6 +11,7 @@ import de.uniluebeck.itm.netty.wisebednodeapi.packet.Request;
  * To change this template use File | Settings | File Templates.
  */
 public class NodeOutputBinaryRequest extends Request {
+
 	private final byte len;
 
 	public NodeOutputBinaryRequest(final byte requestID, final byte len, final byte[] payload) {

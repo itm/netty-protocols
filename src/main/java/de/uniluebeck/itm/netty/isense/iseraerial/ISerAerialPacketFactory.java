@@ -22,18 +22,15 @@
  */
 package de.uniluebeck.itm.netty.isense.iseraerial;
 
-import java.util.LinkedList;
-import java.util.List;
-
 import com.google.common.collect.HashMultimap;
-import org.jboss.netty.channel.ChannelHandler;
-
 import com.google.common.collect.Multimap;
-
 import de.uniluebeck.itm.netty.HandlerFactory;
 import de.uniluebeck.itm.tr.util.Tuple;
+import org.jboss.netty.channel.ChannelHandler;
 
 import javax.annotation.Nullable;
+import java.util.LinkedList;
+import java.util.List;
 
 public class ISerAerialPacketFactory implements HandlerFactory {
 
@@ -58,9 +55,9 @@ public class ISerAerialPacketFactory implements HandlerFactory {
 	}
 
 	@Override
-    public String getDescription() {
-        return "Encoder and Decoder for encoding and decoding ISerAerialPacket POJO instances.";
-    }
+	public String getDescription() {
+		return "Encoder and Decoder for encoding and decoding ISerAerialPacket POJO instances.";
+	}
 
 	@Override
 	public String getName() {

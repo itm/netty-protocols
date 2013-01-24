@@ -12,6 +12,7 @@ import org.jboss.netty.buffer.ChannelBuffer;
  * To change this template use File | Settings | File Templates.
  */
 public class SetVirtualIDCommandResponse extends CommandResponse {
+
 	public SetVirtualIDCommandResponse(byte requestID, byte result, ChannelBuffer payload) {
 		super(CommandType.NodeControl.SET_VIRTUAL_ID, requestID, result, payload);
 	}

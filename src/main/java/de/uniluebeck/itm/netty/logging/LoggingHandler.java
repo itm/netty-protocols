@@ -54,7 +54,7 @@ public class LoggingHandler implements ChannelDownstreamHandler, ChannelUpstream
 
 	@Override
 	public void handleUpstream(final ChannelHandlerContext ctx, final ChannelEvent e) throws Exception {
-		
+
 		if (e instanceof UpstreamMessageEvent && ((UpstreamMessageEvent) e).getMessage() instanceof ChannelBuffer) {
 			logChannelBuffer((ChannelBuffer) ((UpstreamMessageEvent) e).getMessage(), false);
 		} else {

@@ -53,13 +53,13 @@ public class ISerAerialPacketEncoderFactory implements HandlerFactory {
 	}
 
 	@Override
-    public String getDescription() {
-        return "The protocol encoder implements the iSerAerial protocol used by the iSense sensor nodes from "
+	public String getDescription() {
+		return "The protocol encoder implements the iSerAerial protocol used by the iSense sensor nodes from "
 				+ "coalesenses. The protocol is used on the serial interface between a PC and a sensor node. Any "
 				+ "iSerAerial packet sent to the sensor node will be transmitted via the node's radio interface. Any "
 				+ "packet received by the node via the radio interface is sent via the serial interface to the PC. "
 				+ "Also see https://github.com/itm/netty-handlerstack/wiki/ISerAerial-Protocol-Decoder-Encoder.";
-    }
+	}
 
 	@Override
 	public String getName() {

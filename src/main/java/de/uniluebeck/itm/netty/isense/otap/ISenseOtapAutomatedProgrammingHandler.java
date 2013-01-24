@@ -44,199 +44,214 @@ import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkState;
 
-public class ISenseOtapAutomatedProgrammingHandler extends SimpleChannelHandler implements LifeCycleAwareChannelHandler {
-    private final org.slf4j.Logger log;
+public class ISenseOtapAutomatedProgrammingHandler extends SimpleChannelHandler
+		implements LifeCycleAwareChannelHandler {
 
-    private enum State {
-        IDLE, PRESENCE_DETECT, OTAP_INIT, OTAP_PROGRAM
-    }
+	private final org.slf4j.Logger log;
 
-    private ChannelHandlerContext context;
-    private State state = State.IDLE;
-    private ISenseOtapAutomatedProgrammingRequest programRequest;
-    private TimeDiff presenceDetectStart;
+	private enum State {
+		IDLE, PRESENCE_DETECT, OTAP_INIT, OTAP_PROGRAM
+	}
 
-    public ISenseOtapAutomatedProgrammingHandler(String instanceName) {
-        log =
-                LoggerFactory.getLogger((instanceName != null) ? instanceName
-                        : ISenseOtapAutomatedProgrammingHandler.class.getName());
-    }
+	private ChannelHandlerContext context;
 
-    @Override
-    public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) throws Exception {
-        Object message = e.getMessage();
+	private State state = State.IDLE;
 
-        if (message instanceof PresenceDetectStatus) {
+	private ISenseOtapAutomatedProgrammingRequest programRequest;
 
-            if (state == State.PRESENCE_DETECT) {
-                PresenceDetectStatus result = (PresenceDetectStatus) message;
-                boolean isDetectedAllDevices =
-                        result.getDetectedDevices().containsAll(programRequest.getDevicesToProgram());
-                boolean isTimeout = presenceDetectStart.isTimeout();
+	private TimeDiff presenceDetectStart;
 
-                if (isDetectedAllDevices || isTimeout) {
-                    log.info("Detected all devices ({}) or timeout ({}).", isDetectedAllDevices, isTimeout);
-                    switchToInitMode((PresenceDetectStatus) message);
-                }
+	public ISenseOtapAutomatedProgrammingHandler(String instanceName) {
+		log =
+				LoggerFactory.getLogger((instanceName != null) ? instanceName
+						: ISenseOtapAutomatedProgrammingHandler.class.getName()
+				);
+	}
 
-            } else {
-                log.warn("Ignoring presence detect status update in state {}", state);
-            }
+	@Override
+	public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) throws Exception {
+		Object message = e.getMessage();
 
-        } else if (message instanceof ISenseOtapInitResult) {
+		if (message instanceof PresenceDetectStatus) {
 
-            if (state == State.OTAP_INIT) {
-                switchToProgrammingMode((ISenseOtapInitResult) message);
-            } else {
-                log.warn("Ignoring otap init status update in state {}", state);
-            }
+			if (state == State.PRESENCE_DETECT) {
+				PresenceDetectStatus result = (PresenceDetectStatus) message;
+				boolean isDetectedAllDevices =
+						result.getDetectedDevices().containsAll(programRequest.getDevicesToProgram());
+				boolean isTimeout = presenceDetectStart.isTimeout();
 
-        } else if (message instanceof ISenseOtapProgramResult) {
+				if (isDetectedAllDevices || isTimeout) {
+					log.info("Detected all devices ({}) or timeout ({}).", isDetectedAllDevices, isTimeout);
+					switchToInitMode((PresenceDetectStatus) message);
+				}
 
-            if (state == State.OTAP_PROGRAM) {
-                switchToIdleState((ISenseOtapProgramResult) message);
-            } else {
-                log.warn("Ignoring otap init status update in state {}", state);
-            }
+			} else {
+				log.warn("Ignoring presence detect status update in state {}", state);
+			}
 
-        } else {
-            try {
-                super.messageReceived(ctx, e);
-            } catch (java.lang.ClassCastException exception) {
-                log.error(exception.toString());
-            }
-        }
+		} else if (message instanceof ISenseOtapInitResult) {
 
-    }
+			if (state == State.OTAP_INIT) {
+				switchToProgrammingMode((ISenseOtapInitResult) message);
+			} else {
+				log.warn("Ignoring otap init status update in state {}", state);
+			}
 
-    @Override
-    public void writeRequested(ChannelHandlerContext ctx, MessageEvent e) throws Exception {
-        Object message = e.getMessage();
+		} else if (message instanceof ISenseOtapProgramResult) {
 
-        if (message instanceof ISenseOtapAutomatedProgrammingRequest) {
+			if (state == State.OTAP_PROGRAM) {
+				switchToIdleState((ISenseOtapProgramResult) message);
+			} else {
+				log.warn("Ignoring otap init status update in state {}", state);
+			}
 
-            if (state == State.IDLE) {
-                ISenseOtapAutomatedProgrammingRequest request = (ISenseOtapAutomatedProgrammingRequest) message;
+		} else {
+			try {
+				super.messageReceived(ctx, e);
+			} catch (java.lang.ClassCastException exception) {
+				log.error(exception.toString());
+			}
+		}
 
-                log.info("Received automated programming request switching to presence detect mode.");
-                log.info("Automated programming request: {}", request);
-                switchToPresenceDetectMode(request);
-            } else {
-                // TODO Inform upstream handlers
-                log.error("Already in non-IDLE state {}. Ignoring request.", state);
-            }
+	}
 
-        } else {
-            super.writeRequested(ctx, e);
-        }
+	@Override
+	public void writeRequested(ChannelHandlerContext ctx, MessageEvent e) throws Exception {
+		Object message = e.getMessage();
 
-    }
+		if (message instanceof ISenseOtapAutomatedProgrammingRequest) {
 
-    private void switchToPresenceDetectMode(ISenseOtapAutomatedProgrammingRequest request) {
-        state = State.PRESENCE_DETECT;
+			if (state == State.IDLE) {
+				ISenseOtapAutomatedProgrammingRequest request = (ISenseOtapAutomatedProgrammingRequest) message;
 
-        this.programRequest = request;
-        this.presenceDetectStart = new TimeDiff(request.getPresenceDetectTimeoutAsDurationPlusUnit().toMillis());
+				log.info("Received automated programming request switching to presence detect mode.");
+				log.info("Automated programming request: {}", request);
+				switchToPresenceDetectMode(request);
+			} else {
+				// TODO Inform upstream handlers
+				log.error("Already in non-IDLE state {}. Ignoring request.", state);
+			}
 
-        HandlerTools.sendDownstream(new PresenceDetectControlStart(), context);
-    }
+		} else {
+			super.writeRequested(ctx, e);
+		}
 
-    private void switchToInitMode(PresenceDetectStatus message) {
-        log.info("Switching to otap init mode (after presence detect)");
-        state = State.OTAP_INIT;
+	}
 
-        HandlerTools.sendDownstream(new PresenceDetectControlStop(), context);
+	private void switchToPresenceDetectMode(ISenseOtapAutomatedProgrammingRequest request) {
+		state = State.PRESENCE_DETECT;
 
-        Set<Integer> detectedDevices = message.getDetectedDevices();
-        StringBuilder builder = new StringBuilder();
+		this.programRequest = request;
+		this.presenceDetectStart = new TimeDiff(request.getPresenceDetectTimeoutAsDurationPlusUnit().toMillis());
 
-        for (Integer deviceId : detectedDevices) {
-            builder.append("0x");
-            builder.append(Integer.toHexString(deviceId));
-            builder.append(",");
-        }
+		HandlerTools.sendDownstream(new PresenceDetectControlStart(), context);
+	}
 
-        log.info("Detected devices: {}", builder.toString());
+	private void switchToInitMode(PresenceDetectStatus message) {
+		log.info("Switching to otap init mode (after presence detect)");
+		state = State.OTAP_INIT;
 
-        Set<Integer> detectedDevicesToProgram =
-                Sets.intersection(detectedDevices, programRequest.getDevicesToProgram());
+		HandlerTools.sendDownstream(new PresenceDetectControlStop(), context);
 
-        ISenseOtapImage program = new ISenseOtapImage(programRequest.getOtapProgram());
+		Set<Integer> detectedDevices = message.getDetectedDevices();
+		StringBuilder builder = new StringBuilder();
 
-        ISenseOtapInitStartCommand command =
-                new ISenseOtapInitStartCommand(detectedDevicesToProgram, programRequest.getOtapInitTimeoutAsDurationPlusUnit(),
-                        program.getChunkCount(), programRequest.getMaxRerequests(),
-                        programRequest.getTimeoutMultiplier());
+		for (Integer deviceId : detectedDevices) {
+			builder.append("0x");
+			builder.append(Integer.toHexString(deviceId));
+			builder.append(",");
+		}
 
-        HandlerTools.sendDownstream(command, context);
-    }
+		log.info("Detected devices: {}", builder.toString());
 
-    private void switchToProgrammingMode(ISenseOtapInitResult otapInitResult) {
-        if (programRequest == null || context == null) {
-            log.warn("Program request {} or context {} is null. Doing nothing.", programRequest, context);
-            return;
-        }
+		Set<Integer> detectedDevicesToProgram =
+				Sets.intersection(detectedDevices, programRequest.getDevicesToProgram());
 
-        state = State.OTAP_PROGRAM;
-        log.info("Switching to programming mode. {} devices out of {} selected initialized.", otapInitResult
-                .getInitializedDevices().size(), programRequest.getDevicesToProgram().size());
+		ISenseOtapImage program = new ISenseOtapImage(programRequest.getOtapProgram());
 
-        if (log.isDebugEnabled())
-            log.debug("Devices that are now initialized are: {}",
-                    StringUtils.toString(otapInitResult.getInitializedDevices(), ", "));
+		ISenseOtapInitStartCommand command =
+				new ISenseOtapInitStartCommand(detectedDevicesToProgram,
+						programRequest.getOtapInitTimeoutAsDurationPlusUnit(),
+						program.getChunkCount(), programRequest.getMaxRerequests(),
+						programRequest.getTimeoutMultiplier()
+				);
 
-        ISenseOtapProgramRequest request =
-                new ISenseOtapProgramRequest(otapInitResult.getInitializedDevices(), programRequest.getOtapProgram());
+		HandlerTools.sendDownstream(command, context);
+	}
 
-        // Select the desired AES encryption/decryption
-        iSenseAes128BitKey aesKeyAsISenseAes128BitKey = programRequest.getAesKeyAsISenseAes128BitKey();
-        if (aesKeyAsISenseAes128BitKey != null) {
-            HandlerTools.sendDownstream(new ISenseOtapPacketEncoderSetAESKeyRequest(aesKeyAsISenseAes128BitKey), context);
-        }
+	private void switchToProgrammingMode(ISenseOtapInitResult otapInitResult) {
+		if (programRequest == null || context == null) {
+			log.warn("Program request {} or context {} is null. Doing nothing.", programRequest, context);
+			return;
+		}
 
-        // Send the programming request downstream
-        HandlerTools.sendDownstream(request, context);
-    }
+		state = State.OTAP_PROGRAM;
+		log.info("Switching to programming mode. {} devices out of {} selected initialized.", otapInitResult
+				.getInitializedDevices().size(), programRequest.getDevicesToProgram().size()
+		);
 
-    private void switchToIdleState(ISenseOtapProgramResult message) {
-        if (programRequest == null) {
-            log.error("No current program request. Ignoring invocation.");
-        }
+		if (log.isDebugEnabled()) {
+			log.debug("Devices that are now initialized are: {}",
+					StringUtils.toString(otapInitResult.getInitializedDevices(), ", ")
+			);
+		}
 
-        log.info("Programming done or timed out (selected: {}, done: {}, failed: {}), switching to idle state",
-                new Object[]{message.getDevicesToBeProgrammed().size(), message.getDoneDevices().size(),
-                        message.getFailedDevices().size()});
+		ISenseOtapProgramRequest request =
+				new ISenseOtapProgramRequest(otapInitResult.getInitializedDevices(), programRequest.getOtapProgram());
 
-        state = State.IDLE;
-        programRequest = null;
+		// Select the desired AES encryption/decryption
+		iSenseAes128BitKey aesKeyAsISenseAes128BitKey = programRequest.getAesKeyAsISenseAes128BitKey();
+		if (aesKeyAsISenseAes128BitKey != null) {
+			HandlerTools
+					.sendDownstream(new ISenseOtapPacketEncoderSetAESKeyRequest(aesKeyAsISenseAes128BitKey), context);
+		}
 
-        // Disable AES encryption
-        HandlerTools.sendDownstream(new ISenseOtapPacketEncoderSetAESKeyRequest(null), context);
-        HandlerTools.sendDownstream(new ISenseOtapPacketDecoderSetAESKeyRequest(null), context);
+		// Send the programming request downstream
+		HandlerTools.sendDownstream(request, context);
+	}
 
-        // Send result upstream
-        HandlerTools.sendUpstream(message, context);
-    }
+	private void switchToIdleState(ISenseOtapProgramResult message) {
+		if (programRequest == null) {
+			log.error("No current program request. Ignoring invocation.");
+		}
 
-    @Override
-    public void afterAdd(ChannelHandlerContext ctx) throws Exception {
+		log.info("Programming done or timed out (selected: {}, done: {}, failed: {}), switching to idle state",
+				new Object[]{
+						message.getDevicesToBeProgrammed().size(), message.getDoneDevices().size(),
+						message.getFailedDevices().size()
+				}
+		);
+
+		state = State.IDLE;
+		programRequest = null;
+
+		// Disable AES encryption
+		HandlerTools.sendDownstream(new ISenseOtapPacketEncoderSetAESKeyRequest(null), context);
+		HandlerTools.sendDownstream(new ISenseOtapPacketDecoderSetAESKeyRequest(null), context);
+
+		// Send result upstream
+		HandlerTools.sendUpstream(message, context);
+	}
+
+	@Override
+	public void afterAdd(ChannelHandlerContext ctx) throws Exception {
 		checkState(context == null);
 		this.context = ctx;
 	}
 
-    @Override
-    public void afterRemove(ChannelHandlerContext ctx) throws Exception {
-        this.context = null;
-    }
+	@Override
+	public void afterRemove(ChannelHandlerContext ctx) throws Exception {
+		this.context = null;
+	}
 
-    @Override
-    public void beforeAdd(ChannelHandlerContext ctx) throws Exception {
-        // Nothing to do
-    }
+	@Override
+	public void beforeAdd(ChannelHandlerContext ctx) throws Exception {
+		// Nothing to do
+	}
 
-    @Override
-    public void beforeRemove(ChannelHandlerContext ctx) throws Exception {
-        // Nothing to do
-    }
+	@Override
+	public void beforeRemove(ChannelHandlerContext ctx) throws Exception {
+		// Nothing to do
+	}
 
 }

@@ -31,26 +31,26 @@ import org.slf4j.LoggerFactory;
 
 public class ISensePacketDecoder extends OneToOneDecoder {
 
-    private final Logger log;
+	private final Logger log;
 
-    public ISensePacketDecoder() {
-        this(null);
-    }
+	public ISensePacketDecoder() {
+		this(null);
+	}
 
-    public ISensePacketDecoder(String instanceName) {
-        log = LoggerFactory.getLogger(instanceName != null ? instanceName : ISensePacketDecoder.class.getName());
-    }
+	public ISensePacketDecoder(String instanceName) {
+		log = LoggerFactory.getLogger(instanceName != null ? instanceName : ISensePacketDecoder.class.getName());
+	}
 
-    @Override
-    protected Object decode(final ChannelHandlerContext ctx, final Channel channel, final Object msg) throws Exception {
+	@Override
+	protected Object decode(final ChannelHandlerContext ctx, final Channel channel, final Object msg) throws Exception {
 
-        if (!(msg instanceof ChannelBuffer)) {
-            return msg;
-        }
+		if (!(msg instanceof ChannelBuffer)) {
+			return msg;
+		}
 
-        ChannelBuffer buffer = (ChannelBuffer) msg;
-        ISensePacket iSensePacket = new ISensePacket(buffer);
-        log.trace("Decoded ISensePacket: {}", iSensePacket);
-        return iSensePacket;
-    }
+		ChannelBuffer buffer = (ChannelBuffer) msg;
+		ISensePacket iSensePacket = new ISensePacket(buffer);
+		log.trace("Decoded ISensePacket: {}", iSensePacket);
+		return iSensePacket;
+	}
 }

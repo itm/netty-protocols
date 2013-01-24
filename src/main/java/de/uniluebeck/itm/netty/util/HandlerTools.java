@@ -22,11 +22,7 @@
  */
 package de.uniluebeck.itm.netty.util;
 
-import org.jboss.netty.channel.Channel;
-import org.jboss.netty.channel.ChannelHandlerContext;
-import org.jboss.netty.channel.Channels;
-import org.jboss.netty.channel.DownstreamMessageEvent;
-import org.jboss.netty.channel.UpstreamMessageEvent;
+import org.jboss.netty.channel.*;
 
 import java.net.SocketAddress;
 
@@ -36,24 +32,24 @@ public class HandlerTools {
 		sendDownstream(msg, context, context.getChannel().getRemoteAddress());
 	}
 
-    public static void sendDownstream(Object msg, ChannelHandlerContext context, SocketAddress remoteAddress) {
-        Channel channel = context.getChannel();
+	public static void sendDownstream(Object msg, ChannelHandlerContext context, SocketAddress remoteAddress) {
+		Channel channel = context.getChannel();
 
-        DownstreamMessageEvent event =
-                new DownstreamMessageEvent(channel, Channels.future(channel), msg, remoteAddress);
+		DownstreamMessageEvent event =
+				new DownstreamMessageEvent(channel, Channels.future(channel), msg, remoteAddress);
 
-        context.sendDownstream(event);
-    }
+		context.sendDownstream(event);
+	}
 
 	public static void sendUpstream(Object msg, ChannelHandlerContext context) {
 		sendUpstream(msg, context, context.getChannel().getRemoteAddress());
 	}
 
-    public static void sendUpstream(Object msg, ChannelHandlerContext context, SocketAddress remoteAddress) {
-        Channel channel = context.getChannel();
+	public static void sendUpstream(Object msg, ChannelHandlerContext context, SocketAddress remoteAddress) {
+		Channel channel = context.getChannel();
 
-        UpstreamMessageEvent event = new UpstreamMessageEvent(channel, msg, remoteAddress);
+		UpstreamMessageEvent event = new UpstreamMessageEvent(channel, msg, remoteAddress);
 
-        context.sendUpstream(event);
-    }
+		context.sendUpstream(event);
+	}
 }

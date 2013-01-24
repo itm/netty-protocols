@@ -13,6 +13,7 @@ import org.jboss.netty.buffer.ChannelBuffers;
  * To change this template use File | Settings | File Templates.
  */
 public class SetVirtualLinkCommand extends Command {
+
 	private ChannelBuffer buffer;
 
 	public SetVirtualLinkCommand(byte requestID, ChannelBuffer payload, long destinationNode) {
@@ -21,11 +22,11 @@ public class SetVirtualLinkCommand extends Command {
 		buffer.writeLong(destinationNode);
 	}
 
-	public long getDestinationNode(){
+	public long getDestinationNode() {
 		return this.buffer.getLong(0);
 	}
 
-	public ChannelBuffer getBuffer(){
+	public ChannelBuffer getBuffer() {
 		return ChannelBuffers.wrappedBuffer(super.buffer, this.buffer);
 	}
 }

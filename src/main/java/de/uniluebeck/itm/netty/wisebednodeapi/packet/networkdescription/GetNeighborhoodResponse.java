@@ -9,7 +9,8 @@ import de.uniluebeck.itm.netty.wisebednodeapi.packet.Response;
  * Time: 11:02
  * To change this template use File | Settings | File Templates.
  */
-public class GetNeighborhoodResponse extends Response{
+public class GetNeighborhoodResponse extends Response {
+
 	public GetNeighborhoodResponse(final GetNeighborhoodRequest request) {
 		super(request);
 	}

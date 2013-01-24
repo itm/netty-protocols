@@ -26,58 +26,59 @@ import java.util.concurrent.TimeUnit;
 
 public class DurationPlusUnit {
 
-    private final long duration;
-    private final TimeUnit unit;
+	private final long duration;
 
-    public DurationPlusUnit(long duration, TimeUnit unit) {
-        this.duration = duration;
-        this.unit = unit;
-    }
+	private final TimeUnit unit;
 
-    /**
-     * @return the duration
-     */
-    public long getDuration() {
-        return duration;
-    }
+	public DurationPlusUnit(long duration, TimeUnit unit) {
+		this.duration = duration;
+		this.unit = unit;
+	}
 
-    /**
-     * @return the unit
-     */
-    public TimeUnit getUnit() {
-        return unit;
-    }
+	/**
+	 * @return the duration
+	 */
+	public long getDuration() {
+		return duration;
+	}
 
-    public long toDays() {
-        return unit.toDays(duration);
-    }
+	/**
+	 * @return the unit
+	 */
+	public TimeUnit getUnit() {
+		return unit;
+	}
 
-    public long toHours() {
-        return unit.toHours(duration);
-    }
+	public long toDays() {
+		return unit.toDays(duration);
+	}
 
-    public long toMicros() {
-        return unit.toMicros(duration);
-    }
+	public long toHours() {
+		return unit.toHours(duration);
+	}
 
-    public long toMillis() {
-        return unit.toMillis(duration);
-    }
+	public long toMicros() {
+		return unit.toMicros(duration);
+	}
 
-    public long toMinutes() {
-        return unit.toMinutes(duration);
-    }
+	public long toMillis() {
+		return unit.toMillis(duration);
+	}
 
-    public long toNanos() {
-        return unit.toNanos(duration);
-    }
+	public long toMinutes() {
+		return unit.toMinutes(duration);
+	}
 
-    public long toSeconds() {
-        return unit.toSeconds(duration);
-    }
+	public long toNanos() {
+		return unit.toNanos(duration);
+	}
 
-    public String toString() {
-        return duration + " " + unit.toString();
-    }
+	public long toSeconds() {
+		return unit.toSeconds(duration);
+	}
+
+	public String toString() {
+		return duration + " " + unit.toString();
+	}
 
 }

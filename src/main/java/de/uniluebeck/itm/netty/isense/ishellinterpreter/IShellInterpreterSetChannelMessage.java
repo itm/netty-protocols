@@ -24,13 +24,13 @@ package de.uniluebeck.itm.netty.isense.ishellinterpreter;
 
 public class IShellInterpreterSetChannelMessage {
 
-    private byte channel;
+	private byte channel;
 
-    public IShellInterpreterSetChannelMessage(byte channel) {
-        this.channel = channel;
-    }
+	public IShellInterpreterSetChannelMessage(byte channel) {
+		this.channel = channel;
+	}
 
-    public byte getChannel() {
-        return channel;
-    }
+	public byte getChannel() {
+		return channel;
+	}
 }

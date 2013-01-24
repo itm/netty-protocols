@@ -102,7 +102,9 @@ public enum ISensePacketType {
 	/**
 	 * Returns the enum constant with value {@code value} or null if none of the enum values matches {@code value}.
 	 *
-	 * @param value the packets type
+	 * @param value
+	 * 		the packets type
+	 *
 	 * @return an ISensePacketType enum constant or {@code null} if unknown
 	 */
 	public static ISensePacketType fromValue(byte value) {

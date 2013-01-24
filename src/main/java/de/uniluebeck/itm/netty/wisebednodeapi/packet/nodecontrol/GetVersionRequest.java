@@ -10,7 +10,8 @@ import de.uniluebeck.itm.netty.wisebednodeapi.packet.Request;
  * Time: 16:56
  * To change this template use File | Settings | File Templates.
  */
-public class GetVersionRequest extends Request{
+public class GetVersionRequest extends Request {
+
 	public GetVersionRequest(final byte requestID, final byte[] payload) {
 		super(CommandType.NodeControl.GET_VERSION, requestID, payload);
 	}

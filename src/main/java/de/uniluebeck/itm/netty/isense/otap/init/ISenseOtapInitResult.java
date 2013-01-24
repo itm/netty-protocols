@@ -26,26 +26,27 @@ import java.util.Set;
 
 public class ISenseOtapInitResult {
 
-    private final ISenseOtapInitStartCommand otapInitStartCommand;
-    private final Set<Integer> initializedDevices;
+	private final ISenseOtapInitStartCommand otapInitStartCommand;
 
-    public ISenseOtapInitResult(ISenseOtapInitStartCommand otapInitStartCommand, Set<Integer> initializedDevices) {
-        this.otapInitStartCommand = otapInitStartCommand;
-        this.initializedDevices = initializedDevices;
-    }
+	private final Set<Integer> initializedDevices;
 
-    /**
-     * @return the otapInitStartCommand
-     */
-    public ISenseOtapInitStartCommand getOtapInitStartCommand() {
-        return otapInitStartCommand;
-    }
+	public ISenseOtapInitResult(ISenseOtapInitStartCommand otapInitStartCommand, Set<Integer> initializedDevices) {
+		this.otapInitStartCommand = otapInitStartCommand;
+		this.initializedDevices = initializedDevices;
+	}
 
-    /**
-     * @return the initializedDevices
-     */
-    public Set<Integer> getInitializedDevices() {
-        return initializedDevices;
-    }
+	/**
+	 * @return the otapInitStartCommand
+	 */
+	public ISenseOtapInitStartCommand getOtapInitStartCommand() {
+		return otapInitStartCommand;
+	}
+
+	/**
+	 * @return the initializedDevices
+	 */
+	public Set<Integer> getInitializedDevices() {
+		return initializedDevices;
+	}
 
 }

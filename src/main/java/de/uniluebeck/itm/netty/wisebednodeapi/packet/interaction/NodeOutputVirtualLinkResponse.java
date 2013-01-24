@@ -10,28 +10,29 @@ import de.uniluebeck.itm.netty.wisebednodeapi.packet.Response;
  * To change this template use File | Settings | File Templates.
  */
 public class NodeOutputVirtualLinkResponse extends Response {
+
 	public NodeOutputVirtualLinkResponse(final NodeOutputVirtualLinkRequest request) {
 		super(request);
 	}
 
-	public byte getRssi(){
-		return ((NodeOutputVirtualLinkRequest)request).getRssi();
+	public byte getRssi() {
+		return ((NodeOutputVirtualLinkRequest) request).getRssi();
 	}
 
-	public byte getLqi(){
-		return ((NodeOutputVirtualLinkRequest)request).getLqi();
+	public byte getLqi() {
+		return ((NodeOutputVirtualLinkRequest) request).getLqi();
 	}
 
-	public byte getLen(){
-		return ((NodeOutputVirtualLinkRequest)request).getLen();
+	public byte getLen() {
+		return ((NodeOutputVirtualLinkRequest) request).getLen();
 	}
 
-	public long getDest(){
-		return ((NodeOutputVirtualLinkRequest)request).getDest();
+	public long getDest() {
+		return ((NodeOutputVirtualLinkRequest) request).getDest();
 	}
 
-	public long getSource(){
-		return ((NodeOutputVirtualLinkRequest)request).getSource();
+	public long getSource() {
+		return ((NodeOutputVirtualLinkRequest) request).getSource();
 	}
 
 }

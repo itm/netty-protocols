@@ -12,6 +12,7 @@ import org.jboss.netty.buffer.ChannelBuffer;
  * To change this template use File | Settings | File Templates.
  */
 public class VirtualLinkDataCommandResponse extends CommandResponse {
+
 	public VirtualLinkDataCommandResponse(byte requestID, byte result, ChannelBuffer payload) {
 		super(CommandType.Interaction.VIRTUAL_LINK_DATA, requestID, result, payload);
 	}

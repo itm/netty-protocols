@@ -22,6 +22,7 @@
  */
 package de.uniluebeck.itm.netty.dlestxetx;
 
+import de.uniluebeck.itm.tr.util.StringUtils;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBuffers;
 import org.jboss.netty.channel.Channel;
@@ -30,43 +31,41 @@ import org.jboss.netty.handler.codec.oneone.OneToOneEncoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.uniluebeck.itm.tr.util.StringUtils;
-
 public class DleStxEtxFramingEncoder extends OneToOneEncoder {
 
-    private final Logger log;
+	private final Logger log;
 
-    public DleStxEtxFramingEncoder() {
-        this(null);
-    }
-    
-    public DleStxEtxFramingEncoder(String instanceName) {
-        log = LoggerFactory.getLogger(instanceName != null ? instanceName : DleStxEtxFramingEncoder.class.getName());
-    }
+	public DleStxEtxFramingEncoder() {
+		this(null);
+	}
 
-    @Override
-    protected Object encode(final ChannelHandlerContext ctx, final Channel channel, final Object msg) throws Exception {
+	public DleStxEtxFramingEncoder(String instanceName) {
+		log = LoggerFactory.getLogger(instanceName != null ? instanceName : DleStxEtxFramingEncoder.class.getName());
+	}
 
-        if (!(msg instanceof ChannelBuffer)) {
-            return msg;
-        }
+	@Override
+	protected Object encode(final ChannelHandlerContext ctx, final Channel channel, final Object msg) throws Exception {
 
-        ChannelBuffer buffer = (ChannelBuffer) msg;
-        ChannelBuffer packet = ChannelBuffers.dynamicBuffer(buffer.readableBytes() + 4);
-        packet.writeBytes(DleStxEtxConstants.DLE_STX);
-        for (int i = buffer.readerIndex(); i < (buffer.readerIndex() + buffer.readableBytes()); i++) {
-            byte b = buffer.getByte(i);
-            if (b == DleStxEtxConstants.DLE) {
-                packet.writeByte(DleStxEtxConstants.DLE);
-            }
-            packet.writeByte(b);
-        }
-        packet.writeBytes(DleStxEtxConstants.DLE_ETX);
+		if (!(msg instanceof ChannelBuffer)) {
+			return msg;
+		}
 
-        if (log.isTraceEnabled()) {
-            log.trace("Encoded buffer: {}", StringUtils.toHexString(packet.toByteBuffer().array()));
-        }
+		ChannelBuffer buffer = (ChannelBuffer) msg;
+		ChannelBuffer packet = ChannelBuffers.dynamicBuffer(buffer.readableBytes() + 4);
+		packet.writeBytes(DleStxEtxConstants.DLE_STX);
+		for (int i = buffer.readerIndex(); i < (buffer.readerIndex() + buffer.readableBytes()); i++) {
+			byte b = buffer.getByte(i);
+			if (b == DleStxEtxConstants.DLE) {
+				packet.writeByte(DleStxEtxConstants.DLE);
+			}
+			packet.writeByte(b);
+		}
+		packet.writeBytes(DleStxEtxConstants.DLE_ETX);
 
-        return packet;
-    }
+		if (log.isTraceEnabled()) {
+			log.trace("Encoded buffer: {}", StringUtils.toHexString(packet.toByteBuffer().array()));
+		}
+
+		return packet;
+	}
 }

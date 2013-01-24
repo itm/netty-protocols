@@ -35,47 +35,49 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 public class ISerAerialPacketEncoder extends SimpleChannelHandler {
-    private final Logger log;
 
-    private final StopAndWaitPacketSender<ISensePacket> queue;
+	private final Logger log;
 
-    public ISerAerialPacketEncoder() {
-        this(null);
-    }
+	private final StopAndWaitPacketSender<ISensePacket> queue;
 
-    public ISerAerialPacketEncoder(String instanceName) {
-        log = LoggerFactory.getLogger(instanceName != null ? instanceName : ISerAerialPacketEncoder.class.getName());
+	public ISerAerialPacketEncoder() {
+		this(null);
+	}
 
-        queue =
-                new StopAndWaitPacketSender<ISensePacket>(instanceName + "-queue",
-                        Executors.newSingleThreadScheduledExecutor(), 50, TimeUnit.MILLISECONDS);
-    }
+	public ISerAerialPacketEncoder(String instanceName) {
+		log = LoggerFactory.getLogger(instanceName != null ? instanceName : ISerAerialPacketEncoder.class.getName());
 
-    @Override
-    public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) throws Exception {
+		queue =
+				new StopAndWaitPacketSender<ISensePacket>(instanceName + "-queue",
+						Executors.newSingleThreadScheduledExecutor(), 50, TimeUnit.MILLISECONDS
+				);
+	}
 
-        if (!(e.getMessage() instanceof ISerAerialConfirmPacket)) {
-            super.messageReceived(ctx, e);
-            return;
-        }
+	@Override
+	public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) throws Exception {
 
-        queue.confirmReceived();
-    }
+		if (!(e.getMessage() instanceof ISerAerialConfirmPacket)) {
+			super.messageReceived(ctx, e);
+			return;
+		}
 
-    @Override
-    public void writeRequested(ChannelHandlerContext ctx, MessageEvent e) throws Exception {
-        Object msg = e.getMessage();
+		queue.confirmReceived();
+	}
 
-        if (!(msg instanceof ISerAerialOutgoingPacket)) {
-            super.writeRequested(ctx, e);
-            return;
-        }
+	@Override
+	public void writeRequested(ChannelHandlerContext ctx, MessageEvent e) throws Exception {
+		Object msg = e.getMessage();
 
-        ISerAerialOutgoingPacket packet = (ISerAerialOutgoingPacket) msg;
-        ISensePacket iSensePacket = new ISensePacket(ISensePacketType.SERAERIAL.getValue(), packet.getBuffer());
-        
-        log.trace("Encoded and enqueued ISerAerialOutgoingPacket: {}", packet);
-        queue.enqeue(iSensePacket, ctx, e.getFuture());
-    }
+		if (!(msg instanceof ISerAerialOutgoingPacket)) {
+			super.writeRequested(ctx, e);
+			return;
+		}
+
+		ISerAerialOutgoingPacket packet = (ISerAerialOutgoingPacket) msg;
+		ISensePacket iSensePacket = new ISensePacket(ISensePacketType.SERAERIAL.getValue(), packet.getBuffer());
+
+		log.trace("Encoded and enqueued ISerAerialOutgoingPacket: {}", packet);
+		queue.enqeue(iSensePacket, ctx, e.getFuture());
+	}
 
 }

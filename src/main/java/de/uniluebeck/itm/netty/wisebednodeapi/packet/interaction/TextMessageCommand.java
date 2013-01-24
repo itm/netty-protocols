@@ -12,14 +12,16 @@ import org.jboss.netty.buffer.ChannelBuffers;
  * To change this template use File | Settings | File Templates.
  */
 public abstract class TextMessageCommand extends Command {
+
 	private ChannelBuffer buffer;
+
 	public TextMessageCommand(byte commandType, byte requestID, byte messageLevel, ChannelBuffer text) {
 		super(commandType, requestID, text);
 		this.buffer = ChannelBuffers.buffer(1);
 		this.buffer.writeByte(messageLevel);
 	}
 
-	public byte getMessageLevel(){
+	public byte getMessageLevel() {
 		return this.buffer.getByte(0);
 	}
 

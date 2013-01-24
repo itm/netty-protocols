@@ -57,8 +57,8 @@ public class HdlcTranslateDecoderFactory implements HandlerFactory {
 		return "Decodes packets that are encoded with the TinyOS HdlcTranslate packet framing. For more details see http://www.tinyos.net/tinyos-2.x/doc/html/tep113.html.";
 	}
 
-    @Override
-    public String getName() {
-        return "tinyos-hdlctranslate-decoder";
-    }
+	@Override
+	public String getName() {
+		return "tinyos-hdlctranslate-decoder";
+	}
 }

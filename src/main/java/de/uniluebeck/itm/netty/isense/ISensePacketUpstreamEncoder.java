@@ -30,25 +30,26 @@ import org.slf4j.LoggerFactory;
 
 public class ISensePacketUpstreamEncoder extends OneToOneUpstreamEncoder {
 
-    private final Logger log;
+	private final Logger log;
 
-    public ISensePacketUpstreamEncoder() {
-        this(null);
-    }
+	public ISensePacketUpstreamEncoder() {
+		this(null);
+	}
 
-    public ISensePacketUpstreamEncoder(String instanceName) {
-        log = LoggerFactory.getLogger(instanceName != null ? instanceName : ISensePacketUpstreamEncoder.class.getName());
-    }
+	public ISensePacketUpstreamEncoder(String instanceName) {
+		log = LoggerFactory
+				.getLogger(instanceName != null ? instanceName : ISensePacketUpstreamEncoder.class.getName());
+	}
 
-    @Override
-    protected Object encode(final ChannelHandlerContext ctx, final Channel channel, final Object msg) throws Exception {
+	@Override
+	protected Object encode(final ChannelHandlerContext ctx, final Channel channel, final Object msg) throws Exception {
 
-        if (!(msg instanceof ISensePacket)) {
-            return msg;
-        }
+		if (!(msg instanceof ISensePacket)) {
+			return msg;
+		}
 
-        ISensePacket packet = (ISensePacket) msg;
-        log.trace("Encoded ISensePacket: {}", packet);
-        return packet.getBuffer();
-    }
+		ISensePacket packet = (ISensePacket) msg;
+		log.trace("Encoded ISensePacket: {}", packet);
+		return packet.getBuffer();
+	}
 }

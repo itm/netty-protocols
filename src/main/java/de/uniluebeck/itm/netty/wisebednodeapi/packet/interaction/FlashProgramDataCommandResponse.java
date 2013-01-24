@@ -12,6 +12,7 @@ import org.jboss.netty.buffer.ChannelBuffer;
  * To change this template use File | Settings | File Templates.
  */
 public class FlashProgramDataCommandResponse extends CommandResponse {
+
 	public FlashProgramDataCommandResponse(byte requestID, byte result, ChannelBuffer payload) {
 		super(CommandType.Interaction.FLASH_PROGRAM_DATA, requestID, result, payload);
 	}

@@ -33,55 +33,58 @@ import java.util.Set;
 @Default(DefaultType.FIELD)
 public class ISenseOtapProgramResult {
 
-    public static final String SERIALIZATION_HEADER = "ISenseOtapProgramResult-version1";;
+	public static final String SERIALIZATION_HEADER = "ISenseOtapProgramResult-version1";
 
-    protected Set<Integer> devicesToBeProgrammed;
+	;
 
-    protected Set<Integer> failedDevices = new HashSet<Integer>();
-    protected Set<Integer> doneDevices = new HashSet<Integer>();
+	protected Set<Integer> devicesToBeProgrammed;
+
+	protected Set<Integer> failedDevices = new HashSet<Integer>();
+
+	protected Set<Integer> doneDevices = new HashSet<Integer>();
 
 	protected ISenseOtapProgramResult() {
 	}
 
 	public ISenseOtapProgramResult(Set<Integer> devicesToBeProgrammed) {
-        this.devicesToBeProgrammed = new HashSet<Integer>(devicesToBeProgrammed);
-    }
+		this.devicesToBeProgrammed = new HashSet<Integer>(devicesToBeProgrammed);
+	}
 
-    public boolean isDone() {
-        HashSet<Integer> doneAndFailed = new HashSet<Integer>(doneDevices);
-        doneAndFailed.addAll(failedDevices);
+	public boolean isDone() {
+		HashSet<Integer> doneAndFailed = new HashSet<Integer>(doneDevices);
+		doneAndFailed.addAll(failedDevices);
 
-        return devicesToBeProgrammed.containsAll(doneAndFailed);
-    }
+		return devicesToBeProgrammed.containsAll(doneAndFailed);
+	}
 
-    void addFailedDevice(Integer deviceId) {
-        failedDevices.add(deviceId);
-    }
+	void addFailedDevice(Integer deviceId) {
+		failedDevices.add(deviceId);
+	}
 
-    void addDoneDevice(Integer deviceId) {
-        doneDevices.add(deviceId);
-    }
+	void addDoneDevice(Integer deviceId) {
+		doneDevices.add(deviceId);
+	}
 
-    /**
-     * @return the devicesToBeProgrammed
-     */
-    public Set<Integer> getDevicesToBeProgrammed() {
-        return devicesToBeProgrammed;
-    }
+	/**
+	 * @return the devicesToBeProgrammed
+	 */
+	public Set<Integer> getDevicesToBeProgrammed() {
+		return devicesToBeProgrammed;
+	}
 
-    /**
-     * @return the failedDevices
-     */
-    public Set<Integer> getFailedDevices() {
-        return failedDevices;
-    }
+	/**
+	 * @return the failedDevices
+	 */
+	public Set<Integer> getFailedDevices() {
+		return failedDevices;
+	}
 
-    /**
-     * @return the doneDevices
-     */
-    public Set<Integer> getDoneDevices() {
-        return doneDevices;
-    }
+	/**
+	 * @return the doneDevices
+	 */
+	public Set<Integer> getDoneDevices() {
+		return doneDevices;
+	}
 
 	@Override
 	public boolean equals(final Object o) {

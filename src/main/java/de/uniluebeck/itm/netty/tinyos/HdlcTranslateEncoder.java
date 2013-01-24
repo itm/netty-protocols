@@ -22,6 +22,7 @@
  */
 package de.uniluebeck.itm.netty.tinyos;
 
+import de.uniluebeck.itm.tr.util.StringUtils;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBuffers;
 import org.jboss.netty.channel.Channel;
@@ -30,29 +31,27 @@ import org.jboss.netty.handler.codec.oneone.OneToOneEncoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.uniluebeck.itm.tr.util.StringUtils;
-
 public class HdlcTranslateEncoder extends OneToOneEncoder {
 
-    private final Logger log;
+	private final Logger log;
 
-    public HdlcTranslateEncoder() {
-        this(null);
-    }
-    
-    public HdlcTranslateEncoder(String instanceName) {
-        log = LoggerFactory.getLogger(instanceName != null ? instanceName : HdlcTranslateEncoder.class.getName());
-    }
+	public HdlcTranslateEncoder() {
+		this(null);
+	}
 
-    @Override
-    protected Object encode(final ChannelHandlerContext ctx, final Channel channel, final Object msg) throws Exception {
+	public HdlcTranslateEncoder(String instanceName) {
+		log = LoggerFactory.getLogger(instanceName != null ? instanceName : HdlcTranslateEncoder.class.getName());
+	}
 
-        if (!(msg instanceof ChannelBuffer)) {
-            return msg;
-        }
+	@Override
+	protected Object encode(final ChannelHandlerContext ctx, final Channel channel, final Object msg) throws Exception {
 
-        ChannelBuffer buffer = (ChannelBuffer) msg;
-        ChannelBuffer packet = ChannelBuffers.dynamicBuffer(buffer.readableBytes() + 4);
+		if (!(msg instanceof ChannelBuffer)) {
+			return msg;
+		}
+
+		ChannelBuffer buffer = (ChannelBuffer) msg;
+		ChannelBuffer packet = ChannelBuffers.dynamicBuffer(buffer.readableBytes() + 4);
 
 		// start delimiter
 		packet.writeByte(HdlcTranslateConstants.FRAME_DELIMITER_BYTE);
@@ -62,22 +61,22 @@ public class HdlcTranslateEncoder extends OneToOneEncoder {
 			byte b = buffer.getByte(i);
 
 			// escape bytes if needed
-            if (b == HdlcTranslateConstants.ESCAPE_BYTE || b == HdlcTranslateConstants.FRAME_DELIMITER_BYTE) {
-                packet.writeByte(HdlcTranslateConstants.ESCAPE_BYTE);
+			if (b == HdlcTranslateConstants.ESCAPE_BYTE || b == HdlcTranslateConstants.FRAME_DELIMITER_BYTE) {
+				packet.writeByte(HdlcTranslateConstants.ESCAPE_BYTE);
 				packet.writeByte(b ^ 0x20);
 			} else {
 				packet.writeByte(b);
 			}
 
-        }
+		}
 
 		// end delimiter
-        packet.writeByte(HdlcTranslateConstants.FRAME_DELIMITER_BYTE);
+		packet.writeByte(HdlcTranslateConstants.FRAME_DELIMITER_BYTE);
 
-        if (log.isTraceEnabled()) {
-            log.trace("Encoded buffer: {}", StringUtils.toHexString(packet.toByteBuffer().array()));
-        }
+		if (log.isTraceEnabled()) {
+			log.trace("Encoded buffer: {}", StringUtils.toHexString(packet.toByteBuffer().array()));
+		}
 
-        return packet;
-    }
+		return packet;
+	}
 }

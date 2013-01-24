@@ -12,6 +12,7 @@ import org.jboss.netty.buffer.ChannelBuffer;
  * To change this template use File | Settings | File Templates.
  */
 public class GetVersionCommand extends Command {
+
 	public GetVersionCommand(byte requestID, ChannelBuffer payload) {
 		super(CommandType.NodeControl.GET_VERSION, requestID, payload);
 	}
