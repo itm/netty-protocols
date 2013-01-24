@@ -1,10 +1,10 @@
-package de.uniluebeck.itm.netty;
+package de.uniluebeck.itm.netty.util;
 
 import com.google.common.collect.Multimap;
 
 import java.util.Iterator;
 
-class Util {
+public class PropertiesHelper {
 
 	public static Integer getIntFromProperties(final Multimap<String, String> properties, final String key) {
 

@@ -2,6 +2,7 @@ package de.uniluebeck.itm.netty;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
+import de.uniluebeck.itm.netty.util.PropertiesHelper;
 import de.uniluebeck.itm.tr.util.Tuple;
 import org.jboss.netty.channel.ChannelHandler;
 import org.jboss.netty.handler.codec.serialization.ObjectDecoder;
@@ -16,11 +17,11 @@ public class ObjectDecoderFactory implements HandlerFactory {
 	private static final String MAX_OBJECT_SIZE = "maxObjectSize";
 
 	@Override
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({"unchecked", "deprecation"})
 	public List<Tuple<String, ChannelHandler>> create(@Nullable final String instanceName,
 													  final Multimap<String, String> properties) throws Exception {
 
-		final Integer maxObjectSize = Util.getIntFromProperties(properties, MAX_OBJECT_SIZE);
+		final Integer maxObjectSize = PropertiesHelper.getIntFromProperties(properties, MAX_OBJECT_SIZE);
 
 		final ObjectDecoder decoder = maxObjectSize == null ?
 				new ObjectDecoder() :

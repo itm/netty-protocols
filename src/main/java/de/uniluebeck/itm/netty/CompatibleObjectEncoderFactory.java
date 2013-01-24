@@ -2,6 +2,7 @@ package de.uniluebeck.itm.netty;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
+import de.uniluebeck.itm.netty.util.PropertiesHelper;
 import de.uniluebeck.itm.tr.util.Tuple;
 import org.jboss.netty.channel.ChannelHandler;
 import org.jboss.netty.handler.codec.serialization.CompatibleObjectEncoder;
@@ -20,7 +21,7 @@ public class CompatibleObjectEncoderFactory implements HandlerFactory {
 													  final Multimap<String, String> properties)
 			throws Exception {
 
-		final Integer resetInterval = Util.getIntFromProperties(properties, RESET_INTERVAL);
+		final Integer resetInterval = PropertiesHelper.getIntFromProperties(properties, RESET_INTERVAL);
 
 		final ChannelHandler encoder = resetInterval == null ?
 				new CompatibleObjectEncoder() :

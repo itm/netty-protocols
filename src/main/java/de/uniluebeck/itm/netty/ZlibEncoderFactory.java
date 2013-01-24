@@ -10,7 +10,7 @@ import javax.annotation.Nullable;
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static de.uniluebeck.itm.netty.Util.getIntFromProperties;
+import static de.uniluebeck.itm.netty.util.PropertiesHelper.getIntFromProperties;
 
 public class ZlibEncoderFactory implements HandlerFactory {
 

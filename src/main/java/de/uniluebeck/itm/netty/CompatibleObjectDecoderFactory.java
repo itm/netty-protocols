@@ -2,7 +2,6 @@ package de.uniluebeck.itm.netty;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
-import de.uniluebeck.itm.netty.HandlerFactory;
 import de.uniluebeck.itm.tr.util.Tuple;
 import org.jboss.netty.channel.ChannelHandler;
 import org.jboss.netty.handler.codec.serialization.CompatibleObjectDecoder;
@@ -17,7 +16,7 @@ public class CompatibleObjectDecoderFactory implements HandlerFactory {
 	private static final String RESET_INTERVAL = "resetInterval";
 
 	@Override
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({"unchecked", "deprecation"})
 	public List<Tuple<String, ChannelHandler>> create(@Nullable final String instanceName,
 													  final Multimap<String, String> properties) throws Exception {
 		return newArrayList(new Tuple<String, ChannelHandler>(instanceName, new CompatibleObjectDecoder()));
