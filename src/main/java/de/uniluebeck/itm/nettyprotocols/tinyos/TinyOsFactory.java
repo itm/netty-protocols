@@ -2,35 +2,33 @@ package de.uniluebeck.itm.nettyprotocols.tinyos;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
+import de.uniluebeck.itm.nettyprotocols.ChannelHandlerConfig;
 import de.uniluebeck.itm.nettyprotocols.HandlerFactory;
-import de.uniluebeck.itm.tr.util.Tuple;
-import org.jboss.netty.channel.ChannelHandler;
-
-import javax.annotation.Nullable;
-import java.util.LinkedList;
-import java.util.List;
+import de.uniluebeck.itm.nettyprotocols.NamedChannelHandler;
+import de.uniluebeck.itm.nettyprotocols.NamedChannelHandlerList;
 
 public class TinyOsFactory implements HandlerFactory {
 
 	@Override
-	public List<Tuple<String, ChannelHandler>> create(@Nullable final String instanceName,
-													  final Multimap<String, String> properties) throws Exception {
-
-		List<Tuple<String, ChannelHandler>> handlers = new LinkedList<Tuple<String, ChannelHandler>>();
-		handlers.addAll(
-				new HdlcTranslateDecoderFactory().create(instanceName + "-tinyos-hdlctranslate-decoder", properties)
+	public NamedChannelHandlerList create(final ChannelHandlerConfig config) throws Exception {
+		return new NamedChannelHandlerList(
+				new NamedChannelHandler(
+						config.getInstanceName() + "-tinyos-hdlctranslate-decoder",
+						new HdlcTranslateDecoder(config.getInstanceName() + "-tinyos-hdlctranslate-decoder")
+				),
+				new NamedChannelHandler(
+						config.getInstanceName() + "-tinyos-hdlctranslate-encoder",
+						new HdlcTranslateEncoder(config.getInstanceName() + "-tinyos-hdlctranslate-encoder")
+				),
+				new NamedChannelHandler(
+						config.getInstanceName() + "-tinyos-serial-decoder",
+						new TinyOsSerialDecoder(config.getInstanceName() + "-tinyos-serial-decoder")
+				),
+				new NamedChannelHandler(
+						config.getInstanceName() + "-tinyos-serial-encoder",
+						new TinyOsSerialEncoder(config.getInstanceName() + "-tinyos-serial-encoder")
+				)
 		);
-		handlers.addAll(
-				new HdlcTranslateEncoderFactory().create(instanceName + "-tinyos-hdlctranslate-encoder", properties)
-		);
-		handlers.addAll(new TinyOsSerialDecoderFactory().create(instanceName + "-tinyos-serial-decoder", properties));
-		handlers.addAll(new TinyOsSerialEncoderFactory().create(instanceName + "-tinyos-serial-encoder", properties));
-		return handlers;
-	}
-
-	@Override
-	public List<Tuple<String, ChannelHandler>> create(Multimap<String, String> properties) throws Exception {
-		return create(null, properties);
 	}
 
 	@Override

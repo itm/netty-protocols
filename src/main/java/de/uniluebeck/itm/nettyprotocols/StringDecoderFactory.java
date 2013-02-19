@@ -2,37 +2,26 @@ package de.uniluebeck.itm.nettyprotocols;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
-import de.uniluebeck.itm.tr.util.Tuple;
-import org.jboss.netty.channel.ChannelHandler;
 import org.jboss.netty.handler.codec.string.StringDecoder;
 import org.jboss.netty.util.CharsetUtil;
 
-import javax.annotation.Nullable;
 import java.nio.charset.Charset;
-import java.util.List;
-
-import static com.google.common.collect.Lists.newArrayList;
 
 public class StringDecoderFactory implements HandlerFactory {
 
 	private static final String CHARSET_NAME = "charsetName";
 
 	@Override
-	public List<Tuple<String, ChannelHandler>> create(@Nullable final String instanceName,
-													  final Multimap<String, String> properties) throws Exception {
+	public NamedChannelHandlerList create(final ChannelHandlerConfig config) throws Exception {
 
+		final Multimap<String, String> properties = config.getProperties();
 		final String charsetName = properties.get(CHARSET_NAME).iterator().next();
 
 		final StringDecoder decoder = charsetName == null ?
 				new StringDecoder(CharsetUtil.UTF_8) :
 				new StringDecoder(Charset.forName(charsetName));
 
-		return newArrayList(new Tuple<String, ChannelHandler>(instanceName, decoder));
-	}
-
-	@Override
-	public List<Tuple<String, ChannelHandler>> create(final Multimap<String, String> properties) throws Exception {
-		return create(null, properties);
+		return new NamedChannelHandlerList(new NamedChannelHandler(config.getInstanceName(), decoder));
 	}
 
 	@Override

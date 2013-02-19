@@ -26,7 +26,6 @@ import com.google.common.collect.Multimap;
 import de.uniluebeck.itm.tr.util.Tuple;
 import org.jboss.netty.channel.ChannelHandler;
 
-import javax.annotation.Nullable;
 import java.util.List;
 
 public interface HandlerFactory {
@@ -34,10 +33,8 @@ public interface HandlerFactory {
 	/**
 	 * Creates a(n) instance(s) of {@link ChannelHandler}s using the given configuration options in {@code properties}.
 	 *
-	 * @param properties
-	 * 		the configuration options for the individual {@link ChannelHandler} instances
-	 * @param instanceName
-	 * 		the name of the instance to be constructed
+	 * @param config
+	 * 		the configuration for the individual {@link ChannelHandler} instances
 	 *
 	 * @return a {@link List} of {@link Tuple} types containing instance names and the associated {@link ChannelHandler}
 	 *         instances.
@@ -46,14 +43,7 @@ public interface HandlerFactory {
 	 * 		if one or more of the {@link ChannelHandler}s could not be constructed due to e.g., configuration
 	 * 		options are missing or contain invalid values
 	 */
-	List<Tuple<String, ChannelHandler>> create(@Nullable String instanceName, Multimap<String, String> properties)
-			throws Exception;
-
-	/**
-	 * Same as calling {@link HandlerFactory#create(String, com.google.common.collect.Multimap)} with {@code
-	 * instanceName=null}.
-	 */
-	List<Tuple<String, ChannelHandler>> create(Multimap<String, String> properties) throws Exception;
+	NamedChannelHandlerList create(ChannelHandlerConfig config) throws Exception;
 
 	/**
 	 * Returns a {@link Multimap} containing configuration option names as keys and a human readable description of the

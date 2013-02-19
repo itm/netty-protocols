@@ -3,14 +3,7 @@ package de.uniluebeck.itm.nettyprotocols;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import de.uniluebeck.itm.nettyprotocols.util.PropertiesHelper;
-import de.uniluebeck.itm.tr.util.Tuple;
-import org.jboss.netty.channel.ChannelHandler;
 import org.jboss.netty.handler.codec.frame.LengthFieldPrepender;
-
-import javax.annotation.Nullable;
-import java.util.List;
-
-import static com.google.common.collect.Lists.newArrayList;
 
 public class LengthFieldPrependerFactory implements HandlerFactory {
 
@@ -19,8 +12,9 @@ public class LengthFieldPrependerFactory implements HandlerFactory {
 	private static final String LENGTH_INCLUDES_LENGTH_FIELD_LENGTH = "lengthIncludesLengthFieldLength";
 
 	@Override
-	public List<Tuple<String, ChannelHandler>> create(@Nullable final String instanceName,
-													  final Multimap<String, String> properties) throws Exception {
+	public NamedChannelHandlerList create(final ChannelHandlerConfig config) throws Exception {
+
+		final Multimap<String, String> properties = config.getProperties();
 
 		int lengthFieldLength = PropertiesHelper.getIntFromProperties(properties, LENGTH_FIELD_LENGTH);
 		Boolean lengthIncludesLengthFieldLength = PropertiesHelper.getBooleanFromProperties(
@@ -34,12 +28,7 @@ public class LengthFieldPrependerFactory implements HandlerFactory {
 				new LengthFieldPrepender(lengthFieldLength, lengthIncludesLengthFieldLength) :
 				new LengthFieldPrepender(lengthFieldLength);
 
-		return newArrayList(new Tuple<String, ChannelHandler>(instanceName, prepender));
-	}
-
-	@Override
-	public List<Tuple<String, ChannelHandler>> create(final Multimap<String, String> properties) throws Exception {
-		return create(null, properties);
+		return new NamedChannelHandlerList(new NamedChannelHandler(config.getInstanceName(), prepender));
 	}
 
 	@Override

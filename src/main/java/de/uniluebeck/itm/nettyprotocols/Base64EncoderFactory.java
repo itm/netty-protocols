@@ -3,22 +3,14 @@ package de.uniluebeck.itm.nettyprotocols;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import de.uniluebeck.itm.nettyprotocols.util.PropertiesHelper;
-import de.uniluebeck.itm.tr.util.Tuple;
-import org.jboss.netty.channel.ChannelHandler;
 import org.jboss.netty.handler.codec.base64.Base64Encoder;
-
-import javax.annotation.Nullable;
-import java.util.List;
-
-import static com.google.common.collect.Lists.newArrayList;
 
 public class Base64EncoderFactory implements HandlerFactory {
 
 	@Override
-	public List<Tuple<String, ChannelHandler>> create(@Nullable final String instanceName,
-													  final Multimap<String, String> properties) throws Exception {
+	public NamedChannelHandlerList create(final ChannelHandlerConfig config) throws Exception {
 
-		Boolean breakLines = PropertiesHelper.getBooleanFromProperties(properties, "breakLines");
+		Boolean breakLines = PropertiesHelper.getBooleanFromProperties(config.getProperties(), "breakLines");
 
 		Base64Encoder encoder;
 		if (breakLines != null) {
@@ -27,12 +19,7 @@ public class Base64EncoderFactory implements HandlerFactory {
 			encoder = new Base64Encoder();
 		}
 
-		return newArrayList(new Tuple<String, ChannelHandler>(instanceName, encoder));
-	}
-
-	@Override
-	public List<Tuple<String, ChannelHandler>> create(final Multimap<String, String> properties) throws Exception {
-		return create(null, properties);
+		return new NamedChannelHandlerList(new NamedChannelHandler(config.getInstanceName(), encoder));
 	}
 
 	@Override

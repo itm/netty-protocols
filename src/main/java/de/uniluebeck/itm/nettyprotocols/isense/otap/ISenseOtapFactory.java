@@ -24,19 +24,17 @@ package de.uniluebeck.itm.nettyprotocols.isense.otap;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
+import de.uniluebeck.itm.nettyprotocols.ChannelHandlerConfig;
 import de.uniluebeck.itm.nettyprotocols.HandlerFactory;
+import de.uniluebeck.itm.nettyprotocols.NamedChannelHandlerList;
 import de.uniluebeck.itm.nettyprotocols.isense.otap.init.ISenseOtapInitHandler;
 import de.uniluebeck.itm.nettyprotocols.isense.otap.presencedetect.PresenceDetectHandler;
 import de.uniluebeck.itm.nettyprotocols.isense.otap.program.ISenseOtapProgramHandler;
 import de.uniluebeck.itm.nettyprotocols.isense.otap.program.ISenseOtapProgramResultUpstreamEncoder;
 import de.uniluebeck.itm.nettyprotocols.util.HandlerFactoryPropertiesHelper;
-import de.uniluebeck.itm.tr.util.Tuple;
 import org.jboss.netty.channel.ChannelHandler;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nullable;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -58,82 +56,56 @@ public class ISenseOtapFactory implements HandlerFactory {
 	private static final String TIMEOUT_MULTIPLIER = "timeoutMultiplier";
 
 	@Override
-	public List<Tuple<String, ChannelHandler>> create(@Nullable final String instanceName,
-													  final Multimap<String, String> properties) throws Exception {
+	public NamedChannelHandlerList create(final ChannelHandlerConfig config) throws Exception {
+
+		final String instanceName = config.getInstanceName();
 
 		log.debug("Creating new Otap Handler instances: {}", instanceName);
 
-		List<Tuple<String, ChannelHandler>> handlers = new LinkedList<Tuple<String, ChannelHandler>>();
+		NamedChannelHandlerList handlers = new NamedChannelHandlerList();
 
-		{
-			String tempInstanceName = instanceName + "-result-upstream-encoder";
-			handlers.add(
-					new Tuple<String, ChannelHandler>(tempInstanceName, new ISenseOtapProgramResultUpstreamEncoder())
-			);
-		}
+		handlers.add(
+				instanceName + "-result-upstream-encoder",
+				new ISenseOtapProgramResultUpstreamEncoder()
+		);
 
-		{
-			String tempInstanceName = instanceName + "-automated-request-downstream-decoder";
-			handlers.add(new Tuple<String, ChannelHandler>(tempInstanceName,
-					new ISenseOtapAutomatedProgrammingRequestDownstreamDecoder()
-			)
-			);
-		}
+		handlers.add(
+				instanceName + "-automated-request-downstream-decoder",
+				new ISenseOtapAutomatedProgrammingRequestDownstreamDecoder()
+		);
 
-		{
-			String tempInstanceName = instanceName + "-automated-handler";
-			handlers.add(new Tuple<String, ChannelHandler>(tempInstanceName, new ISenseOtapAutomatedProgrammingHandler(
-					tempInstanceName
-			)
-			)
-			);
-		}
-		{
-			String tempInstanceName = instanceName + "-presence-detect";
-			handlers.add(new Tuple<String, ChannelHandler>(tempInstanceName, createPresenceDetect(tempInstanceName,
-					properties
-			)
-			)
-			);
-		}
-		{
-			String tempInstanceName = instanceName + "-init";
-			handlers.add(new Tuple<String, ChannelHandler>(tempInstanceName,
-					new ISenseOtapInitHandler(tempInstanceName)
-			)
-			);
-		}
-		{
-			String tempInstanceName = instanceName + "-program";
-			handlers.add(new Tuple<String, ChannelHandler>(tempInstanceName, createOtapProgramHandler(tempInstanceName,
-					properties
-			)
-			)
-			);
-		}
-		{
-			String tempInstanceName = instanceName + "-decoder";
-			handlers.add(new Tuple<String, ChannelHandler>(tempInstanceName, new ISenseOtapPacketDecoder(
-					tempInstanceName
-			)
-			)
-			);
-		}
-		{
-			String tempInstanceName = instanceName + "-encoder";
-			handlers.add(new Tuple<String, ChannelHandler>(tempInstanceName, new ISenseOtapPacketEncoder(
-					tempInstanceName
-			)
-			)
-			);
-		}
+		handlers.add(
+				instanceName + "-automated-handler",
+				new ISenseOtapAutomatedProgrammingHandler(instanceName + "-automated-handler")
+		);
+
+		handlers.add(instanceName + "-presence-detect",
+				createPresenceDetect(instanceName + "-presence-detect", config.getProperties())
+		);
+
+		handlers.add(
+				instanceName + "-init",
+				new ISenseOtapInitHandler(instanceName + "-init")
+		);
+
+		handlers.add(
+				instanceName + "-program",
+				createOtapProgramHandler(instanceName + "-program",
+				config.getProperties())
+		);
+
+		handlers.add(
+				instanceName + "-decoder",
+				new ISenseOtapPacketDecoder(instanceName + "-decoder")
+		);
+
+		handlers.add(
+				instanceName + "-encoder",
+				new ISenseOtapPacketEncoder(instanceName + "-encoder")
+		);
 
 		return handlers;
-	}
 
-	@Override
-	public List<Tuple<String, ChannelHandler>> create(Multimap<String, String> properties) throws Exception {
-		return create(null, properties);
 	}
 
 	@Override

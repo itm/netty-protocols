@@ -24,29 +24,21 @@ package de.uniluebeck.itm.nettyprotocols.isense;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
+import de.uniluebeck.itm.nettyprotocols.ChannelHandlerConfig;
 import de.uniluebeck.itm.nettyprotocols.HandlerFactory;
-import de.uniluebeck.itm.tr.util.Tuple;
-import org.jboss.netty.channel.ChannelHandler;
-
-import javax.annotation.Nullable;
-import java.util.List;
-
-import static com.google.common.collect.Lists.newArrayList;
+import de.uniluebeck.itm.nettyprotocols.NamedChannelHandler;
+import de.uniluebeck.itm.nettyprotocols.NamedChannelHandlerList;
 
 public class ISensePacketUpstreamEncoderFactory implements HandlerFactory {
 
 	@Override
-	public List<Tuple<String, ChannelHandler>> create(@Nullable final String instanceName,
-													  final Multimap<String, String> properties) throws Exception {
-
-		return newArrayList(
-				new Tuple<String, ChannelHandler>(instanceName, new ISensePacketUpstreamEncoder(instanceName))
+	public NamedChannelHandlerList create(final ChannelHandlerConfig config) throws Exception {
+		return new NamedChannelHandlerList(
+				new NamedChannelHandler(
+						config.getInstanceName(),
+						new ISensePacketUpstreamEncoder(config.getInstanceName())
+				)
 		);
-	}
-
-	@Override
-	public List<Tuple<String, ChannelHandler>> create(Multimap<String, String> properties) throws Exception {
-		return create(null, properties);
 	}
 
 	@Override

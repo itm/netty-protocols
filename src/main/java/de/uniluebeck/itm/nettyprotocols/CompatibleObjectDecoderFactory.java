@@ -2,29 +2,17 @@ package de.uniluebeck.itm.nettyprotocols;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
-import de.uniluebeck.itm.tr.util.Tuple;
-import org.jboss.netty.channel.ChannelHandler;
 import org.jboss.netty.handler.codec.serialization.CompatibleObjectDecoder;
-
-import javax.annotation.Nullable;
-import java.util.List;
-
-import static com.google.common.collect.Lists.newArrayList;
 
 public class CompatibleObjectDecoderFactory implements HandlerFactory {
 
 	private static final String RESET_INTERVAL = "resetInterval";
 
 	@Override
-	@SuppressWarnings({"unchecked", "deprecation"})
-	public List<Tuple<String, ChannelHandler>> create(@Nullable final String instanceName,
-													  final Multimap<String, String> properties) throws Exception {
-		return newArrayList(new Tuple<String, ChannelHandler>(instanceName, new CompatibleObjectDecoder()));
-	}
-
-	@Override
-	public List<Tuple<String, ChannelHandler>> create(final Multimap<String, String> properties) throws Exception {
-		return create(null, properties);
+	public NamedChannelHandlerList create(final ChannelHandlerConfig config) throws Exception {
+		return new NamedChannelHandlerList(
+				new NamedChannelHandler(config.getInstanceName(), new CompatibleObjectDecoder())
+		);
 	}
 
 	@Override

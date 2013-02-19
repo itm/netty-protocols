@@ -25,8 +25,10 @@ package de.uniluebeck.itm.nettyprotocols.remoteuart;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
+import de.uniluebeck.itm.nettyprotocols.ChannelHandlerConfig;
 import de.uniluebeck.itm.nettyprotocols.HandlerFactory;
-import de.uniluebeck.itm.tr.util.Tuple;
+import de.uniluebeck.itm.nettyprotocols.NamedChannelHandler;
+import de.uniluebeck.itm.nettyprotocols.NamedChannelHandlerList;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.channel.*;
 import org.jboss.netty.handler.codec.embedder.DecoderEmbedder;
@@ -176,21 +178,20 @@ public class RUPPacketDecoder extends SimpleChannelUpstreamHandler {
 		Set<HandlerFactory> handlerFactories = channelUpstreamHandlerFactories.keySet();
 		List<ChannelUpstreamHandler> channelUpstreamHandlers = Lists.newArrayList();
 
-		int i = 0;
-		for (HandlerFactory handlerFactory : handlerFactories) {
+		for (HandlerFactory factory : handlerFactories) {
 			try {
 				final String randomHandlerName = Integer.toString(new Random().nextInt());
-				final List<Tuple<String, ChannelHandler>> handlerOfCurrentFactory = handlerFactory.create(
+				final NamedChannelHandlerList handlerOfCurrentFactory = factory.create(new ChannelHandlerConfig(
+						factory.getName(),
 						randomHandlerName,
-						channelUpstreamHandlerFactories.get(handlerFactory)
-				);
-				for (Tuple<String, ChannelHandler> tuple : handlerOfCurrentFactory) {
-					channelUpstreamHandlers.add((ChannelUpstreamHandler) tuple.getSecond());
+						channelUpstreamHandlerFactories.get(factory)
+				));
+				for (NamedChannelHandler handler : handlerOfCurrentFactory) {
+					channelUpstreamHandlers.add((ChannelUpstreamHandler) handler.getChannelHandler());
 				}
 			} catch (Exception e) {
-				propagate(e);
+				throw propagate(e);
 			}
-			i++;
 		}
 
 		return channelUpstreamHandlers.toArray(new ChannelUpstreamHandler[channelUpstreamHandlers.size()]);

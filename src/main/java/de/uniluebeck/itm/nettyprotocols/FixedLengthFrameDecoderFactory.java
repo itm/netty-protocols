@@ -2,33 +2,16 @@ package de.uniluebeck.itm.nettyprotocols;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
-import de.uniluebeck.itm.tr.util.Tuple;
-import org.jboss.netty.channel.ChannelHandler;
 import org.jboss.netty.handler.codec.frame.FixedLengthFrameDecoder;
-
-import javax.annotation.Nullable;
-import java.util.List;
-
-import static com.google.common.collect.Lists.newArrayList;
 
 public class FixedLengthFrameDecoderFactory implements HandlerFactory {
 
 	@Override
-	public List<Tuple<String, ChannelHandler>> create(@Nullable final String instanceName,
-													  final Multimap<String, String> properties) throws Exception {
-
-		int frameLength = Integer.parseInt(properties.get("frameLength").iterator().next());
-		return newArrayList(
-				new Tuple<String, ChannelHandler>(
-						instanceName,
-						new FixedLengthFrameDecoder(frameLength)
-				)
+	public NamedChannelHandlerList create(final ChannelHandlerConfig config) throws Exception {
+		int frameLength = Integer.parseInt(config.getProperties().get("frameLength").iterator().next());
+		return new NamedChannelHandlerList(
+				new NamedChannelHandler(config.getInstanceName(), new FixedLengthFrameDecoder(frameLength))
 		);
-	}
-
-	@Override
-	public List<Tuple<String, ChannelHandler>> create(final Multimap<String, String> properties) throws Exception {
-		return create(null, properties);
 	}
 
 	@Override

@@ -2,15 +2,12 @@ package de.uniluebeck.itm.nettyprotocols.discard;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
+import de.uniluebeck.itm.nettyprotocols.ChannelHandlerConfig;
 import de.uniluebeck.itm.nettyprotocols.HandlerFactory;
-import de.uniluebeck.itm.nettyprotocols.util.HandlerFactoryPropertiesHelper;
-import de.uniluebeck.itm.tr.util.Tuple;
-import org.jboss.netty.channel.ChannelHandler;
+import de.uniluebeck.itm.nettyprotocols.NamedChannelHandler;
+import de.uniluebeck.itm.nettyprotocols.NamedChannelHandlerList;
 
-import javax.annotation.Nullable;
-import java.util.List;
-
-import static com.google.common.collect.Lists.newArrayList;
+import static de.uniluebeck.itm.nettyprotocols.util.HandlerFactoryPropertiesHelper.getFirstValueOf;
 
 public class DiscardHandlerFactory implements HandlerFactory {
 
@@ -19,24 +16,15 @@ public class DiscardHandlerFactory implements HandlerFactory {
 	private static final String KEY_DISCARD_DOWNSTREAM = "discardDownstream";
 
 	@Override
-	public List<Tuple<String, ChannelHandler>> create(@Nullable final String instanceName,
-													  final Multimap<String, String> properties)
-			throws Exception {
+	public NamedChannelHandlerList create(final ChannelHandlerConfig config) throws Exception {
 
-		final boolean discardUpstream = HandlerFactoryPropertiesHelper
-				.getFirstValueOf(properties, KEY_DISCARD_UPSTREAM, true);
-		final boolean discardDownstream =
-				HandlerFactoryPropertiesHelper.getFirstValueOf(properties, KEY_DISCARD_DOWNSTREAM, true);
-		;
+		final boolean discardUpstream = getFirstValueOf(config.getProperties(), KEY_DISCARD_UPSTREAM, true);
+		final boolean discardDownstream = getFirstValueOf(config.getProperties(), KEY_DISCARD_DOWNSTREAM, true);
 
-		return newArrayList(
-				new Tuple<String, ChannelHandler>(instanceName, new DiscardHandler(discardUpstream, discardDownstream))
-		);
-	}
-
-	@Override
-	public List<Tuple<String, ChannelHandler>> create(final Multimap<String, String> properties) throws Exception {
-		return create(null, properties);
+		return new NamedChannelHandlerList(new NamedChannelHandler(
+				config.getInstanceName(),
+				new DiscardHandler(discardUpstream, discardDownstream)
+		));
 	}
 
 	@Override

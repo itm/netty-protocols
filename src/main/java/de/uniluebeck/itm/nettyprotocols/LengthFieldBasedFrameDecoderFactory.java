@@ -7,9 +7,6 @@ import de.uniluebeck.itm.tr.util.Tuple;
 import org.jboss.netty.channel.ChannelHandler;
 import org.jboss.netty.handler.codec.frame.LengthFieldBasedFrameDecoder;
 
-import javax.annotation.Nullable;
-import java.util.List;
-
 import static com.google.common.collect.Lists.newArrayList;
 
 public class LengthFieldBasedFrameDecoderFactory implements HandlerFactory {
@@ -25,8 +22,9 @@ public class LengthFieldBasedFrameDecoderFactory implements HandlerFactory {
 	private static final String INITIAL_BYTES_TO_STRIP = "initialBytesToStrip";
 
 	@Override
-	public List<Tuple<String, ChannelHandler>> create(@Nullable final String instanceName,
-													  final Multimap<String, String> properties) throws Exception {
+	public NamedChannelHandlerList create(final ChannelHandlerConfig config) throws Exception {
+
+		final Multimap<String, String> properties = config.getProperties();
 
 		int maxFrameLength = PropertiesHelper.getIntFromProperties(properties, MAX_FRAME_LENGTH);
 		int lengthFieldOffset = PropertiesHelper.getIntFromProperties(properties, LENGTH_FIELD_OFFSET);
@@ -64,12 +62,8 @@ public class LengthFieldBasedFrameDecoderFactory implements HandlerFactory {
 			);
 		}
 
-		return newArrayList(new Tuple<String, ChannelHandler>(instanceName, decoder));
-	}
+		return new NamedChannelHandlerList(new NamedChannelHandler(config.getInstanceName(), decoder));
 
-	@Override
-	public List<Tuple<String, ChannelHandler>> create(final Multimap<String, String> properties) throws Exception {
-		return create(null, properties);
 	}
 
 	@Override

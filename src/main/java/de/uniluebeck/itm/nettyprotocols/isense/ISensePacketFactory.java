@@ -24,29 +24,25 @@ package de.uniluebeck.itm.nettyprotocols.isense;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
+import de.uniluebeck.itm.nettyprotocols.ChannelHandlerConfig;
 import de.uniluebeck.itm.nettyprotocols.HandlerFactory;
-import de.uniluebeck.itm.tr.util.Tuple;
-import org.jboss.netty.channel.ChannelHandler;
-
-import javax.annotation.Nullable;
-import java.util.LinkedList;
-import java.util.List;
+import de.uniluebeck.itm.nettyprotocols.NamedChannelHandler;
+import de.uniluebeck.itm.nettyprotocols.NamedChannelHandlerList;
 
 public class ISensePacketFactory implements HandlerFactory {
 
 	@Override
-	public List<Tuple<String, ChannelHandler>> create(@Nullable final String instanceName,
-													  final Multimap<String, String> properties) throws Exception {
-
-		List<Tuple<String, ChannelHandler>> handlers = new LinkedList<Tuple<String, ChannelHandler>>();
-		handlers.addAll(new ISensePacketDecoderFactory().create(instanceName + "-decoder", properties));
-		handlers.addAll(new ISensePacketEncoderFactory().create(instanceName + "-encoder", properties));
-		return handlers;
-	}
-
-	@Override
-	public List<Tuple<String, ChannelHandler>> create(Multimap<String, String> properties) throws Exception {
-		return create(null, properties);
+	public NamedChannelHandlerList create(final ChannelHandlerConfig config) throws Exception {
+		return new NamedChannelHandlerList(
+				new NamedChannelHandler(
+						config.getInstanceName() + "-decoder",
+						new ISensePacketDecoder(config.getInstanceName() + "-decoder")
+				),
+				new NamedChannelHandler(
+						config.getInstanceName() + "-encoder",
+						new ISensePacketEncoder(config.getInstanceName() + "-encoder")
+				)
+		);
 	}
 
 	@Override

@@ -3,35 +3,23 @@ package de.uniluebeck.itm.nettyprotocols;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import de.uniluebeck.itm.nettyprotocols.util.PropertiesHelper;
-import de.uniluebeck.itm.tr.util.Tuple;
-import org.jboss.netty.channel.ChannelHandler;
 import org.jboss.netty.handler.codec.serialization.ObjectEncoder;
-
-import javax.annotation.Nullable;
-import java.util.List;
-
-import static com.google.common.collect.Lists.newArrayList;
 
 public class ObjectEncoderFactory implements HandlerFactory {
 
 	private static final String ESTIMATED_LENGTH = "estimatedLength";
 
 	@Override
-	public List<Tuple<String, ChannelHandler>> create(@Nullable final String instanceName,
-													  final Multimap<String, String> properties) throws Exception {
+	public NamedChannelHandlerList create(final ChannelHandlerConfig config) throws Exception {
 
+		final Multimap<String, String> properties = config.getProperties();
 		final Integer estimatedLength = PropertiesHelper.getIntFromProperties(properties, ESTIMATED_LENGTH);
 
 		final ObjectEncoder encoder = estimatedLength == null ?
 				new ObjectEncoder() :
 				new ObjectEncoder(estimatedLength);
 
-		return newArrayList(new Tuple<String, ChannelHandler>(instanceName, encoder));
-	}
-
-	@Override
-	public List<Tuple<String, ChannelHandler>> create(final Multimap<String, String> properties) throws Exception {
-		return create(null, properties);
+		return new NamedChannelHandlerList(new NamedChannelHandler(config.getInstanceName(), encoder));
 	}
 
 	@Override
