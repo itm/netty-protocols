@@ -51,4 +51,28 @@ public class ChannelHandlerConfig implements Serializable {
 	public void setProperties(final Multimap<String, String> properties) {
 		this.properties = properties;
 	}
+
+	@Override
+	public boolean equals(final Object o) {
+
+		if (this == o) {
+			return true;
+		}
+		if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
+
+		final ChannelHandlerConfig that = (ChannelHandlerConfig) o;
+
+		return handlerName.equals(that.handlerName) &&
+				instanceName.equals(that.instanceName) &&
+				properties.equals(that.properties);
+	}
+
+	@Override
+	public int hashCode() {
+		int result = handlerName.hashCode();
+		result = 31 * result + instanceName.hashCode();
+		return result;
+	}
 }
