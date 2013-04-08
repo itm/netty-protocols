@@ -75,4 +75,13 @@ public class ChannelHandlerConfig implements Serializable {
 		result = 31 * result + instanceName.hashCode();
 		return result;
 	}
+
+	@Override
+	public String toString() {
+		return "ChannelHandlerConfig{" +
+				"handlerName='" + handlerName + '\'' +
+				", instanceName='" + instanceName + '\'' +
+				", properties=" + properties +
+				"} " + super.toString();
+	}
 }
