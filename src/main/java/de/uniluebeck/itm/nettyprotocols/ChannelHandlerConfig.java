@@ -4,6 +4,8 @@ import com.google.common.collect.Multimap;
 
 import java.io.Serializable;
 
+import static com.google.common.collect.Sets.newHashSet;
+
 public class ChannelHandlerConfig implements Serializable {
 
 	private String handlerName;
@@ -64,9 +66,21 @@ public class ChannelHandlerConfig implements Serializable {
 
 		final ChannelHandlerConfig that = (ChannelHandlerConfig) o;
 
-		return handlerName.equals(that.handlerName) &&
-				instanceName.equals(that.instanceName) &&
-				properties.equals(that.properties);
+		if (!handlerName.equals(that.handlerName) || !instanceName.equals(that.instanceName)) {
+			return false;
+		}
+
+		if (!properties.keySet().equals(that.properties.keySet())) {
+			return false;
+		}
+
+		for (String key : properties.keys()) {
+			if (!newHashSet(properties.get(key)).equals(newHashSet(that.properties.get(key)))) {
+				return false;
+			}
+		}
+
+		return true;
 	}
 
 	@Override
