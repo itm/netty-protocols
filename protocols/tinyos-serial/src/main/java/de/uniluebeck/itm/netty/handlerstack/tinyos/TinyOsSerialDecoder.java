@@ -11,6 +11,12 @@ import org.slf4j.LoggerFactory;
 
 public class TinyOsSerialDecoder extends OneToOneDecoder {
 
+	private static final int PROTO_PACKET_NOACK = 69;
+
+	private static final int PROTO_PACKET_ACK = 68;
+
+	private static final int PROTO_ACK = 67;
+
 	private final Logger log;
 
 	public TinyOsSerialDecoder() {
@@ -32,22 +38,33 @@ public class TinyOsSerialDecoder extends OneToOneDecoder {
 		}
 
 		final byte packetType = encoded.getByte(0);
-		final byte firstByte = encoded.getByte(1);
+		final byte sequenceNumber = encoded.getByte(1);
+
+		int payloadBegin = encoded.readerIndex() + 2;
+		int payloadEnd = encoded.writerIndex() - 2;
+
+		switch (packetType) {
+			case PROTO_PACKET_NOACK:
+				// nothing to do as packet does not need to be acknowledged
+				break;
+			case PROTO_PACKET_ACK:
+				// TODO implement acknowledgment of packet
+				break;
+			case PROTO_ACK:
+				// TODO what to do here?
+				break;
+			default:
+				throw new IllegalArgumentException("TinyOsSerialDecoder received unknown packet type: " + packetType);
+		}
 
 		final ChannelBuffer decoded = ChannelBuffers.buffer(encodedBufferLength - 3);
-
-		decoded.writeByte(firstByte);
-
-		int crcCalculated = 0;
 
 		int crcRead = (encoded.getByte(encoded.readerIndex() + encoded.readableBytes() - 2) & 0xff)
 				| (encoded.getByte(encoded.readerIndex() + encoded.readableBytes() - 1) & 0xff) << 8;
 
+		int crcCalculated = 0;
 		crcCalculated = Crc.calcByte(crcCalculated, packetType);
-		crcCalculated = Crc.calcByte(crcCalculated, firstByte);
-
-		int payloadBegin = encoded.readerIndex() + 2;
-		int payloadEnd = encoded.writerIndex() - 2;
+		crcCalculated = Crc.calcByte(crcCalculated, sequenceNumber);
 
 		byte currentByte;
 		for (int i = payloadBegin; i < payloadEnd; i++) {
@@ -57,7 +74,7 @@ public class TinyOsSerialDecoder extends OneToOneDecoder {
 		}
 
 		if (crcCalculated != crcRead) {
-			log.trace("CRC mismatch, discarding packet {}", encoded);
+			log.warn("CRC mismatch, discarding packet {}", decoded);
 			return null;
 		}
 
