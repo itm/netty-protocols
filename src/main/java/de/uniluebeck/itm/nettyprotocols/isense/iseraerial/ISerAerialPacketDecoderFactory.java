@@ -49,7 +49,7 @@ public class ISerAerialPacketDecoderFactory implements HandlerFactory {
 				+ "coalesenses. The protocol is used on the serial interface between a PC and a sensor node. Any "
 				+ "iSerAerial packet sent to the sensor node will be transmitted via the node's radio interface. Any "
 				+ "packet received by the node via the radio interface is sent via the serial interface to the PC. "
-				+ "Also see https://github.com/itm/netty-handlerstack/wiki/ISerAerial-Protocol-Decoder-Encoder.";
+				+ "Also see https://github.com/itm/netty-protocols/wiki/ISerAerial-Protocol-Decoder-Encoder.";
 	}
 
 	@Override

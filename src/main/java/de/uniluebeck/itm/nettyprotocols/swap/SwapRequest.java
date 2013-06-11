@@ -156,7 +156,7 @@ public class SwapRequest {
 
 		StringBuilder builder = new StringBuilder();
 
-		builder.append("de.uniluebeck.itm.netty.handlerstack.swap.SwapRequest[")
+		builder.append("SwapRequest[")
 				.append("destination=")
 				.append("0x").append(Long.toHexString(destination))
 				.append(",source=")

@@ -53,7 +53,7 @@ public class DleStxEtxFramingFactory implements HandlerFactory {
 	@Override
 	public String getDescription() {
 		return "Both dlestxetx-framing-decoder and dlestxetx-framing-encoder. Also see "
-				+ "https://github.com/itm/netty-handlerstack/wiki/DLESTXETX-Framing-Decoder-Encoder.";
+				+ "https://github.com/itm/netty-protocols/wiki/DLESTXETX-Framing-Decoder-Encoder.";
 	}
 
 	@Override

@@ -50,7 +50,7 @@ public class ISensePacketDownstreamDecoderFactory implements HandlerFactory {
 				+ "An " + ISensePacket.class.getSimpleName() + " is a simple wrapper that exposes a packet as a pair "
 				+ "of packet type (first byte of the packet) and packet payload (remaining bytes of the packet) and "
 				+ "is used internally in various handlers. Also see "
-				+ "https://github.com/itm/netty-handlerstack/wiki/ISense-Framing-Decoder-Encoder.";
+				+ "https://github.com/itm/netty-protocols/wiki/ISense-Framing-Decoder-Encoder.";
 	}
 
 	@Override

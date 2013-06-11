@@ -126,7 +126,7 @@ public class ISenseOtapFactory implements HandlerFactory {
 				+ "from coalesenses wirelessly. The nodes must be in single-hop range of the node that is connected "
 				+ "to this pipeline. The connected sensor must have iSerAerial functionality enabled while the "
 				+ "to-be-programmed devices must be OTAP-capable. Also see "
-				+ "https://github.com/itm/netty-handlerstack/wiki/ISense-over-the-air-programming-Protocol.";
+				+ "https://github.com/itm/netty-protocols/wiki/ISense-over-the-air-programming-Protocol.";
 	}
 
 	@Override

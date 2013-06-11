@@ -101,7 +101,7 @@ public class SwapResponse {
 
 		StringBuilder builder = new StringBuilder();
 
-		builder.append("de.uniluebeck.itm.netty.handlerstack.swap.SwapResponse[")
+		builder.append("SwapResponse[")
 				.append("destination=")
 				.append("0x").append(Long.toHexString(destination))
 				.append(",source=")

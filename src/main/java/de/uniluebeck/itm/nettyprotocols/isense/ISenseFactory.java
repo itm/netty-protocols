@@ -56,7 +56,7 @@ public class ISenseFactory implements HandlerFactory {
 	public String getDescription() {
 		return "Protocol stack for use with the iSense operating system, consisting of dlestxetx-framing-decoder and "
 				+ "dlestxetx-framing-encoder. Also see "
-				+ "https://github.com/itm/netty-handlerstack/wiki/DLESTXETX-Framing-Decoder-Encoder.";
+				+ "https://github.com/itm/netty-protocols/wiki/DLESTXETX-Framing-Decoder-Encoder.";
 	}
 
 	@Override
