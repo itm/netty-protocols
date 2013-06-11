@@ -60,5 +60,7 @@ public class NettyProtocolsModule extends AbstractModule {
 		setBinder.addBinding().to(TinyOsSerialFactory.class);
 		setBinder.addBinding().to(ZlibDecoderFactory.class);
 		setBinder.addBinding().to(ZlibEncoderFactory.class);
+
+		bind(HandlerFactoryMap.class).to(HandlerFactoryMapImpl.class);
 	}
 }
