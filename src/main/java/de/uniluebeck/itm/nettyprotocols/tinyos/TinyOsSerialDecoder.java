@@ -8,13 +8,11 @@ import org.jboss.netty.handler.codec.oneone.OneToOneDecoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static de.uniluebeck.itm.nettyprotocols.tinyos.TinyOsSerial.PROTO_ACK;
+import static de.uniluebeck.itm.nettyprotocols.tinyos.TinyOsSerial.PROTO_PACKET_ACK;
+import static de.uniluebeck.itm.nettyprotocols.tinyos.TinyOsSerial.PROTO_PACKET_NOACK;
+
 public class TinyOsSerialDecoder extends OneToOneDecoder {
-
-	private static final int PROTO_PACKET_NOACK = 69;
-
-	private static final int PROTO_PACKET_ACK = 68;
-
-	private static final int PROTO_ACK = 67;
 
 	private final Logger log;
 
