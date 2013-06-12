@@ -46,7 +46,8 @@ public class NettyStringUtils {
                 s.append(' ');
             }
             s.append("0x");
-            s.append(Integer.toHexString(channelBuffer.getByte(i) & 0xFF));
+			final String hexString = Integer.toHexString(channelBuffer.getByte(i) & 0xFF);
+			s.append(hexString.length() == 1 ? "0"+ hexString : hexString);
         }
         return s.toString();
     }

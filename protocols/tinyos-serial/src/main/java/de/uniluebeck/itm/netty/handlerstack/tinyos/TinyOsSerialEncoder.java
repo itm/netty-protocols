@@ -9,6 +9,8 @@ import org.jboss.netty.handler.codec.oneone.OneToOneEncoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static de.uniluebeck.itm.netty.handlerstack.tinyos.TinyOsSerial.TYPE_ACTIVE_MESSAGE;
+
 public class TinyOsSerialEncoder extends OneToOneEncoder {
 
 	private static final int PACKET_TYPE = 0x45 & 0xFF;
@@ -28,21 +30,19 @@ public class TinyOsSerialEncoder extends OneToOneEncoder {
 
 		final ChannelBuffer decoded = (ChannelBuffer) msg;
 		final int decodedLength = decoded.readableBytes();
-		final ChannelBuffer encoded = ChannelBuffers.buffer(decodedLength + 3);
+		final ChannelBuffer encoded = ChannelBuffers.buffer(decodedLength + 4);
 
 		int crc = 0;
 
 		encoded.writeByte(PACKET_TYPE);
-
-		final byte firstByte = decoded.readByte();
-		encoded.writeByte(firstByte);
+		encoded.writeByte(TYPE_ACTIVE_MESSAGE);
 
 		crc = Crc.calcByte(crc, PACKET_TYPE);
-		crc = Crc.calcByte(crc, firstByte);
+		crc = Crc.calcByte(crc, TYPE_ACTIVE_MESSAGE);
 
 		byte currentByte;
 
-		for (int i = 1; i < decodedLength; i++) {
+		for (int i = 0; i < decodedLength; i++) {
 
 			currentByte = decoded.readByte();
 			encoded.writeByte(currentByte);
