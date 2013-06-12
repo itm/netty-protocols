@@ -17,10 +17,10 @@ public class TinyOsFactory implements HandlerFactory {
 													  final Multimap<String, String> properties) throws Exception {
 
 		List<Tuple<String, ChannelHandler>> handlers = new LinkedList<Tuple<String, ChannelHandler>>();
-		handlers.addAll(new HdlcTranslateDecoderFactory().create(instanceName + "-tinyos-hdlctranslate-decoder", properties));
-		handlers.addAll(new HdlcTranslateEncoderFactory().create(instanceName + "-tinyos-hdlctranslate-encoder", properties));
 		handlers.addAll(new TinyOsSerialDecoderFactory().create(instanceName + "-tinyos-serial-decoder", properties));
 		handlers.addAll(new TinyOsSerialEncoderFactory().create(instanceName + "-tinyos-serial-encoder", properties));
+		handlers.addAll(new HdlcTranslateDecoderFactory().create(instanceName + "-tinyos-hdlctranslate-decoder", properties));
+		handlers.addAll(new HdlcTranslateEncoderFactory().create(instanceName + "-tinyos-hdlctranslate-encoder", properties));
 		return handlers;
 	}
 
