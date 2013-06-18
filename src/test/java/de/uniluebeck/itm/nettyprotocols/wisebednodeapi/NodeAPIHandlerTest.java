@@ -13,7 +13,7 @@ import de.uniluebeck.itm.nettyprotocols.wisebednodeapi.packet.interaction.*;
 import de.uniluebeck.itm.nettyprotocols.wisebednodeapi.packet.linkcontrol.*;
 import de.uniluebeck.itm.nettyprotocols.wisebednodeapi.packet.networkdescription.*;
 import de.uniluebeck.itm.nettyprotocols.wisebednodeapi.packet.nodecontrol.*;
-import de.uniluebeck.itm.tr.util.TimedCache;
+import de.uniluebeck.itm.util.TimedCache;
 import org.jboss.netty.buffer.ChannelBuffers;
 import org.jboss.netty.channel.*;
 import org.junit.Assert;

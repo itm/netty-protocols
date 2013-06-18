@@ -2,7 +2,7 @@ package de.uniluebeck.itm.nettyprotocols.tinyos;
 
 import org.jboss.netty.buffer.ChannelBuffer;
 
-import static de.uniluebeck.itm.tr.util.StringUtils.fromStringToByteArray;
+import static de.uniluebeck.itm.util.StringUtils.fromStringToByteArray;
 import static org.jboss.netty.buffer.ChannelBuffers.wrappedBuffer;
 
 public interface TinyOsSerialTestConstants {

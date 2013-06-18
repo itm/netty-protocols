@@ -23,7 +23,7 @@
 
 package de.uniluebeck.itm.nettyprotocols.isense.otap;
 
-import de.uniluebeck.itm.tr.util.FileUtils;
+import de.uniluebeck.itm.util.files.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

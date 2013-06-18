@@ -22,7 +22,7 @@
  */
 package de.uniluebeck.itm.nettyprotocols.util;
 
-import de.uniluebeck.itm.tr.util.TimeDiff;
+import de.uniluebeck.itm.util.TimeDiff;
 import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.TimeUnit;

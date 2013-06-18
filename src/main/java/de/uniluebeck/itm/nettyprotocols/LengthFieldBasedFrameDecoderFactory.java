@@ -3,8 +3,6 @@ package de.uniluebeck.itm.nettyprotocols;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import de.uniluebeck.itm.nettyprotocols.util.PropertiesHelper;
-import de.uniluebeck.itm.tr.util.Tuple;
-import org.jboss.netty.channel.ChannelHandler;
 import org.jboss.netty.handler.codec.frame.LengthFieldBasedFrameDecoder;
 
 import static com.google.common.collect.Lists.newArrayList;

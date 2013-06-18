@@ -29,7 +29,7 @@ import de.uniluebeck.itm.nettyprotocols.isense.otap.ISenseOtapPacket;
 import de.uniluebeck.itm.nettyprotocols.isense.otap.generatedmessages.OtapProgramReply;
 import de.uniluebeck.itm.nettyprotocols.isense.otap.generatedmessages.OtapProgramRequest;
 import de.uniluebeck.itm.nettyprotocols.util.HandlerTools;
-import de.uniluebeck.itm.tr.util.TimeDiff;
+import de.uniluebeck.itm.util.TimeDiff;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.LifeCycleAwareChannelHandler;
 import org.jboss.netty.channel.MessageEvent;

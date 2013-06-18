@@ -23,7 +23,7 @@
 package de.uniluebeck.itm.nettyprotocols;
 
 import com.google.common.collect.Multimap;
-import de.uniluebeck.itm.tr.util.Tuple;
+import de.uniluebeck.itm.util.Tuple;
 import org.jboss.netty.channel.ChannelHandler;
 
 import java.util.List;

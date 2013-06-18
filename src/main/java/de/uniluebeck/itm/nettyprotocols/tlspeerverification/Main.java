@@ -1,7 +1,7 @@
 package de.uniluebeck.itm.nettyprotocols.tlspeerverification;
 
 import de.uniluebeck.itm.nettyprotocols.logging.LoggingHandler;
-import org.apache.log4j.*;
+import de.uniluebeck.itm.util.logging.Logging;
 import org.jboss.netty.bootstrap.ClientBootstrap;
 import org.jboss.netty.bootstrap.ServerBootstrap;
 import org.jboss.netty.channel.*;
@@ -27,6 +27,10 @@ import java.security.cert.X509Certificate;
 import java.util.concurrent.Executors;
 
 public class Main {
+
+	static {
+		Logging.setLoggingDefaults();
+	}
 
 	static class PipelineFactory implements ChannelPipelineFactory {
 
@@ -107,23 +111,8 @@ public class Main {
 		return future.awaitUninterruptibly().getChannel();
 	}
 
-	private static void configureLoggingDefaults() {
-		PatternLayout patternLayout = new PatternLayout("%-13d{HH:mm:ss,SSS} | %-25.25c{2} | %-5p | %m%n");
+	public static void main(String[] args) throws Exception {
 
-		final Appender appender = new ConsoleAppender(patternLayout);
-		Logger.getRootLogger().removeAllAppenders();
-		Logger.getRootLogger().addAppender(appender);
-		Logger.getRootLogger().setLevel(Level.DEBUG);
-	}
-
-	/**
-	 * @param args
-	 *
-	 * @throws Exception
-	 * @throws CertificateException
-	 */
-	public static void main(String[] args) throws CertificateException, Exception {
-		configureLoggingDefaults();
 		ChannelGroup allChannels = new DefaultChannelGroup();
 
 		ClientBootstrap clientBootstrap =
@@ -154,7 +143,7 @@ public class Main {
 			allChannels.add(startClient(clientBootstrap, "localhost", port));
 		}
 
-		// Read commands from the stdin.
+		// Read commands from stdin
 		for (BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
 			 !"exit".equals(in.readLine()); ) {
 			System.out.println("Please enter exit to quit.");

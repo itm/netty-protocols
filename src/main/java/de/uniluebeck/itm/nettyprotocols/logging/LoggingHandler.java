@@ -22,7 +22,7 @@
  */
 package de.uniluebeck.itm.nettyprotocols.logging;
 
-import de.uniluebeck.itm.tr.util.StringUtils;
+import de.uniluebeck.itm.util.StringUtils;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.channel.*;
 import org.slf4j.Logger;

@@ -27,7 +27,7 @@ import de.uniluebeck.itm.nettyprotocols.isense.otap.ISenseOtapDevice;
 import de.uniluebeck.itm.nettyprotocols.isense.otap.generatedmessages.PresenceDetectReply;
 import de.uniluebeck.itm.nettyprotocols.isense.otap.generatedmessages.PresenceDetectRequest;
 import de.uniluebeck.itm.nettyprotocols.util.HandlerTools;
-import de.uniluebeck.itm.tr.util.TimedCache;
+import de.uniluebeck.itm.util.TimedCache;
 import org.jboss.netty.channel.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

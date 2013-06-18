@@ -22,7 +22,7 @@
  */
 package de.uniluebeck.itm.nettyprotocols.isense.otap;
 
-import de.uniluebeck.itm.tr.util.TimeDiff;
+import de.uniluebeck.itm.util.TimeDiff;
 
 /**
  * @author Dennis Pfisterer

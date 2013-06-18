@@ -23,7 +23,7 @@
 package de.uniluebeck.itm.nettyprotocols.remoteuart;
 
 import com.google.common.base.Preconditions;
-import de.uniluebeck.itm.tr.util.StringUtils;
+import de.uniluebeck.itm.util.StringUtils;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBuffers;
 

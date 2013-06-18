@@ -1,6 +1,6 @@
 package de.uniluebeck.itm.nettyprotocols.util;
 
-import de.uniluebeck.itm.tr.util.StringUtils;
+import de.uniluebeck.itm.util.StringUtils;
 import org.simpleframework.xml.transform.Transform;
 
 public class HexStringIntegerTransform implements Transform<Integer> {

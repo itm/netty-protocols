@@ -25,7 +25,7 @@ package de.uniluebeck.itm.nettyprotocols.remoteuart;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import de.uniluebeck.itm.nettyprotocols.isense.ISensePacket;
-import de.uniluebeck.itm.tr.util.TimeDiff;
+import de.uniluebeck.itm.util.TimeDiff;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.MessageEvent;

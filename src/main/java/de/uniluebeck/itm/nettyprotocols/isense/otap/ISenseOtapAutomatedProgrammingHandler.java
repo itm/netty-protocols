@@ -32,8 +32,8 @@ import de.uniluebeck.itm.nettyprotocols.isense.otap.presencedetect.PresenceDetec
 import de.uniluebeck.itm.nettyprotocols.isense.otap.program.ISenseOtapProgramRequest;
 import de.uniluebeck.itm.nettyprotocols.isense.otap.program.ISenseOtapProgramResult;
 import de.uniluebeck.itm.nettyprotocols.util.HandlerTools;
-import de.uniluebeck.itm.tr.util.StringUtils;
-import de.uniluebeck.itm.tr.util.TimeDiff;
+import de.uniluebeck.itm.util.StringUtils;
+import de.uniluebeck.itm.util.TimeDiff;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.LifeCycleAwareChannelHandler;
 import org.jboss.netty.channel.MessageEvent;

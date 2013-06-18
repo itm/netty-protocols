@@ -22,7 +22,7 @@
  */
 package de.uniluebeck.itm.nettyprotocols.util;
 
-import de.uniluebeck.itm.tr.util.Triple;
+import de.uniluebeck.itm.util.Triple;
 import org.jboss.netty.channel.ChannelFuture;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.DownstreamMessageEvent;
