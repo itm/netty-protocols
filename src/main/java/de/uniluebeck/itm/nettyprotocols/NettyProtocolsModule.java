@@ -28,6 +28,7 @@ public class NettyProtocolsModule extends AbstractModule {
 		setBinder.addBinding().to(CompatibleObjectDecoderFactory.class);
 		setBinder.addBinding().to(CompatibleObjectEncoderFactory.class);
 		setBinder.addBinding().to(ContikiHandlerFactory.class);
+		setBinder.addBinding().to(DelimiterBasedFrameDecoderFactory.class);
 		setBinder.addBinding().to(DiscardHandlerFactory.class);
 		setBinder.addBinding().to(DleStxEtxFramingDecoderFactory.class);
 		setBinder.addBinding().to(DleStxEtxFramingEncoderFactory.class);
