@@ -7,7 +7,7 @@
 	<name>Netty Protocols</name>
 	<groupId>de.uniluebeck.itm.netty-protocols</groupId>
 	<artifactId>netty-protocols</artifactId>
-	<version>1.8-SNAPSHOT</version>
+	<version>1.8</version>
 
 	<packaging>jar</packaging>
 
@@ -169,7 +169,8 @@
 
 	<scm>
 		<connection>scm:git:git@github.com:itm/netty-protocols.git</connection>
-	</scm>
+	  <tag>v1.8</tag>
+  </scm>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
