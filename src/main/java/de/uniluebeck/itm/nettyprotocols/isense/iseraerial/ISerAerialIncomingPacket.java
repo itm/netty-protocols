@@ -42,6 +42,9 @@ public class ISerAerialIncomingPacket {
 	 *
 	 * @param buffer
 	 * 		the backing buffer
+	 *
+	 * @throws Exception
+	 * 		if either packet is too short or the first byte is wrong
 	 */
 	public ISerAerialIncomingPacket(ChannelBuffer buffer) throws Exception {
 

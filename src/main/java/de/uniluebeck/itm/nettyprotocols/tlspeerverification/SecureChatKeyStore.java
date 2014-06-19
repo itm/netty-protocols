@@ -19,10 +19,13 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 
 /**
+ * <p>
  * A bogus key store which provides all the required information to
  * create an example SSL connection.
- * <p/>
+ * </p>
+ * <p>
  * To generate a bogus key store:
+ * </p>
  * <pre>
  * keytool  -genkey -alias securechat -keysize 2048 -validity 36500
  *          -keyalg RSA -dname "CN=securechat"

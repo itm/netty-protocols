@@ -57,6 +57,8 @@ public class ISerAerialOutgoingPacket {
 
 	/**
 	 * Returns the (unmodifiable) buffer that backs this packet
+	 *
+	 * @return the backing buffer
 	 */
 	public ChannelBuffer getBuffer() {
 		return ChannelBuffers.unmodifiableBuffer(buffer);

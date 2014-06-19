@@ -61,11 +61,13 @@ public class RUPHelper {
 	}
 
 	/**
-	 * Checks if the {@code iSensePacket} contains a Remote UART packet.
-	 * <p/>
-	 * {@code iSensePacket} contains a Remote UART packet if it is of type {@link de.uniluebeck.itm.nettyprotocols.isense.ISensePacketType#PLOT} and if the first
+	 * <p>Checks if the {@code iSensePacket} contains a Remote UART packet.</p>
+	 * <p>
+	 * {@code iSensePacket} contains a Remote UART packet if it is of type
+	 * {@link de.uniluebeck.itm.nettyprotocols.isense.ISensePacketType#PLOT} and if the first
 	 * byte of its payload is one of {@link RUPPacket.Type#MESSAGE}, {@link RUPPacket.Type#SINK_REQUEST} or
 	 * {@link RUPPacket.Type#SINK_RESPONSE}.
+	 * </p>
 	 *
 	 * @param packet
 	 * 		the packet

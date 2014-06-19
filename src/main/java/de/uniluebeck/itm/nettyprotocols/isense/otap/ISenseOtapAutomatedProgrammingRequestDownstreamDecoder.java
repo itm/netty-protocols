@@ -9,7 +9,7 @@ import org.jboss.netty.channel.ChannelHandlerContext;
 /**
  * This OneToOneEncoder "decodes" a byte array to an ISenseOtapAutomatedProgrammingRequest object. It is intended to be
  * used in a downstream filter pipeline which receives programming requests. The serialized object must contain the
- * String {@link this#header} and then immediately afterwards the XML-serialized object (using
+ * String and then immediately afterwards the XML-serialized object (using
  * {@link java.beans.XMLEncoder}).
  */
 public class ISenseOtapAutomatedProgrammingRequestDownstreamDecoder extends OneToOneDownstreamDecoder {

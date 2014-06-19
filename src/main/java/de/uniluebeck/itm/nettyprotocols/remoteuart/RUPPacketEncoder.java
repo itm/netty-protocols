@@ -136,13 +136,16 @@ public class RUPPacketEncoder extends SimpleChannelDownstreamHandler {
 	private Map<Long, Fragmenter> fragmenters = Maps.newHashMap();
 
 	/**
+	 * <p>
 	 * Constructs a new RUPFragmentEncoder with a maximum fragment size (including 19 bytes RUP packet headers) of
 	 * {@code maximumFragmentSize}. The maximum fragment size is depending on the actual protocol stack that is used
 	 * for the current application, therefore it cannot be statically defined but differs from application to
 	 * application.
-	 * <p/>
+	 * </p>
+	 * <p>
 	 * <i>Please note:</i> Another 19 bytes will be used for RUP headers and another 4 bytes will be used for
 	 * DLE STX ... ETX encoding that frames the fragmented payload.
+	 * </p>
 	 *
 	 * @param maximumFragmentSize
 	 * 		the maximum fragment size (including 19 bytes of packet headers)

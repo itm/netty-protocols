@@ -37,6 +37,9 @@ public class ISerAerialConfirmPacket {
 	 *
 	 * @param buffer
 	 * 		the backing buffer
+	 *
+	 * @throws Exception
+	 * 		if either packet size or type byte is wrong
 	 */
 	public ISerAerialConfirmPacket(ChannelBuffer buffer) throws Exception {
 

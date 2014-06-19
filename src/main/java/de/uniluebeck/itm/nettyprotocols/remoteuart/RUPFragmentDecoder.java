@@ -39,12 +39,9 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Decoder for the Remote UART Protocol (RUP) that can decode RUP packet
- * fragments out of either a ChannelBuffer or an ISensePacket. Also, this
- * decoder makes sure the packet order is correct according to the sequence
- * number for a given window of number of packets and/or time.
- * <p/>
- * // TODO implement time based window
+ * Decoder for the Remote UART Protocol (RUP) that can decode RUP packet fragments out of either a ChannelBuffer or an
+ * ISensePacket. Also, this decoder makes sure the packet order is correct according to the sequence number for a given
+ * window of number of packets and/or time.
  */
 public class RUPFragmentDecoder extends SimpleChannelUpstreamHandler {
 
