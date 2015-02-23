@@ -32,11 +32,17 @@
 				<artifactId>ieee-802.15.4-aes</artifactId>
 				<version>0.5-SNAPSHOT</version>
 			</dependency>
-			<dependency>
-				<groupId>org.slf4j</groupId>
-				<artifactId>slf4j-api</artifactId>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
                 <version>[1.7,1.8)</version>
-			</dependency>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-log4j12</artifactId>
+                <version>[1.7,1.8)</version>
+                <scope>test</scope>
+            </dependency>
 			<dependency>
 				<groupId>org.simpleframework</groupId>
 				<artifactId>simple-xml</artifactId>

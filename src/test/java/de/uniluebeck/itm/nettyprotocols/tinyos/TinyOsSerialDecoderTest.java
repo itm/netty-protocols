@@ -1,5 +1,7 @@
 package de.uniluebeck.itm.nettyprotocols.tinyos;
 
+import de.uniluebeck.itm.util.logging.LogLevel;
+import de.uniluebeck.itm.util.logging.Logging;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -8,6 +10,10 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 public class TinyOsSerialDecoderTest implements TinyOsSerialTestConstants {
+
+    static {
+        Logging.setLoggingDefaults(LogLevel.WARN);
+    }
 
     private TinyOsSerialDecoder decoderTinyOs;
 
