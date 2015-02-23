@@ -21,6 +21,11 @@ public class TinyOsSerialDecoderTest implements TinyOsSerialTestConstants {
     @Before
     public void setUp() throws Exception {
         decoderTinyOs = new TinyOsSerialDecoder();
+
+        DECODED_PACKET_1.resetReaderIndex();
+        DECODED_PACKET_2.resetReaderIndex();
+        DECODED_PACKET_3.resetReaderIndex();
+        DECODED_PACKET_4.resetReaderIndex();
     }
 
     @After
