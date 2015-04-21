@@ -15,22 +15,22 @@
 			<dependency>
 				<groupId>de.uniluebeck.itm.util</groupId>
 				<artifactId>files</artifactId>
-				<version>0.8-SNAPSHOT</version>
+				<version>0.8</version>
 			</dependency>
 			<dependency>
 				<groupId>de.uniluebeck.itm.util</groupId>
 				<artifactId>logging</artifactId>
-				<version>0.8-SNAPSHOT</version>
+				<version>0.8</version>
 			</dependency>
 			<dependency>
 				<groupId>de.uniluebeck.itm.util</groupId>
 				<artifactId>util</artifactId>
-				<version>0.8-SNAPSHOT</version>
+				<version>0.8</version>
 			</dependency>
 			<dependency>
 				<groupId>com.coalesenses</groupId>
 				<artifactId>ieee-802.15.4-aes</artifactId>
-				<version>0.5-SNAPSHOT</version>
+				<version>0.5</version>
 			</dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
