@@ -31,6 +31,7 @@ import org.jboss.netty.handler.codec.embedder.DecoderEmbedder;
 import org.jboss.netty.util.internal.ExecutorUtil;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.Map;
@@ -39,6 +40,7 @@ import java.util.concurrent.ScheduledExecutorService;
 
 import static org.junit.Assert.*;
 
+@Ignore
 public class RUPPacketDecoderTest extends RUPPacketDecoderTestBase {
 
 	private DecoderEmbedder<RUPPacket> decoder;
